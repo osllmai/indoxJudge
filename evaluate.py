@@ -1,18 +1,18 @@
 from typing import List
 from loguru import logger
 import sys
-from indox.IndoxEval.faithfulness.faithfulness import Faithfulness
-from indox.IndoxEval.answer_relevancy.answerRelevancy import AnswerRelevancy
-from indox.IndoxEval.bias.bias import Bias
-from indox.IndoxEval.contextual_relevancy.contextualRelevancy import ContextualRelevancy
-from indox.IndoxEval.g_eval.geval import GEval
-from indox.IndoxEval.hallucination.hallucination import Hallucination
-from indox.IndoxEval.knowledge_retention.KnowledgeRetention import KnowledgeRetention
-from indox.IndoxEval.toxicity.toxicity import Toxicity
-from indox.IndoxEval.bertscore.bertscore import BertScore
-from indox.IndoxEval.bleu.bleu import BLEU
-from indox.IndoxEval.rouge.rouge import Rouge
-from indox.IndoxEval.meteor.meteor import METEOR
+from metrics.faithfulness.faithfulness import Faithfulness
+from metrics.answer_relevancy.answerRelevancy import AnswerRelevancy
+from metrics.bias.bias import Bias
+from metrics.contextual_relevancy.contextualRelevancy import ContextualRelevancy
+from metrics.g_eval.geval import GEval
+from metrics.hallucination.hallucination import Hallucination
+from metrics.knowledge_retention.KnowledgeRetention import KnowledgeRetention
+from metrics.toxicity.toxicity import Toxicity
+from metrics.bertscore.bertscore import BertScore
+from metrics.bleu.bleu import BLEU
+from metrics.rouge.rouge import Rouge
+from metrics.meteor.meteor import METEOR
 
 # Set up logging
 logger.remove()  # Remove the default logger
