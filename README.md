@@ -124,22 +124,6 @@ print(faithfulness_result)
       "The Mediterranean diet has been associated with a reduced risk of Alzheimer's disease.",
       "The Mediterranean diet promotes longevity and overall well-being."
     ],
-    "verdicts": [
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None},
-      {"verdict": "yes", "reason": None}
-    ],
     "reason": "The score is 1.0 because the 'actual output' aligns perfectly with the information presented in the 'retrieval context', showcasing the health benefits, disease risk reduction, cognitive function improvement, and overall well-being promotion of the Mediterranean diet."
   }
 }
