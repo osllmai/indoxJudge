@@ -94,10 +94,14 @@ class Evaluator:
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
                 elif isinstance(metric, ContextualRelevancy):
+                    # Set the language model if not already set
                     irrelevancies = metric.get_irrelevancies(metric.query, metric.retrieval_contexts)
                     metric.set_irrelevancies(irrelevancies)
                     verdicts = metric.get_verdicts(metric.query, metric.retrieval_contexts)
-                    reason = metric.get_reason(irrelevancies, metric.score)
+                    # Determine the score, e.g., based on the number of relevant contexts
+                    score = 1.0 if not irrelevancies else max(0,
+                                   1.0 - len(irrelevancies) / len(metric.retrieval_contexts))
+                    reason = metric.get_reason(irrelevancies, score)
                     results['contextual_relevancy'] = {
                         'verdicts': [verdict.dict() for verdict in verdicts.verdicts],
                         'reason': reason.dict()

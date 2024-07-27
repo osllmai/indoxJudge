@@ -33,28 +33,32 @@ JSON:
     def generate_verdict(query: str, context: str) -> str:
         return f"""Based on the input and context, please generate a JSON object to indicate whether the context 
         is relevant to the provided input. The JSON will have 1 mandatory field: 'verdict', and 1 optional field: 'reason'.
-The 'verdict' key should STRICTLY be either 'yes' or 'no', and states whether the context is relevant to the input. 
-Provide a 'reason' ONLY IF verdict is no. You MUST quote the irrelevant parts of the context to back up your reason.
+    The 'verdict' key should STRICTLY be either 'yes' or 'no', and states whether the context is relevant to the input. 
+    Provide a 'reason' explaining your choice. If the verdict is 'no', you MUST quote the irrelevant parts of the context 
+    to back up your reason. If the verdict is 'yes', explain why the context is relevant.
 
-**
-IMPORTANT: Please make sure to only return in JSON format.
-Example Context: "Einstein won the Nobel Prize for his discovery of the photoelectric effect. He won the Nobel Prize in 
-1968. There was a cat."
-Example Input: "When what was some of Einstein's achievements?"
+    **
+    IMPORTANT: Please make sure to only return in JSON format.
+    Example Context: "Einstein won the Nobel Prize for his discovery of the photoelectric effect. He won the Nobel Prize in 
+    1968. There was a cat."
+    Example Input: "When what was some of Einstein's achievements?"
 
-Example:
-{{
-    "verdict": "no",
-    "reason": "Although the context contains information about Einstein winning the Nobel Prize, it irrelevantly includes 
-    'There was a cat' when it has nothing to do with Einstein's achievements."
-}}
-**
+    Example:
+    {{
+        "verdict": "no",
+        "reason": "Although the context contains information about Einstein winning the Nobel Prize, it irrelevantly includes 
+        'There was a cat' when it has nothing to do with Einstein's achievements."
+    }},
+    {{
+        "verdict": "yes",
+        "reason": "The context is relevant because it mentions Einstein's Nobel Prize for his discovery of the photoelectric effect, which is a significant achievement."
+    }}
 
-Input:
-{query}
+    Input:
+    {query}
 
-Context:
-{context}
+    Context:
+    {context}
 
-JSON:
-"""
+    JSON:
+    """
