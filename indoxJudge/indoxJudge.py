@@ -13,7 +13,7 @@ from .metrics import BertScore
 from .metrics import BLEU
 from .metrics import Rouge
 from .metrics import METEOR
-
+from .metrics import Gruen
 # Set up logging
 logger.remove()  # Remove the default logger
 logger.add(sys.stdout,
@@ -150,6 +150,11 @@ class Evaluator:
                 elif isinstance(metric, METEOR):
                     score = metric.measure()
                     results['Meteor'] = {
+                        'score': score
+                    }
+                elif isinstance(metric, Gruen):
+                    score = metric.measure()
+                    results['Gruen'] = {
                         'score': score
                     }
                 logger.info(f"Completed evaluation for metric: {metric_name}")
