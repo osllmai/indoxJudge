@@ -52,7 +52,8 @@ class BertScore:
 Here is an example of how to use the `BertScore` class:
 
 ```python
-from indox.IndoxEval import BertScore, Evaluator
+from indoxJudge.metrics import BertScore
+from indoxJudge import Evaluator
 
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."

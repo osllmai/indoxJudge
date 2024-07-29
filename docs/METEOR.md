@@ -38,7 +38,8 @@ class METEOR:
 Here is an example of how to use the `METEOR` class:
 
 ```python
-from indox.IndoxEval import METEOR, Evaluator
+from indoxJudge.metrics import METEOR
+from indoxJudge import Evaluator
 
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."

@@ -35,7 +35,8 @@ class Gruen:
 Here is an example of how to use the `Gruen` class:
 
 ```python
-from indox.IndoxEval import Gruen, Evaluator
+from indoxJudge.metrics import Gruen
+from indoxJudge import Evaluator
 
 # Define sample candidate texts
 candidates = [

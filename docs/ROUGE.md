@@ -42,7 +42,8 @@ class Rouge:
 Here is an example of how to use the `Rouge` class:
 
 ```python
-from indox.IndoxEval import Rouge, Evaluator
+from indoxJudge.metrics import Rouge
+from indoxJudge import Evaluator
 
 # Define a sample response and context"
 retrieval_context = [
