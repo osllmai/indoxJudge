@@ -36,8 +36,9 @@ Here is an example of how to use the `Faithfulness` class:
 ```python
 import os
 from dotenv import load_dotenv
-from indox.IndoxEval.llms import OpenAi
-from indox.IndoxEval import Faithfulness, Evaluator
+from indoxJudge.models import OpenAi
+from indoxJudge.metrics import Faithfulness
+from indoxJudge import Evaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
