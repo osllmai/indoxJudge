@@ -13,8 +13,7 @@ from .metrics import BertScore
 from .metrics import BLEU
 from .metrics import Rouge
 from .metrics import METEOR
-import json
-
+from .metrics import Gruen
 # Set up logging
 logger.remove()  # Remove the default logger
 logger.add(sys.stdout,
@@ -170,7 +169,7 @@ class Evaluator:
                     results['Meteor'] = {
                         'score': score
                     }
-                    self.score["Meteor"] = score
+
                 logger.info(f"Completed evaluation for metric: {metric_name}")
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
