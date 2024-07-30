@@ -69,8 +69,9 @@ Here is an example of how to use the `GEval` class:
 ```python
 import os
 from dotenv import load_dotenv
-from indox.IndoxEval.llms import OpenAi
-from indox.IndoxEval import GEval, Evaluator
+from indoxJudge.models import OpenAi
+from indoxJudge.metrics import GEval
+from indoxJudge import Evaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -97,5 +98,5 @@ geval_metric = GEval(
 
 # Create an evaluator with the GEval metric
 evaluator = Evaluator(model=llm, metrics=[geval_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

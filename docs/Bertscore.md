@@ -12,11 +12,6 @@ The `BertScore` class is initialized with the following parameters:
 - **max_length**: The maximum length of input sequences to be processed by the model.
 
 ```python
-import torch
-from transformers import AutoTokenizer, AutoModel
-import numpy as np
-from typing import Union, List, Dict
-
 class BertScore:
     def __init__(
         self,

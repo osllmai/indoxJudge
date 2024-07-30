@@ -11,11 +11,6 @@ The `Rouge` class is initialized with the following parameters:
 - **n**: The size of the n-grams to use for evaluation (e.g., 1 for unigrams, 2 for bigrams, etc.).
 
 ```python
-from collections import Counter
-from typing import Union, List, Tuple, Dict
-import numpy as np
-from indox.IndoxEval.utils import TextPreprocessor
-
 class Rouge:
     def __init__(
         self, llm_response: str, retrieval_context: Union[str, List[str]], n: int = 1

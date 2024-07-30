@@ -45,8 +45,9 @@ Here is an example of how to use the `KnowledgeRetention` class:
 ```python
 import os
 from dotenv import load_dotenv
-from indox.IndoxEval.llms import OpenAi
-from indox.IndoxEval import KnowledgeRetention, Evaluator
+from indoxJudge.models import OpenAi
+from indoxJudge.metrics import KnowledgeRetention
+from indoxJudge import Evaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -70,5 +71,5 @@ knowledge_retention_metric = KnowledgeRetention(
 
 # Create an evaluator with the KnowledgeRetention metric
 evaluator = Evaluator(model=llm, metrics=[knowledge_retention_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

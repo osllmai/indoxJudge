@@ -12,12 +12,6 @@ The `BLEU` class is initialized with the following parameters:
 - **remove_repeating_ngrams**: Option to remove repeating n-grams from consideration.
 
 ```python
-import numpy as np
-import math
-from collections import Counter
-from typing import List, Union
-from indox.IndoxEval.utils import TextPreprocessor
-
 class BLEU:
     def __init__(
         self,
