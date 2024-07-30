@@ -55,5 +55,5 @@ rouge = Rouge(
 
 # Measure the ROUGE score
 evaluator = Evaluator(model=None, metrics[rouge])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

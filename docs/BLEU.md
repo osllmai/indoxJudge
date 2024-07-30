@@ -64,5 +64,5 @@ bleu = BLEU(
 
 # Measure the BLEU score
 evaluator = Evaluator(model=None, metrics=[bleu])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

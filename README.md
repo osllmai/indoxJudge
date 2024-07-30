@@ -40,6 +40,7 @@ IndoxJudge includes the following metrics, with more being added:
 - **BLEU**: Evaluates the quality of text generation based on precision.
 - **AnswerRelevancy**: Assesses the relevance of answers to questions.
 - **METEOR**: Evaluates machine translation quality.
+- **Gruen**: Measures the quality of generated text by assessing grammaticality, redundancy, and focus.
 
 ## Installation
 

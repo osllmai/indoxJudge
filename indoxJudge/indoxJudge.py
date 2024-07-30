@@ -169,6 +169,11 @@ class Evaluator:
                     results['Meteor'] = {
                         'score': score
                     }
+                elif isinstance(metric, Gruen):
+                    score = metric.measure()
+                    results['gruen'] = {
+                        'score': score
+                    }
 
                 logger.info(f"Completed evaluation for metric: {metric_name}")
             except Exception as e:
@@ -243,6 +248,13 @@ class UniversalEvaluator(Evaluator):
             Hallucination(llm_response=llm_response, retrieval_context=retrieval_context),
             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
             Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
+
+            BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
+            BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
+            Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
+            METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
+            Gruen(candidates=llm_response)
+
         ]
         self.weights = {
             'faithfulness': 0.20,
