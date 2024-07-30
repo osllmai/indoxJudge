@@ -116,8 +116,11 @@ JSON:
     @staticmethod
     def generate_reason(score: float, contradictions: List[str]) -> str:
         contradictions_json = json.dumps(contradictions, indent=4)
-        return f"""Below is a list of Contradictions. It is a list of strings explaining why the 'actual output' does not align with the information presented in the 'retrieval context'. Contradictions happen in the 'actual output', NOT the 'retrieval context'.
-Given the faithfulness score, which is a 0-1 score indicating how faithful the `actual output` is to the retrieval context (higher the better), CONCISELY summarize the contradictions to justify the score. 
+        return f"""Below is a list of Contradictions. It is a list of strings explaining why the 'actual output' does 
+        not align with the information presented in the 'retrieval context'. Contradictions happen in the 
+        'actual output', NOT the 'retrieval context'.
+Given the faithfulness score, which is a 0-1 score indicating how faithful the `actual output` is to the 
+retrieval context (higher the better), CONCISELY summarize the contradictions to justify the score. 
 
 ** 
 IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason.
@@ -126,7 +129,8 @@ Example JSON:
     "reason": "The score is <faithfulness_score> because <your_reason>."
 }}
 
-If there are no contradictions, just say something positive with an upbeat encouraging tone (but don't overdo it otherwise it gets annoying).
+If there are no contradictions, just say something positive with an upbeat encouraging tone 
+(but don't overdo it otherwise it gets annoying).
 Your reason MUST use information in `contradiction` in your reason.
 Be sure in your reason, as if you know what the actual output is from the contradictions.
 **
