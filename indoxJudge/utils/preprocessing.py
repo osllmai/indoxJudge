@@ -24,7 +24,7 @@ class TextPreprocessor:
         self.download_nltk_resources()
 
         if stopwords is None:
-            with open("stopwords.txt", "r") as file:
+            with open("indoxJudge/utils/stopwords.txt", "r") as file:
                 stopwords = file.read().splitlines()
 
         self.stop_words = stopwords

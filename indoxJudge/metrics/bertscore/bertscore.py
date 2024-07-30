@@ -9,7 +9,7 @@ class BertScore:
             self,
             llm_response: str,
             retrieval_context: Union[str, List[str]],
-            model_name: str = "roberta-base",
+            model_name: str = "bert-base-uncased",
             max_length: int = 1024,
     ):
         """
