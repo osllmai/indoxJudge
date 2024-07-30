@@ -52,7 +52,6 @@ class OpenAi:
             str: The generated response.
         """
         try:
-            logger.info("Generating response")
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
