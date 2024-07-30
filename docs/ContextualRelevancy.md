@@ -51,5 +51,5 @@ retrieval_context = [
 # Initialize the ContextualRelevancy metric
 contextual_relevancy_metric = ContextualRelevancy(query=query, retrieval_context=retrieval_context)
 evaluator = Evaluator(model=llm, metrics=[contextual_relevancy_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

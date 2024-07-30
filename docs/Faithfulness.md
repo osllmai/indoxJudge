@@ -55,5 +55,5 @@ faithfulness_metric = Faithfulness(llm_response=llm_response, retrieval_context=
 
 # Create an evaluator with the Faithfulness metric
 evaluator = Evaluator(model=llm, metrics=[faithfulness_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

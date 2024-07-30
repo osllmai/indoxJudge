@@ -62,5 +62,5 @@ bias_metric = Bias(llm_response=llm_response, threshold=0.5, include_reason=True
 
 # Initialize the Evaluator with the model and metrics
 evaluator = Evaluator(model=llm, metrics=[bias_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

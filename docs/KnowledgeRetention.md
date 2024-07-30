@@ -71,5 +71,5 @@ knowledge_retention_metric = KnowledgeRetention(
 
 # Create an evaluator with the KnowledgeRetention metric
 evaluator = Evaluator(model=llm, metrics=[knowledge_retention_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

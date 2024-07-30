@@ -78,7 +78,7 @@ answer_relevancy_metric = AnswerRelevancy(
 )
 
 evaluator = Evaluator(model=llm, metrics=[answer_relevancy_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```
 
 # Hyperparameters Explanation

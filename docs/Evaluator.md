@@ -54,7 +54,7 @@ encountered during evaluation are logged.
 ### Example
 
 ```python
-def evaluate(self):
+def judge(self):
     """
     Evaluates the language model using the provided metrics and returns the results.
 

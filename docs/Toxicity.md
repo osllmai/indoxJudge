@@ -74,5 +74,5 @@ toxicity_metric = Toxicity(
 
 # Create an evaluator with the Toxicity metric
 evaluator = Evaluator(model=llm, metrics=[toxicity_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

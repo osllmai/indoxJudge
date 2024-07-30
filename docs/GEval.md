@@ -98,5 +98,5 @@ geval_metric = GEval(
 
 # Create an evaluator with the GEval metric
 evaluator = Evaluator(model=llm, metrics=[geval_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

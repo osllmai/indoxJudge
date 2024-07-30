@@ -75,5 +75,5 @@ hallucination_metric = Hallucination(
 
 # Create an evaluator with the Hallucination metric
 evaluator = Evaluator(model=llm, metrics=[hallucination_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```
