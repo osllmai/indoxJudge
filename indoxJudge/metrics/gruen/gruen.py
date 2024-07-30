@@ -34,7 +34,6 @@ class Gruen:
         use_spacy (bool): Whether to use spacy for NLP tasks.
         use_nltk (bool): Whether to use nltk for tokenization.
         """
-        # If a single string is provided, wrap it in a list
         if isinstance(candidates, str):
             candidates = [candidates]
         self.candidates = candidates
@@ -43,6 +42,9 @@ class Gruen:
 
         if self.use_spacy:
             import spacy
+            from spacy.cli import download
+
+            download("en_core_web_md")
 
             self.nlp = spacy.load("en_core_web_md")
 
@@ -390,7 +392,7 @@ class Gruen:
             0.0 if not scores or min(scores) < 0.05 else -0.1 for scores in all_scores
         ]
 
-    def get_gruen(self) -> List[float]:
+    def measure(self) -> List[float]:
         """
         Calculate the GRUEN score for the candidates.
 

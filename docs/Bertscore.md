@@ -67,5 +67,5 @@ bert_score = BertScore(
 
 # Measure the similarity
 evaluator = Evaluator(model=None, metrics=[bert_score])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

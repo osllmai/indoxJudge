@@ -53,5 +53,5 @@ gruen = Gruen(
 
 # Calculate the GRUEN scores
 evaluator = Evaluator(model=None, metrics=[gruen])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

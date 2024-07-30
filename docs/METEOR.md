@@ -51,5 +51,5 @@ meteor = METEOR(
 
 # Measure the METEOR score
 evaluator = Evaluator(model=None, metrics[meteor])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```
