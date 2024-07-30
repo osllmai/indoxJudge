@@ -11,7 +11,7 @@ from .metrics import KnowledgeRetention
 from .metrics import Toxicity
 from .metrics import BertScore
 from .metrics import BLEU
-from .metrics import Rouge
+from .metrics import HarmonicScores
 from .metrics import METEOR
 from .metrics import Gruen
 # Set up logging
@@ -159,10 +159,12 @@ class Evaluator:
                         'score': score
                     }
                     self.score["BLEU"] = score
-                elif isinstance(metric, Rouge):
-                    score = metric.measure()
-                    results['Rouge'] = {
-                        'score': score
+                elif isinstance(metric, HarmonicScores):
+                    precision, recall, f1 = metric.measure()
+                    results['harmonicscores'] = {
+                        'precision': precision,
+                        'recall': recall,
+                        'f1_score': f1
                     }
                     self.score["Rouge"] = score
                 elif isinstance(metric, METEOR):
@@ -200,7 +202,7 @@ class UniversalEvaluator(Evaluator):
             Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
             BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
             BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
-            Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
+            HarmonicScores(llm_response=llm_response, retrieval_context=retrieval_context),
             METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
             Gruen(candidates=llm_response)
         ]
