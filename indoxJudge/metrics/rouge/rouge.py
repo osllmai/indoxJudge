@@ -4,7 +4,7 @@ import numpy as np
 from indoxJudge.utils import TextPreprocessor
 
 
-class HarmonicScores:
+class Rouge:
     def __init__(
         self, llm_response: str, retrieval_context: Union[str, List[str]], n: int = 1
     ):
