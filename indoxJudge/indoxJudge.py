@@ -14,6 +14,7 @@ from .metrics import BLEU
 from .metrics import Rouge
 from .metrics import METEOR
 from .metrics import Gruen
+import json
 # Set up logging
 logger.remove()  # Remove the default logger
 logger.add(sys.stdout,
@@ -98,7 +99,7 @@ class Evaluator:
                         'opinions': metric.opinions,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.score["bias"] = 1 - score
+                    self.score["bias"] = score
                 elif isinstance(metric, ContextualRelevancy):
                     # Set the language model if not already set
                     irrelevancies = metric.get_irrelevancies(metric.query, metric.retrieval_contexts)
@@ -114,7 +115,6 @@ class Evaluator:
                     }
                     self.score["contextual_relevancy"] = score
                 elif isinstance(metric, GEval):
-
                     geval_result = metric.g_eval()
                     results['geval'] = geval_result.replace("\n", " ")
                     geval_data = json.loads(results["geval"])
@@ -127,7 +127,7 @@ class Evaluator:
                         'reason': metric.reason,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.score["hallucination"] = 1 - score
+                    self.score["hallucination"] = score
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
                     results['knowledge_retention'] = {
@@ -145,7 +145,7 @@ class Evaluator:
                         'opinions': metric.opinions,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.score["toxicity"] = 1 - score
+                    self.score["toxicity"] = score
                 elif isinstance(metric, BertScore):
                     score = metric.measure()
                     results['BertScore'] = {
@@ -181,57 +181,6 @@ class Evaluator:
         return results
 
 
-# class UniversalEvaluator(Evaluator):
-#     """
-#     The UniversalEvaluator class evaluates language model outputs using all available metrics.
-#     """
-#
-#     def __init__(self, model, llm_response, retrieval_context, query):
-#         metrics = [
-#             Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context),
-#             AnswerRelevancy(query=query, llm_response=llm_response),
-#             Bias(llm_response=llm_response),
-#             ContextualRelevancy(query=query, retrieval_context=retrieval_context),
-#             GEval(parameters="Rag Pipeline", llm_response=llm_response, query=query,
-#                   retrieval_context=retrieval_context),
-#             Hallucination(llm_response=llm_response, retrieval_context=retrieval_context),
-#             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
-#             Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
-#         ]
-#         self.weighted_score = self._calculate_weighted_score(self.score)
-#         self.weights = {
-#             'faithfulness': 0.20,
-#             'answer_relevancy': 0.15,
-#             'bias': 0.10,
-#             'contextual_relevancy': 0.20,
-#             'geval': 0.10,
-#             'hallucination': 0.05,
-#             'knowledge_retention': 0.15,
-#             'toxicity': 0.05
-#         }
-#
-#         super().__init__(model, metrics)
-#         self.score = {}
-#
-#     def _calculate_weighted_score(self, scores):
-#         weighted_scores = {}
-#         weighted_sum = 0
-#         for metric, weight in self.weights.items():
-#             if metric in scores:
-#                 weighted_score = scores[metric] * weight
-#                 weighted_scores[metric] = weighted_score
-#                 weighted_sum += weighted_score
-#         return weighted_score, weighted_sum
-#
-#     def plot_metrics(self):
-#         """
-#         Visualizes the evaluation results using a radar chart.
-#         """
-#         from .graph.plots import MetricVisualizer
-#         scores_dic = self.score
-#         visualizer = MetricVisualizer(scores_dic)
-#         return visualizer.show_all_plots()
-
 class UniversalEvaluator(Evaluator):
     """
     The UniversalEvaluator class evaluates language model outputs using all available metrics.
@@ -249,11 +198,11 @@ class UniversalEvaluator(Evaluator):
             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
             Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
 
-            BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
-            BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
-            Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
-            METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
-            Gruen(candidates=llm_response)
+            # BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
+            # BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
+            # Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
+            # METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
+            # Gruen(candidates=llm_response)
 
         ]
         self.weights = {
@@ -269,16 +218,31 @@ class UniversalEvaluator(Evaluator):
 
         super().__init__(model, metrics)
         self.score = {}
-        self.weighted_score,self.weighted_sum = self._calculate_weighted_score(self.score)
+        self.weighted_scores = {}
+        self.weighted_sum =0
 
-    def _calculate_weighted_score(self, scores):
+    def  _calculate_weighted_score(self, scores):
+        """
+        Calculates the weighted scores for each metric and accumulates the total weighted score.
+        """
         weighted_scores = {}
         weighted_sum = 0
+
         for metric, weight in self.weights.items():
             if metric in scores:
-                weighted_score = scores[metric] * weight
+                # Invert scores where lower is better
+                if metric in ["toxicity", "bias", "hallucination"]:
+                    score = 1 - scores[metric]
+                else:
+                    score = scores[metric]
+
+                weighted_score = score * weight
                 weighted_scores[metric] = weighted_score
                 weighted_sum += weighted_score
+
+        self.weighted_scores = weighted_scores
+        self.weighted_sum = weighted_sum
+
         return weighted_scores, weighted_sum
 
     def plot_metrics(self):
@@ -286,6 +250,7 @@ class UniversalEvaluator(Evaluator):
         Visualizes the evaluation results using a radar chart.
         """
         weighted_scores, _ = self._calculate_weighted_score(self.score)
+        print(weighted_scores)
         from .graph.plots import MetricVisualizer
         visualizer = MetricVisualizer(weighted_scores)
         return visualizer.show_all_plots()
