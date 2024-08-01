@@ -180,11 +180,11 @@ class PrivacyEvaluateResponse:
 
     def verdict(self):
         """
-        Determine if the score is above 0.2.
+        Determine if the score is above 0.0.
 
         Returns
         -------
         str
-            'yes' if score is above 0.2, otherwise 'no'.
+            'yes' if score is above 0.0, otherwise 'no'.
         """
-        return "yes" if self.score() > 0.2 else "no"
+        return "yes" if self.score() > 0.0 else "no"
