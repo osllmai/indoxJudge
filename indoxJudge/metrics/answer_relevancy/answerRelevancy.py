@@ -40,7 +40,7 @@ class AnswerRelevancy:
     Class for evaluating the relevancy of language model outputs by analyzing statements,
     generating verdicts, and calculating relevancy scores.
     """
-    def __init__(self, query: str, llm_response: str, model=None, threshold: float = 0.5, include_reason: bool = True,
+    def __init__(self, query: str, llm_response: str, threshold: float = 0.5, include_reason: bool = True,
                  strict_mode: bool = False):
         """
         Initializes the AnswerRelevancy class with the query, LLM response, and evaluation settings.
@@ -52,7 +52,7 @@ class AnswerRelevancy:
         :param include_reason: Whether to include reasoning for the relevancy verdicts. Defaults to True.
         :param strict_mode: Whether to use strict mode, which forces a score of 0 if relevancy is below the threshold. Defaults to False.
         """
-        self.model = model
+        self.model = None
         self.query = query
         self.llm_response = llm_response
         self.threshold = 1 if strict_mode else threshold

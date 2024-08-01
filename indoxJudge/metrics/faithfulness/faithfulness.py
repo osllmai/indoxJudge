@@ -113,6 +113,23 @@ class Faithfulness:
         reason = json.loads(response).get('reason', '')
         return Reason(reason=reason)
 
+    def calculate_faithfulness_score(self) -> float:
+        """
+        Calculates the faithfulness score based on the claims and their verdicts.
+        The score is the ratio of claims deemed faithful to the total number of claims.
+
+        :return: A float representing the faithfulness score (0 to 1).
+        """
+        claims = self.evaluate_claims().claims
+        verdicts = self.evaluate_verdicts(claims).verdicts
+
+        if not claims:
+            return 1.0  # No claims to contradict, default to a perfect score.
+
+        faithful_count = sum(1 for verdict in verdicts if verdict.verdict == 'yes')
+        score = faithful_count / len(claims)
+        return score
+
     def _call_language_model(self, prompt: str) -> str:
         """
         Calls the language model with the given prompt and returns the response.

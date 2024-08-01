@@ -50,8 +50,9 @@ Here is an example of how to use the `Hallucination` class:
 ```python
 import os
 from dotenv import load_dotenv
-from indox.IndoxEval.llms import OpenAi
-from indox.IndoxEval import Hallucination, Evaluator
+from indoxJudge.models import OpenAi
+from indoxJudge.metrics import Hallucination
+from indoxJudge import Evaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -74,5 +75,5 @@ hallucination_metric = Hallucination(
 
 # Create an evaluator with the Hallucination metric
 evaluator = Evaluator(model=llm, metrics=[hallucination_metric])
-result = evaluator.evaluate()
+result = evaluator.judge()
 ```

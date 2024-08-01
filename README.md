@@ -40,6 +40,7 @@ IndoxJudge includes the following metrics, with more being added:
 - **BLEU**: Evaluates the quality of text generation based on precision.
 - **AnswerRelevancy**: Assesses the relevance of answers to questions.
 - **METEOR**: Evaluates machine translation quality.
+- **Gruen**: Measures the quality of generated text by assessing grammaticality, redundancy, and focus.
 
 ## Installation
 
@@ -48,8 +49,43 @@ To install IndoxJudge, follow these steps:
 ```bash
 git clone https://github.com/yourusername/indoxjudge.git
 cd indoxjudge
+```
+## Setting Up the Python Environment
+
+If you are running this project in your local IDE, please create a Python environment to ensure all dependencies are correctly managed. You can follow the steps below to set up a virtual environment named `indox_judge`:
+
+### Windows
+
+1. **Create the virtual environment:**
+```bash
+python -m venv indox_judge
+```
+2. **Activate the virtual environment:**
+```bash
+indox_judge\Scripts\activate
+```
+
+### macOS/Linux
+
+1. **Create the virtual environment:**
+   ```bash
+   python3 -m venv indox_judge
+```
+
+2. **Activate the virtual environment:**
+    ```bash
+   source indox_judge/bin/activate
+```
+### Install Dependencies
+
+Once the virtual environment is activated, install the required dependencies by running:
+
+```bash
 pip install -r requirements.txt
 ```
+
+
+
 
 ## Usage
 

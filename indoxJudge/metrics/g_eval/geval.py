@@ -4,7 +4,7 @@ from .template import GEvalTemplate
 
 
 class GEval:
-    def __init__(self, parameters, query, llm_response, ground_truth, context, retrieval_context):
+    def __init__(self, parameters, query, llm_response, retrieval_context, ground_truth=None, context=None):
         """
         Initialize the GEval class with necessary inputs for evaluation.
 
@@ -19,8 +19,8 @@ class GEval:
         self.model = None
         self.query = query
         self.llm_response = llm_response
-        self.ground_truth = ground_truth
-        self.context = context
+        self.ground_truth = ground_truth or ""
+        self.context = context or ""
         self.retrieval_context = retrieval_context
         self.parameters = parameters
         self.criteria = """

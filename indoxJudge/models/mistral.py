@@ -77,7 +77,6 @@ class Mistral:
             str: The generated evaluation response.
         """
         try:
-            logger.info("Generating evaluation response")
             system_prompt = "You are an assistant for LLM evaluation."
 
             response = self._run_mistral(system_prompt + prompt).strip()

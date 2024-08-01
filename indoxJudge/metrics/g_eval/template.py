@@ -38,7 +38,7 @@ class GEvalTemplate:
         No words or explanation is needed.
 
         Example JSON:
-        {{
+        {{  
             "score": 0,
             "reason": "The text does not follow the evaluation steps provided."
         }}
