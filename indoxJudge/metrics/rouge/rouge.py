@@ -31,7 +31,7 @@ class Rouge:
         self.score = self._calculate_scores(
             llm_answer=self.llm_response, context=self.retrieval_context
         )
-        return self.score
+        return self.score["Precision"], self.score["Recall"], self.score["F1-score"]
 
     def preprocess_text(self, text: str) -> str:
         """
