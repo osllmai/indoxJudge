@@ -25,16 +25,16 @@ logger.add(sys.stdout,
            format="<red>{level}</red>: <level>{message}</level>",
            level="ERROR")
 
-default_weights = {
-    'faithfulness': 0.20,
-    'answer_relevancy': 0.15,
-    'bias': 0.10,
-    'contextual_relevancy': 0.20,
-    'geval': 0.10,
-    'hallucination': 0.05,
-    'knowledge_retention': 0.15,
-    'toxicity': 0.05
-}
+# default_weights = {
+#     'faithfulness': 0.20,
+#     'answer_relevancy': 0.15,
+#     'bias': 0.10,
+#     'contextual_relevancy': 0.20,
+#     'geval': 0.10,
+#     'hallucination': 0.05,
+#     'knowledge_retention': 0.15,
+#     'toxicity': 0.05
+# }
 
 
 class Evaluator:
@@ -94,6 +94,7 @@ class Evaluator:
                         'score': score,
                         'reason': reason.reason
                     }
+                    self.evaluation_score += score
                     self.metrics_score["Faithfulness"] = score
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
@@ -103,16 +104,9 @@ class Evaluator:
                         'statements': metric.statements,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
+                    self.evaluation_score += score
                     self.metrics_score["AnswerRelevancy"] = score
-                elif isinstance(metric, Bias):
-                    score = metric.measure()
-                    results['Bias'] = {
-                        'score': score ,
-                        'reason': metric.reason,
-                        'opinions': metric.opinions,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
-                    }
-                    self.metrics_score["Bias"] = score
+
                 elif isinstance(metric, ContextualRelevancy):
                     irrelevancies = metric.get_irrelevancies(metric.query, metric.retrieval_contexts)
                     metric.set_irrelevancies(irrelevancies)
@@ -129,6 +123,7 @@ class Evaluator:
                             'score': score
                         }
                     }
+                    self.evaluation_score += score
 
                     self.metrics_score["ContextualRelevancy"] = score
                 elif isinstance(metric, GEval):
@@ -136,15 +131,10 @@ class Evaluator:
                     results['GEVal'] = geval_result.replace("\n", " ")
                     geval_data = json.loads(results["GEVal"])
                     score = geval_data["score"]
+                    self.evaluation_score += int(score) / 8
+
                     self.metrics_score["GEVal"] = int(score) / 8
-                elif isinstance(metric, Hallucination):
-                    score = metric.measure()
-                    results['Hallucination'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
-                    }
-                    self.metrics_score["Hallucination"] = score
+
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
                     results['KnowledgeRetention'] = {
@@ -153,7 +143,19 @@ class Evaluator:
                         'verdicts': [verdict.dict() for verdict in metric.verdicts],
                         'knowledges': [knowledge.data for knowledge in metric.knowledges]
                     }
+                    self.evaluation_score += score
+
                     self.metrics_score["KnowledgeRetention"] = score
+                elif isinstance(metric, Hallucination):
+                    score = metric.measure()
+                    results['Hallucination'] = {
+                        'score': score,
+                        'reason': metric.reason,
+                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
+                    }
+                    self.evaluation_score += score
+
+                    self.metrics_score["Hallucination"] = score
                 elif isinstance(metric, Toxicity):
                     score = metric.measure()
                     results['Toxicity'] = {
@@ -162,24 +164,40 @@ class Evaluator:
                         'opinions': metric.opinions,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
+                    self.evaluation_score += score
+
                     self.metrics_score["Toxicity"] = score
                 elif isinstance(metric, BertScore):
                     score = metric.measure()
                     results['BertScore'] = {
                         'score': score
                     }
+                    self.evaluation_score += score
+
                     self.metrics_score["BertScore"] = score
+                elif isinstance(metric, Bias):
+                    score = metric.measure()
+                    results['Bias'] = {
+                        'score': score,
+                        'reason': metric.reason,
+                        'opinions': metric.opinions,
+                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
+                    }
+                    self.evaluation_score += score
+                    self.metrics_score["Bias"] = score
                 elif isinstance(metric, BLEU):
                     score = metric.measure()
                     results['BLEU'] = {
                         'score': score
                     }
+
                     self.metrics_score["BLEU"] = score
                 elif isinstance(metric, Rouge):
                     score = metric.measure()
                     results['Rouge'] = {
                         'score': score
                     }
+
                     self.metrics_score["Rouge"] = score
                 elif isinstance(metric, METEOR):
                     score = metric.measure()
@@ -193,78 +211,33 @@ class Evaluator:
                     }
 
                 logger.info(f"Completed evaluation for metric: {metric_name}")
+                self._calculate_weighted_score()
+
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
         return results
+    # def _calculate_weighted_score(self):
+    #     """
+    #     Calculates the weighted scores for each metric and accumulates the total weighted score.
+    #     """
+    #     weighted_scores = {}
+    #     weighted_sum = 0
+    #
+    #     for metric, weight in self.weights.items():
+    #         if metric in self.metrics_score:
+    #             score = self.metrics_score[metric]
+    #
+    #             # Invert scores where lower is better
+    #             # if metric in ["toxicity", "bias", "hallucination"]:
+    #             #     score = 1 - score
+    #
+    #             weighted_score = score * weight
+    #             weighted_scores[metric] = weighted_score
+    #             weighted_sum += weighted_score
+    #
+    #     self.metrics_weighted_score = weighted_scores
+    #     self.evaluation_weighted_score = weighted_sum
 
-
-# class UniversalEvaluator(Evaluator):
-#     """
-#     The UniversalEvaluator class evaluates language model outputs using all available metrics.
-#     """
-#
-#     def __init__(self, model, llm_response, retrieval_context, query, weights=None):
-#         if weights is None:
-#             weights = default_weights
-#         metrics = [
-#             Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context),
-#             AnswerRelevancy(query=query, llm_response=llm_response),
-#             Bias(llm_response=llm_response),
-#             ContextualRelevancy(query=query, retrieval_context=retrieval_context),
-#             GEval(parameters="Rag Pipeline", llm_response=llm_response, query=query,
-#                   retrieval_context=retrieval_context),
-#             Hallucination(llm_response=llm_response, retrieval_context=retrieval_context),
-#             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
-#             Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
-#             # BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
-#             # BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
-#             # Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
-#             # METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
-#             # Gruen(candidates=llm_response)
-#
-#         ]
-#         self.weights = weights
-#         super().__init__(model, metrics)
-#         self.metrics_score = {}
-#         self.metrics_weighted_score, self.evaluation_weighted_score = self._calculate_weighted_score()
-#
-#         # self.weighted_scores = {}
-#         # self.weighted_sum = 0
-#
-#     def _calculate_weighted_score(self):
-#         """
-#         Calculates the weighted scores for each metric and accumulates the total weighted score.
-#         """
-#         weighted_scores = {}
-#         weighted_sum = 0
-#
-#         for metric, weight in self.weights.items():
-#             if metric in self.metrics_score:
-#                 score = self.metrics_score[metric]
-#
-#                 # Invert scores where lower is better
-#                 # if metric in ["toxicity", "bias", "hallucination"]:
-#                 #     score = 1 - score
-#
-#                 weighted_score = score * weight
-#                 weighted_scores[metric] = weighted_score
-#                 weighted_sum += weighted_score
-#
-#         return weighted_scores, weighted_sum
-#
-#
-#     def plot_metrics_weighted(self):
-#         """
-#         Visualizes the evaluation results using a radar chart.
-#         """
-#         # weighted_scores = self._calculate_weighted_score()
-#         from .graph.plots import MetricVisualizer
-#         visualizer = MetricVisualizer(self.metrics_score)
-#         return visualizer.show_all_plots()
-#     def plot_metrics(self):
-#         from .graph.plots import MetricVisualizer
-#         visualizer = MetricVisualizer(self.metrics_weighted_score)
-#         return visualizer.show_all_plots()
 
 class UniversalEvaluator(Evaluator):
     """
@@ -293,39 +266,17 @@ class UniversalEvaluator(Evaluator):
         self.weights = weights
         super().__init__(model, metrics)
         self.metrics_score = {}
-        self.metrics_weighted_score = {}
-        self.evaluation_weighted_score = 0
-        self._calculate_weighted_score()
+        # self.metrics_weighted_score = {}
+        # self.evaluation_weighted_score = 0
 
-    def _calculate_weighted_score(self):
-        """
-        Calculates the weighted scores for each metric and accumulates the total weighted score.
-        """
-        weighted_scores = {}
-        weighted_sum = 0
 
-        for metric, weight in self.weights.items():
-            if metric in self.metrics_score:
-                score = self.metrics_score[metric]
-
-                # Invert scores where lower is better
-                # if metric in ["toxicity", "bias", "hallucination"]:
-                #     score = 1 - score
-
-                weighted_score = score * weight
-                weighted_scores[metric] = weighted_score
-                weighted_sum += weighted_score
-
-        self.metrics_weighted_score = weighted_scores
-        self.evaluation_weighted_score = weighted_sum
-
-    def plot_metrics_weighted(self):
-        """
-        Visualizes the evaluation results using a radar chart.
-        """
-        from .graph.plots import MetricVisualizer
-        visualizer = MetricVisualizer(self.metrics_weighted_score)
-        return visualizer.show_all_plots()
+    # def plot_metrics_weighted(self):
+    #     """
+    #     Visualizes the evaluation results using a radar chart.
+    #     """
+    #     from .graph.plots import MetricVisualizer
+    #     visualizer = MetricVisualizer(self.metrics_weighted_score)
+    #     return visualizer.show_all_plots()
 
     def plot_metrics(self):
         from .graph.plots import MetricVisualizer

@@ -162,17 +162,3 @@ class MetricVisualizer:
         display(tab)
 
 #
-# # Usage example with sample data
-# scores_dic = {
-#     'GEVal': 0.75,
-#     'KnowledgeRetention': 0.85,
-#     'Faithfulness': 0.65,
-#     'ContextualRelevancy': 0.8,
-#     'AnswerRelevancy': 0.9,
-#     'Toxicity': 0.0,
-#     'Bias': 0.0,
-#     'Hallucination': 0.0
-# }
-#
-# visualizer = MetricVisualizer(scores_dic)
-# visualizer.show_all_plots()
