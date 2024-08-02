@@ -111,12 +111,6 @@ class AnswerRelevancy:
         return [AnswerRelevancyVerdict(**item) for item in data["verdicts"]]
 
     def _generate_reason(self, query: str) -> Optional[str]:
-        """
-        Generates the reasoning behind the relevancy score if include_reason is set to True.
-
-        :param query: The query being evaluated.
-        :return: A string containing the reasoning or None if not included.
-        """
         if not self.include_reason:
             return None
 
@@ -133,19 +127,22 @@ class AnswerRelevancy:
         return data["reason"]
 
     def _calculate_score(self) -> float:
-        """
-        Calculates the relevancy score based on the number of relevant verdicts.
+        # Assuming verdicts have been processed and only one response is considered.
+        if len(self.verdicts) == 0:
+            return 1.0  # If no verdicts, assume full relevancy by default.
 
-        :return: The calculated relevancy score.
-        """
-        number_of_verdicts = len(self.verdicts)
-        if number_of_verdicts == 0:
-            return 1
+        verdict = self.verdicts[0].verdict.strip().lower()
 
-        relevant_count = sum(1 for verdict in self.verdicts if verdict.verdict.strip().lower() != "no")
+        if verdict == "yes":
+            score = 1.0
+        elif verdict == "idk":
+            score = 0.5
+        elif verdict == "no":
+            score = 0.0
+        else:
+            score = 0.0  # Default to 0.0 for any unexpected values.
 
-        score = relevant_count / number_of_verdicts
-        return 0 if self.strict_mode and score < self.threshold else score
+        return score
 
     def _call_language_model(self, prompt: str) -> str:
         """

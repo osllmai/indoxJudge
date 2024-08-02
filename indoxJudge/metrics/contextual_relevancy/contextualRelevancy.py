@@ -24,6 +24,7 @@ class ContextualRelevancy:
         self.query = query
         self.retrieval_contexts = retrieval_context
         self.irrelevancies = []
+        self.verdicts = []
         self.score = 0
 
     def set_model(self, model):
@@ -72,6 +73,18 @@ class ContextualRelevancy:
         verdicts = [self.get_verdict(query, retrieval_context) for retrieval_context in retrieval_contexts]
         return Verdicts(verdicts=verdicts)
 
+    def calculate_score(self) -> float:
+        number_of_verdicts = len(self.verdicts)
+        if number_of_verdicts == 0:
+            return 1.0  # If no verdicts, assume full relevancy by default.
+
+        relevant_count = sum(1 for verdict in self.verdicts if verdict.verdict.strip().lower() == "yes")
+        partial_relevant_count = sum(1 for verdict in self.verdicts if verdict.verdict.strip().lower() == "partial")
+
+        score = (relevant_count + 0.5 * partial_relevant_count) / number_of_verdicts
+        return score
+
     def _call_language_model(self, prompt: str) -> str:
         response = self.model.generate_evaluation_response(prompt=prompt)
         return response
+
