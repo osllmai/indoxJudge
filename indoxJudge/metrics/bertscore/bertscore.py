@@ -127,9 +127,9 @@ class BertScore:
         average_f1_score = np.mean(f1_scores) if f1_scores else 0
 
         scores = {
-            "Precision": average_precision,
-            "Recall": average_recall,
-            "F1-score": average_f1_score,
+            "Precision": round(average_precision, 2),
+            "Recall": round(average_recall, 2),
+            "F1-score": round(average_f1_score, 2),
         }
 
         return scores
