@@ -25,6 +25,7 @@ logger.add(sys.stdout,
            format="<red>{level}</red>: <level>{message}</level>",
            level="ERROR")
 
+
 # default_weights = {
 #     'faithfulness': 0.20,
 #     'answer_relevancy': 0.15,
@@ -248,9 +249,9 @@ class UniversalEvaluator(Evaluator):
     The UniversalEvaluator class evaluates language model outputs using all available metrics.
     """
 
-    def __init__(self, model, llm_response, retrieval_context, query, weights=None):
-        if weights is None:
-            weights = default_weights
+    def __init__(self, model, llm_response, retrieval_context, query):
+        # if weights is None:
+        #     weights = default_weights
         metrics = [
             Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context),
             AnswerRelevancy(query=query, llm_response=llm_response),
@@ -267,12 +268,11 @@ class UniversalEvaluator(Evaluator):
             # METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
             # Gruen(candidates=llm_response)
         ]
-        self.weights = weights
+        # self.weights = weights
         super().__init__(model, metrics)
         self.metrics_score = {}
         # self.metrics_weighted_score = {}
         # self.evaluation_weighted_score = 0
-
 
     # def plot_metrics_weighted(self):
     #     """
