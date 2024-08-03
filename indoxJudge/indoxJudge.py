@@ -169,11 +169,11 @@ class Evaluator:
 
                     self.metrics_score["Toxicity"] = score
                 elif isinstance(metric, BertScore):
-                    precision, recall, f1 = metric.measure()
+                    score = metric.measure()
                     results['BertScore'] = {
-                        'precision': precision,
-                        'recall': recall,
-                        'f1_score': f1
+                        'precision': score['Precision'],
+                        'recall': score['Recall'],
+                        'f1_score': score['F1-score']
                     }
                     self.evaluation_score += score
 
@@ -196,11 +196,11 @@ class Evaluator:
 
                     self.metrics_score["BLEU"] = score
                 elif isinstance(metric, Rouge):
-                    precision, recall, f1 = metric.measure()
+                    score = metric.measure()
                     results['rouge'] = {
-                        'precision': precision,
-                        'recall': recall,
-                        'f1_score': f1
+                        'precision': score['Precision'],
+                        'recall': score['Recall'],
+                        'f1_score': score['F1-score']
                     }
 
                     self.metrics_score["Rouge"] = score
