@@ -170,9 +170,7 @@ class Evaluator:
                 elif isinstance(metric, Rouge):
                     score = metric.measure()
                     results['rouge'] = {
-                        'precision': score['Precision'],
-                        'recall': score['Recall'],
-                        'f1_score': score['F1-score']
+                        'score': score
                     }
                     self.score["Rouge"] = score
                 elif isinstance(metric, METEOR):

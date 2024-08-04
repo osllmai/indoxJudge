@@ -28,12 +28,11 @@ class TextPreprocessor:
         Parameters:
         stopwords (List[str]): A list of stopwords to use for text preprocessing.
         """
-        # self.download_nltk_resources()
-
-        # if stopwords is None:
-        #     with open("indoxJudge/utils/stopwords.txt", "r") as file:
-        #         stopwords = file.read().splitlines()
-
+        self.download_nltk_resources()
+        # nltk.download('punkt')
+        # nltk.download('averaged_perceptron_tagger')
+        # nltk.download('wordnet')
+        
         self.stop_words = stopwords
         self.stemmer = PorterStemmer()
         self.lemmatizer = WordNetLemmatizer()
