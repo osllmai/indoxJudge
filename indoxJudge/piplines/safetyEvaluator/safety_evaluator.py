@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from loguru import logger
 import json
 import sys
+from graph.Safety_Plot import Visualization 
 from .metrics import Fairness, Harmfulness, Privacy, Misinformation
 
 class SafetyEvaluator:
