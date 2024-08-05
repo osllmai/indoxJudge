@@ -1,0 +1,124 @@
+/*!* Custom CSS for the LLM Evaluator *!*/
+/*.bg-light-custom {*/
+/*    background-color: #ffffff !important; !* White background *!*/
+/*    color: #343a40 !important; !* Dark gray text color *!*/
+/*}*/
+
+/*.bg-dark-custom {*/
+/*    background-color: #343a40 !important; !* Dark gray background *!*/
+/*    color: #ffffff !important; !* White text color *!*/
+/*}*/
+
+/*.text-custom-primary {*/
+/*    color: #007bff !important; !* Bootstrap primary color *!*/
+/*}*/
+
+/*.text-custom-primary-dark {*/
+/*    color: #17a2b8 !important; !* Bootstrap info color *!*/
+/*}*/
+
+/*.nav-link {*/
+/*    color: #007bff !important; !* Bootstrap primary color for nav links *!*/
+/*}*/
+
+/*.nav-link-dark {*/
+/*    color: #17a2b8 !important; !* Bootstrap info color for nav links in dark mode *!*/
+/*}*/
+
+/*.nav-link.active {*/
+/*    background-color: #007bff !important; !* Bootstrap primary background for active nav link *!*/
+/*    color: #ffffff !important; !* White text for active nav link *!*/
+/*}*/
+
+/*.nav-link-dark.active {*/
+/*    background-color: #17a2b8 !important; !* Bootstrap info background for active nav link in dark mode *!*/
+/*    color: #ffffff !important; !* White text for active nav link *!*/
+/*}*/
+
+/*.stylish-nav {*/
+/*    border-right: 1px solid #ddd;*/
+/*}*/
+
+/*.card-header {*/
+/*    background-color: #007bff !important; !* Bootstrap primary background for card headers *!*/
+/*    color: #ffffff !important; !* White text for card headers *!*/
+/*}*/
+
+/*.card-header-dark {*/
+/*    background-color: #17a2b8 !important; !* Bootstrap info background for card headers in dark mode *!*/
+/*    color: #ffffff !important; !* White text for card headers *!*/
+/*}*/
+
+/*.btn-primary {*/
+/*    background-color: #007bff !important; !* Bootstrap primary button color *!*/
+/*    border-color: #007bff !important; !* Bootstrap primary border color *!*/
+/*    color: #ffffff !important; !* White text color for button *!*/
+/*}*/
+
+/*.btn-primary-dark {*/
+/*    background-color: #17a2b8 !important; !* Bootstrap info button color for dark mode *!*/
+/*    border-color: #17a2b8 !important; !* Bootstrap info border color for dark mode *!*/
+/*    color: #ffffff !important; !* White text color for button *!*/
+/*}*/
+/* Custom CSS for the LLM Evaluator */
+.bg-light-custom {
+    background-color: #ffffff !important; /* White background */
+    color: #343a40 !important; /* Dark gray text color */
+}
+
+.bg-dark-custom {
+    background-color: #343a40 !important; /* Dark gray background */
+    color: #ffffff !important; /* White text color */
+}
+
+.text-custom-primary {
+    color: #007bff !important; /* Bootstrap primary color */
+}
+
+.text-custom-primary-dark {
+    color: #17a2b8 !important; /* Bootstrap info color */
+}
+
+.nav-link {
+    color: #007bff !important; /* Bootstrap primary color for nav links */
+}
+
+.nav-link-dark {
+    color: #17a2b8 !important; /* Bootstrap info color for nav links in dark mode */
+}
+
+.nav-link.active {
+    background-color: #007bff !important; /* Bootstrap primary background for active nav link */
+    color: #ffffff !important; /* White text for active nav link */
+}
+
+.nav-link-dark.active {
+    background-color: #17a2b8 !important; /* Bootstrap info background for active nav link in dark mode */
+    color: #ffffff !important; /* White text for active nav link */
+}
+
+.stylish-nav {
+    border-right: 1px solid #ddd;
+}
+
+.card-header {
+    background-color: #007bff !important; /* Bootstrap primary background for card headers */
+    color: #ffffff !important; /* White text for card headers */
+}
+
+.card-header-dark {
+    background-color: #17a2b8 !important; /* Bootstrap info background for card headers in dark mode */
+    color: #ffffff !important; /* White text for card headers */
+}
+
+.btn-primary {
+    background-color: #007bff !important; /* Bootstrap primary button color */
+    border-color: #007bff !important; /* Bootstrap primary border color */
+    color: #ffffff !important; /* White text color for button */
+}
+
+.btn-primary-dark {
+    background-color: #17a2b8 !important; /* Bootstrap info button color for dark mode */
+    border-color: #17a2b8 !important; /* Bootstrap info border color for dark mode */
+    color: #ffffff !important; /* White text color for button */
+}

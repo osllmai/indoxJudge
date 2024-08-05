@@ -1,0 +1,66 @@
+/* Custom CSS for the LLM Evaluator */
+
+/* Light Theme */
+.bg-light-custom {
+    background-color: #f7f7f7 !important; /* Very light gray background */
+    color: #2e2e2e !important; /* Darker gray text color */
+}
+
+.text-custom-primary {
+    color: #00509e !important; /* Deeper blue for better contrast */
+}
+
+.nav-link {
+    color: #00509e !important; /* Matching primary color for nav links */
+}
+
+.nav-link.active {
+    background-color: #00509e !important; /* Matching primary background for active nav link */
+    color: #ffffff !important; /* White text for active nav link */
+}
+
+.card-header {
+    background-color: #00509e !important; /* Matching primary background for card headers */
+    color: #ffffff !important; /* White text for card headers */
+}
+
+.btn-primary {
+    background-color: #00509e !important; /* Matching primary button color */
+    border-color: #00509e !important; /* Matching primary border color */
+    color: #ffffff !important; /* White text color for button */
+}
+
+/* Dark Theme */
+.bg-dark-custom {
+    background-color: #121212 !important; /* Neutral black background */
+    color: #e0e0e0 !important; /* Light gray text color */
+}
+
+.text-custom-primary-dark {
+    color: #d1d1d1 !important; /* Light gray for better contrast */
+}
+
+.nav-link-dark {
+    color: #d1d1d1 !important; /* Light gray for nav links */
+}
+
+.nav-link-dark.active {
+    background-color: #444444 !important; /* Dark gray background for active nav link */
+    color: #e0e0e0 !important; /* Light gray text for active nav link */
+}
+
+.card-header-dark {
+    background-color: #444444 !important; /* Dark gray background for card headers */
+    color: #e0e0e0 !important; /* Light gray text for card headers */
+}
+
+.btn-primary-dark {
+    background-color: #444444 !important; /* Dark gray background for buttons */
+    border-color: #444444 !important; /* Dark gray border color */
+    color: #e0e0e0 !important; /* Light gray text color for button */
+}
+
+/* Additional Styles */
+.stylish-nav {
+    border-right: 1px solid #cccccc; /* Light gray border for nav */
+}
