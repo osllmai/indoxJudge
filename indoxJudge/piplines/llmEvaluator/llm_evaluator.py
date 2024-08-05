@@ -1,10 +1,9 @@
-from typing import List
 from loguru import logger
 import sys
-import json
 from indoxJudge.metrics import (Faithfulness, AnswerRelevancy, Bias, Gruen, Rouge,
                                 KnowledgeRetention, BLEU, Hallucination, Toxicity, BertScore)
-from .graph import MetricsVisualizer
+from .graph.metrics_visualizer import MetricsVisualizer
+
 
 # Set up logging
 logger.remove()  # Remove the default logger
