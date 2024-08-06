@@ -8,6 +8,7 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
 from nltk import pos_tag
 
+
 stopwords = [
     "the", "of", "and", "a", "to", "in", "is", "you", "that", "it",
     "he", "was", "for", "on", "are", "as", "with", "his", "they", "I",
@@ -16,6 +17,7 @@ stopwords = [
     "said", "there", "use", "an", "each", "which", "she", "do", "how",
     "their", "if"
 ]
+
 
 class TextPreprocessor:
     def __init__(self, stopwords: List[str] = stopwords):
@@ -29,10 +31,8 @@ class TextPreprocessor:
         stopwords (List[str]): A list of stopwords to use for text preprocessing.
         """
         self.download_nltk_resources()
-        # nltk.download('punkt')
-        # nltk.download('averaged_perceptron_tagger')
-        # nltk.download('wordnet')
-        
+
+
         self.stop_words = stopwords
         self.stemmer = PorterStemmer()
         self.lemmatizer = WordNetLemmatizer()
@@ -93,15 +93,15 @@ class TextPreprocessor:
         )
 
     def preprocess_text(
-        self,
-        text: str,
-        to_lower: bool = True,
-        keep_alpha_numeric: bool = True,
-        remove_number: bool = True,
-        remove_stopword: bool = False,
-        stem_word: bool = False,
-        lemmatize_word: bool = True,
-        top_n_stopwords: int = 5,
+            self,
+            text: str,
+            to_lower: bool = True,
+            keep_alpha_numeric: bool = True,
+            remove_number: bool = True,
+            remove_stopword: bool = False,
+            stem_word: bool = False,
+            lemmatize_word: bool = True,
+            top_n_stopwords: int = 5,
     ) -> str:
         if to_lower:
             text = self.to_lower(text)
