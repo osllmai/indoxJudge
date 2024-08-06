@@ -18,7 +18,7 @@ class StereotypeBiasVerdicts(BaseModel):
 class StereotypeBias:
     def __init__(self, input_sentence: str):
         self.model = None
-        self.template = StereotypeBiasTemplate()  # New template for stereotype and bias
+        self.template = StereotypeBiasTemplate()
         self.input_sentence = input_sentence
         self.stereotype_bias_score = 0
 
