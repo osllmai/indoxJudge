@@ -17,7 +17,7 @@ setup(
     license='MIT',
     packages=find_packages(),
     package_data={
-        'IndoxJudge.pipelines.llmEvaluator.graph.assets': ['style.css'],
+        'indoxJudge.pipelines.llmEvaluator.graph.assets': ['style.css'],
     },
     include_package_data=True,
     description='Indox Judge',
@@ -26,7 +26,7 @@ setup(
     author='nerdstudio',
     author_email='ashkan@nematifamilyfundation.onmicrosoft.com',
     url='https://github.com/osllmai/inDoxJudge',
-    keywords=['RAG', 'LLM','Evaluation', 'Metrics', 'Graphs', 'Visualizations', 'IndoxJudge', 'Indox', 'Judge'],
+    keywords=['RAG', 'LLM'],
     install_requires=packages,
     classifiers=[
         'Development Status :: 3 - Alpha',
