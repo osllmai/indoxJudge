@@ -407,4 +407,5 @@ class Gruen:
             min(1, max(0, sum(scores)))
             for scores in zip(grammaticality_scores, redundancy_scores, focus_scores)
         ]
+        gruen_scores = [round(score, 2) for score in gruen_scores]
         return gruen_scores

@@ -1,3 +1,4 @@
+
 # from typing import List
 # from loguru import logger
 # import sys
@@ -244,45 +245,5 @@
 #     #     self.evaluation_weighted_score = weighted_sum
 #
 #
-# class UniversalEvaluator(Evaluator):
-#     """
-#     The UniversalEvaluator class evaluates language model outputs using all available metrics.
-#     """
-#
-#     def __init__(self, model, llm_response, retrieval_context, query):
-#         # if weights is None:
-#         #     weights = default_weights
-#         metrics = [
-#             Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context),
-#             AnswerRelevancy(query=query, llm_response=llm_response),
-#             Bias(llm_response=llm_response),
-#             ContextualRelevancy(query=query, retrieval_context=retrieval_context),
-#             GEval(parameters="Rag Pipeline", llm_response=llm_response, query=query,
-#                   retrieval_context=retrieval_context),
-#             Hallucination(llm_response=llm_response, retrieval_context=retrieval_context),
-#             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
-#             Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
-#             # BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
-#             # BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
-#             # Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
-#             # METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
-#             # Gruen(candidates=llm_response)
-#         ]
-#         # self.weights = weights
-#         super().__init__(model, metrics)
-#         self.metrics_score = {}
-#         # self.metrics_weighted_score = {}
-#         # self.evaluation_weighted_score = 0
-#
-#     # def plot_metrics_weighted(self):
-#     #     """
-#     #     Visualizes the evaluation results using a radar chart.
-#     #     """
-#     #     from .graph.plots import MetricVisualizer
-#     #     visualizer = MetricVisualizer(self.metrics_weighted_score)
-#     #     return visualizer.show_all_plots()
-#
-#     def plot_metrics(self):
-#         from .graph.plots import MetricVisualizer
-#         visualizer = MetricVisualizer(self.metrics_score)
-#         return visualizer.show_all_plots()
+
+

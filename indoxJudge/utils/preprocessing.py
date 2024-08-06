@@ -2,69 +2,25 @@ import re
 from typing import List
 
 import nltk
-from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
 from nltk import pos_tag
 
-stopwords_ = [
-    "the",
-    "of",
-    "and",
-    "a",
-    "to",
-    "in",
-    "is",
-    "you",
-    "that",
-    "it",
-    "he",
-    "was",
-    "for",
-    "on",
-    "are",
-    "as",
-    "with",
-    "his",
-    "they",
-    "I",
-    "at",
-    "be",
-    "this",
-    "have",
-    "from",
-    "or",
-    "one",
-    "had",
-    "by",
-    "word",
-    "but",
-    "not",
-    "what",
-    "all",
-    "were",
-    "we",
-    "when",
-    "your",
-    "can",
-    "said",
-    "there",
-    "use",
-    "an",
-    "each",
-    "which",
-    "she",
-    "do",
-    "how",
-    "their",
-    "if"
+
+stopwords = [
+    "the", "of", "and", "a", "to", "in", "is", "you", "that", "it",
+    "he", "was", "for", "on", "are", "as", "with", "his", "they", "I",
+    "at", "be", "this", "have", "from", "or", "one", "had", "by", "word",
+    "but", "not", "what", "all", "were", "we", "when", "your", "can",
+    "said", "there", "use", "an", "each", "which", "she", "do", "how",
+    "their", "if"
 ]
 
 
 class TextPreprocessor:
-    def __init__(self, stopwords: List[str] = None):
+    def __init__(self, stopwords: List[str] = stopwords):
         """
         Initializes the TextPreprocessor with:
         - A set of English stopwords.
@@ -76,8 +32,6 @@ class TextPreprocessor:
         """
         self.download_nltk_resources()
 
-        if stopwords is None:
-            stopwords = stopwords_
 
         self.stop_words = stopwords
         self.stemmer = PorterStemmer()
