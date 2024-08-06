@@ -470,6 +470,6 @@ class LLMComparison:
 
             return radar_chart, bar_chart, scatter_plot, line_plot, heatmap, violin_plot, gauge_chart, table
 
-        # app.run(jupyter_mode="external")
-        app.run(jupyter_mode="tab")
+        app.run(jupyter_mode="external")
+        # app.run(jupyter_mode="tab")
         # app.run()
