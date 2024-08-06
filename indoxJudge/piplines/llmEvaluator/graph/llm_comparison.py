@@ -683,7 +683,7 @@ class LLMComparison:
 
         app.run_server(mode=mode, port=8050, host='0.0.0.0')
 
-    def plot_2(self, mode="external"):
+    def plot_2(self, port):
         app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, dbc.themes.DARKLY])
 
         app.layout = html.Div([
@@ -888,11 +888,11 @@ class LLMComparison:
 
         # Get the Colab notebook URL and setup proxy
         from google.colab.output import eval_js
-        proxy_url = eval_js("google.colab.kernel.proxyPort(8080)")
+        proxy_url = eval_js(f"google.colab.kernel.proxyPort({port})")
 
         # Print the proxy URL so you can open it in a new window
         print(f"Dash app running on: {proxy_url}")
 
-        app.run_server(port=8080, host='0.0.0.0')
+        app.run(port=port, host='0.0.0.0')
 
 
