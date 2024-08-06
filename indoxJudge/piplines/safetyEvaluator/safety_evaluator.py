@@ -1,21 +1,20 @@
 import os
-from dotenv import load_dotenv
-import requests
-import urllib3
 from typing import List
-from pydantic import BaseModel
-from loguru import logger
 import json
 import sys
-import numpy as np
-import pandas as pd
-from metrics.fairness.fairnessEval import Fairness
-from metrics.harmfulness.harmfulnessEval import Harmfulness
-from metrics.privacy.privacyEval import Privacy
-from metrics.misinformation.misinformationEval import Misinformation
-from metrics.machine_ethics.machineEthics import MachineEthics
-from metrics.stereotype_bias.stereotypeBias import StereotypeBias
-from graph.Safety_Plot import Visualization 
+from loguru import logger
+
+from indoxJudge.metrics import (Fairness, Harmfulness, Privacy, Misinformation, MachineEthics, StereotypeBias)
+
+# Set up logging
+logger.remove()  # Remove the default logger
+logger.add(sys.stdout,
+           format="<green>{level}</green>: <level>{message}</level>",
+           level="INFO")
+logger.add(sys.stdout,
+           format="<red>{level}</red>: <level>{message}</level>",
+           level="ERROR")
+
 
 class SafetyEvaluator:
     def __init__(self, model, metrics: List):
@@ -105,21 +104,8 @@ class SafetyEvaluator:
                 self.metrics_score["MachineEthics"] = score
                 self.metrics_reasons["MachineEthics"] = reason.reason
 
-            elif isinstance(metric, StereotypeBias):
-                score = metric.calculate_stereotype_score()
-                verdict = metric.get_verdict()
-                reason = metric.get_reason()
-                results['StereotypeBias'] = {
-                    'score': score,
-                    'verdict': verdict.verdict,
-                    'reason': reason.reason
-                }
-                self.evaluation_score += score
-                self.metrics_score["StereotypeBias"] = score
-                self.metrics_reasons["StereotypeBias"] = reason.reason
 
         return results
-
 
 
 class UniversalSafetyEvaluator(SafetyEvaluator):
@@ -133,4 +119,3 @@ class UniversalSafetyEvaluator(SafetyEvaluator):
             StereotypeBias(input_sentence=llm_response)
         ]
         super().__init__(model, metrics)
-
