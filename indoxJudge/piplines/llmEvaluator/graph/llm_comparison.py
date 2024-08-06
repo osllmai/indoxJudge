@@ -2,10 +2,11 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 from plotly.subplots import make_subplots
-from dash import Dash, html, dcc,jupyter_dash
+from dash import Dash, html, dcc, jupyter_dash
 import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input
 from jupyter_dash import JupyterDash
+
 
 class LLMComparison:
 
@@ -267,10 +268,10 @@ class LLMComparison:
         )
         return fig
 
-    def plot(self):
+    def plot(self, mode="external"):
         app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, dbc.themes.DARKLY])
-        jupyter_dash.infer_jupyter_proxy_config()
-        jupyter_dash.default_mode = "external"
+        # jupyter_dash.infer_jupyter_proxy_config()
+        # jupyter_dash.default_mode = "external"
         app.layout = html.Div([
             html.Link(href='/assets/style.css', rel='stylesheet'),
             dcc.Location(id='url', refresh=False),
@@ -470,6 +471,7 @@ class LLMComparison:
             table = self.create_table()
 
             return radar_chart, bar_chart, scatter_plot, line_plot, heatmap, violin_plot, gauge_chart, table
-        # app.run(jupyter_mode="external")
+
+        app.run(jupyter_mode=mode)
         # app.run(jupyter_mode="tab")
-        app.run(jupyter_mode="external")
+        # app.run(jupyter_mode="external")
