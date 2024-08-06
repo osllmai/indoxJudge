@@ -888,11 +888,11 @@ class LLMComparison:
 
         # Get the Colab notebook URL and setup proxy
         from google.colab.output import eval_js
-        proxy_url = eval_js("google.colab.kernel.proxyPort(8050)")
+        proxy_url = eval_js("google.colab.kernel.proxyPort(8080)")
 
         # Print the proxy URL so you can open it in a new window
         print(f"Dash app running on: {proxy_url}")
 
-        app.run_server(mode=mode, port=8050, host='0.0.0.0')
+        app.run_server(port=8080, host='0.0.0.0')
 
 
