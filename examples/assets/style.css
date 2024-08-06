@@ -1,6 +1,6 @@
 /* Light Theme */
 .bg-light-custom {
-    background: linear-gradient( 83deg , rgb(165, 11, 165) , rgb(80, 5, 80) ,rgb(38, 2, 38), rgb(86, 7, 118)) !important; /* Very light background */
+    background: linear-gradient( 83deg , rgb(43, 5, 118), rgb(39, 6, 96),rgb(82, 14, 172) , rgb(91, 44, 185)) !important; /* Very light background */
     color: #ffffff !important; /* Darker gray text color */
     
 }
@@ -15,7 +15,7 @@
 .navbar-custom{
     justify-content: center;
     margin: 20px 0 100px 0;
-    background: linear-gradient( 320deg ,transparent , rgb(80, 5, 80) ,rgba(62, 5, 62, 0.817), transparent );
+    background: linear-gradient( 320deg ,transparent , rgba(43, 5, 80, 0.515) ,rgba(35, 5, 62, 0.434), transparent );
     padding: 20px;
     backdrop-filter: blur(19px);
     -webkit-backdrop-filter: blur(19px);
