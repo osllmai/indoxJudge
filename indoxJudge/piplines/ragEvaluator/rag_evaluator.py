@@ -1,8 +1,6 @@
-from typing import List
 from loguru import logger
 import sys
 import json
-from ...metrics import BertScore
 from indoxJudge.metrics import (
     Faithfulness,
     AnswerRelevancy,
