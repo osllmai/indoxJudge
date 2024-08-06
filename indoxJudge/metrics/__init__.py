@@ -11,3 +11,8 @@ from .bleu import BLEU
 from .answer_relevancy import AnswerRelevancy
 from .meteor import METEOR
 from .gruen import Gruen
+from .fairness import Fairness
+from .harmfulness import Harmfulness
+from .machine_ethics import MachineEthics
+from .stereotype_bias import StereotypeBias
+from .misinformation import Misinformation
