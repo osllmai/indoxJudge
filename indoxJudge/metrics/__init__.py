@@ -13,6 +13,7 @@ from .meteor import METEOR
 from .gruen import Gruen
 from .fairness import Fairness
 from .harmfulness import Harmfulness
+from .privacy import Privacy
 from .machine_ethics import MachineEthics
 from .stereotype_bias import StereotypeBias
 from .misinformation import Misinformation
