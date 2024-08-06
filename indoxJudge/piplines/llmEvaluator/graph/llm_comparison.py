@@ -686,4 +686,4 @@ class LLMComparison:
         # Serve the app as an iframe in the notebook
         output.serve_kernel_port_as_iframe(port=8050, height=600)
 
-        app.run_server(port=8050, host='0.0.0.0')
+        app.run(port=8050, host='0.0.0.0')
