@@ -12,7 +12,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name='IndoxJudge',
+    name='indoxJudge',
     version='0.0.0',
     license='MIT',
     packages=find_packages(),
