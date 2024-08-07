@@ -1,9 +1,9 @@
-from typing import List
 from loguru import logger
 import sys
-import json
-from indoxJudge.metrics import (Faithfulness, AnswerRelevancy, Bias, ContextualRelevancy, Gruen, GEval, Rouge,
-                                KnowledgeRetention, BLEU, Hallucination, Toxicity, METEOR, BertScore)
+from indoxJudge.metrics import (Faithfulness, AnswerRelevancy, Bias, Gruen, Rouge,
+                                KnowledgeRetention, BLEU, Hallucination, Toxicity, BertScore)
+from .graph.metrics_visualizer import MetricsVisualizer
+
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -15,6 +15,8 @@ logger.add(sys.stdout,
            level="ERROR")
 
 
+
+
 class LlmEvaluation:
     """
     The Evaluator class is designed to evaluate various aspects of language model outputs using specified metrics.
@@ -23,7 +25,7 @@ class LlmEvaluation:
     Knowledge Retention, Toxicity, BertScore, BLEU, Rouge, and METEOR.
     """
 
-    def __init__(self, llm_as_judge,llm_response, retrieval_context, query):
+    def __init__(self, llm_as_judge, llm_response, retrieval_context, query):
         """
         Initializes the Evaluator with a language model and a list of metrics.
 
@@ -40,8 +42,9 @@ class LlmEvaluation:
             Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
             BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
             BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
-            Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
-            Gruen(candidates=llm_response)
+
+            # Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
+            # Gruen(candidates=llm_response)
         ]
         logger.info("Evaluator initialized with model and metrics.")
         self.set_model_for_metrics()
@@ -56,6 +59,7 @@ class LlmEvaluation:
             if hasattr(metric, 'set_model'):
                 metric.set_model(self.model)
         logger.info("Model set for all metrics.")
+
 
     def judge(self):
         """
@@ -155,16 +159,7 @@ class LlmEvaluation:
                     self.evaluation_score += score
 
                     self.metrics_score["Toxicity"] = score
-                elif isinstance(metric, BertScore):
-                    precision, recall, f1 = metric.measure()
-                    results['BertScore'] = {
-                        'precision': precision,
-                        'recall': recall,
-                        'f1_score': f1
-                    }
-                    self.evaluation_score += score
 
-                    self.metrics_score["BertScore"] = score
                 elif isinstance(metric, Bias):
                     score = metric.measure()
                     results['Bias'] = {
@@ -175,80 +170,54 @@ class LlmEvaluation:
                     }
                     self.evaluation_score += score
                     self.metrics_score["Bias"] = score
+
+
+                elif isinstance(metric, BertScore):
+                    score = metric.measure()
+                    results['BertScore'] = {
+                        'precision': score['Precision'],
+                        'recall': score['Recall'],
+                        'f1_score': score['F1-score']
+                    }
+                    # self.evaluation_score += score
+
+                    # self.metrics_score["BertScore"] = score
+                    self.metrics_score['precision'] = score['Precision']
+                    self.evaluation_score += score['Precision']
+
+                    self.metrics_score['recall'] = score['Recall']
+                    self.evaluation_score += score['Recall']
+
+                    self.metrics_score['f1_score'] = score['F1-score']
+                    self.evaluation_score += score['F1-score']
+
                 elif isinstance(metric, BLEU):
                     score = metric.measure()
                     results['BLEU'] = {
                         'score': score
                     }
-
+                    self.evaluation_score += score
                     self.metrics_score["BLEU"] = score
-                elif isinstance(metric, Rouge):
-                    precision, recall, f1 = metric.measure()
-                    results['rouge'] = {
-                        'precision': precision,
-                        'recall': recall,
-                        'f1_score': f1
-                    }
-
-                    self.metrics_score["Rouge"] = score
-                elif isinstance(metric, METEOR):
-                    score = metric.measure()
-                    results['Meteor'] = {
-                        'score': score
-                    }
-                elif isinstance(metric, Gruen):
-                    score = metric.measure()
-                    results['gruen'] = {
-                        'score': score
-                    }
-
+                # elif isinstance(metric, Rouge):
+                #     score = metric.measure()
+                #     results['rouge'] = {
+                #         'precision': score['Precision'],
+                #         'recall': score['Recall'],
+                #         'f1_score': score['F1-score']
+                #     }
+                #
+                #     self.metrics_score["Rouge"] = score
+                #     self.metrics_score["Rouge"] = score
+                # elif isinstance(metric, Gruen):
+                #     score = metric.measure()
+                #     results['gruen'] = {
+                #         'score': score
+                #     }
                 logger.info(f"Completed evaluation for metric: {metric_name}")
-                self._calculate_weighted_score()
 
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
         return results
 
-
-class UniversalEvaluator(Evaluator):
-    """
-    The UniversalEvaluator class evaluates language model outputs using all available metrics.
-    """
-
-    def __init__(self, model, llm_response, retrieval_context, query):
-        # if weights is None:
-        #     weights = default_weights
-        metrics = [
-            Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context),
-            AnswerRelevancy(query=query, llm_response=llm_response),
-            Bias(llm_response=llm_response),
-            ContextualRelevancy(query=query, retrieval_context=retrieval_context),
-            GEval(parameters="Rag Pipeline", llm_response=llm_response, query=query,
-                  retrieval_context=retrieval_context),
-            Hallucination(llm_response=llm_response, retrieval_context=retrieval_context),
-            KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
-            Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
-            # BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
-            # BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
-            # Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
-            # METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
-            # Gruen(candidates=llm_response)
-        ]
-        # self.weights = weights
-        super().__init__(model, metrics)
-        self.metrics_score = {}
-        # self.metrics_weighted_score = {}
-        # self.evaluation_weighted_score = 0
-
-    # def plot_metrics_weighted(self):
-    #     """
-    #     Visualizes the evaluation results using a radar chart.
-    #     """
-    #     from .graph.plots import MetricVisualizer
-    #     visualizer = MetricVisualizer(self.metrics_weighted_score)
-    #     return visualizer.show_all_plots()
-
-    def plot_metrics(self):
-        from .graph.plots import MetricVisualizer
-        visualizer = MetricVisualizer(self.metrics_score)
-        return visualizer.show_all_plots()
+        visualizer = MetricsVisualizer(metrics=self.metrics_score, score=self.evaluation_score/10)
+        return visualizer.plot()

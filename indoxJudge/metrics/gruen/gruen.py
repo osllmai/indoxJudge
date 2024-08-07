@@ -4,7 +4,9 @@ import numpy as np
 import re
 import string
 import torch
-from nltk.tokenize import sent_tokenize
+from nltk import download, word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 from tqdm import tqdm
 from transformers import (
     BertConfig,
@@ -18,40 +20,24 @@ from typing import List, Union
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+# Download required NLTK resources
+download('punkt', quiet=True)
+download('stopwords', quiet=True)
+download('wordnet', quiet=True)
 
 class Gruen:
-    def __init__(
-        self,
-        candidates: Union[str, List[str]],
-        use_spacy: bool = True,
-        use_nltk: bool = True,
-    ):
+    def __init__(self, candidates: Union[str, List[str]]):
         """
-        Initialize the TextEvaluator with candidate texts and options to use spacy and nltk.
+        Initialize the TextEvaluator with candidate texts.
 
         Parameters:
         candidates (Union[str, List[str]]): The candidate text(s) to evaluate.
-        use_spacy (bool): Whether to use spacy for NLP tasks.
-        use_nltk (bool): Whether to use nltk for tokenization.
         """
         if isinstance(candidates, str):
             candidates = [candidates]
         self.candidates = candidates
-        self.use_spacy = use_spacy
-        self.use_nltk = use_nltk
-
-        if self.use_spacy:
-            import spacy
-            from spacy.cli import download
-
-            download("en_core_web_md")
-
-            self.nlp = spacy.load("en_core_web_md")
-
-        if self.use_nltk:
-            import nltk
-
-            nltk.download("punkt")
+        self.stop_words = set(stopwords.words('english'))
+        self.lemmatizer = WordNetLemmatizer()
 
     def preprocess_candidates(self) -> List[List[str]]:
         """
@@ -63,18 +49,11 @@ class Gruen:
         processed_candidates = []
         for candidate in self.candidates:
             candidate = self._clean_text(candidate)
-            sentences = (
-                sent_tokenize(candidate) if self.use_nltk else candidate.split(". ")
-            )
+            sentences = sent_tokenize(candidate)
             processed_sentences = [
                 sentence
                 for sentence in sentences
-                if len(
-                    sentence.translate(
-                        str.maketrans("", "", string.punctuation)
-                    ).split()
-                )
-                > 1
+                if len(sentence.translate(str.maketrans("", "", string.punctuation)).split()) > 1
             ]
             processed_candidates.append(processed_sentences)
         return processed_candidates
@@ -364,7 +343,7 @@ class Gruen:
 
     def get_focus_score(self, all_summary: List[List[str]]) -> List[float]:
         """
-        Calculate the focus score based on sentence similarity.
+        Calculate the focus score based on sentence similarity using NLTK.
 
         Parameters:
         all_summary (List[List[str]]): Summarized texts to evaluate.
@@ -372,9 +351,6 @@ class Gruen:
         Returns:
         List[float]: The focus scores.
         """
-        if not self.use_spacy:
-            return [0.0] * len(all_summary)
-
         all_scores = []
         for summary in all_summary:
             if len(summary) == 1:
@@ -382,15 +358,42 @@ class Gruen:
                 continue
             scores = []
             for j in range(1, len(summary)):
-                doc1, doc2 = self.nlp(summary[j - 1]), self.nlp(summary[j])
-                try:
-                    scores.append(1.0 / (1.0 + math.exp(-doc1.similarity(doc2) + 7)))
-                except Exception:
-                    scores.append(1.0)
+                similarity = self._sentence_similarity(summary[j-1], summary[j])
+                scores.append(1.0 / (1.0 + math.exp(-similarity + 7)))
             all_scores.append(scores)
-        return [
-            0.0 if not scores or min(scores) < 0.05 else -0.1 for scores in all_scores
-        ]
+        return [0.0 if not scores or min(scores) < 0.05 else -0.1 for scores in all_scores]
+
+    def _sentence_similarity(self, sentence1: str, sentence2: str) -> float:
+        """
+        Calculate the similarity between two sentences using NLTK.
+
+        Parameters:
+        sentence1 (str): First sentence.
+        sentence2 (str): Second sentence.
+
+        Returns:
+        float: Similarity score between the two sentences.
+        """
+        # Tokenize and lemmatize the sentences
+        words1 = [self.lemmatizer.lemmatize(word.lower()) for word in word_tokenize(sentence1) if word.lower() not in self.stop_words]
+        words2 = [self.lemmatizer.lemmatize(word.lower()) for word in word_tokenize(sentence2) if word.lower() not in self.stop_words]
+
+        # Find the union of words
+        all_words = set(words1 + words2)
+
+        # Create word vectors
+        vector1 = [words1.count(word) for word in all_words]
+        vector2 = [words2.count(word) for word in all_words]
+
+        # Calculate cosine similarity
+        dot_product = sum(a * b for a, b in zip(vector1, vector2))
+        magnitude1 = math.sqrt(sum(a * a for a in vector1))
+        magnitude2 = math.sqrt(sum(b * b for b in vector2))
+
+        if magnitude1 * magnitude2 == 0:
+            return 0.0
+        else:
+            return dot_product / (magnitude1 * magnitude2)
 
     def measure(self) -> List[float]:
         """
@@ -409,3 +412,4 @@ class Gruen:
         ]
         gruen_scores = [round(score, 2) for score in gruen_scores]
         return gruen_scores
+

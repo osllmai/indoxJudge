@@ -2,7 +2,6 @@ import re
 from typing import List
 
 import nltk
-from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -10,8 +9,18 @@ from nltk.corpus import wordnet
 from nltk import pos_tag
 
 
+stopwords = [
+    "the", "of", "and", "a", "to", "in", "is", "you", "that", "it",
+    "he", "was", "for", "on", "are", "as", "with", "his", "they", "I",
+    "at", "be", "this", "have", "from", "or", "one", "had", "by", "word",
+    "but", "not", "what", "all", "were", "we", "when", "your", "can",
+    "said", "there", "use", "an", "each", "which", "she", "do", "how",
+    "their", "if"
+]
+
+
 class TextPreprocessor:
-    def __init__(self, stopwords: List[str] = None):
+    def __init__(self, stopwords: List[str] = stopwords):
         """
         Initializes the TextPreprocessor with:
         - A set of English stopwords.
@@ -23,9 +32,6 @@ class TextPreprocessor:
         """
         self.download_nltk_resources()
 
-        if stopwords is None:
-            with open("indoxJudge/utils/stopwords.txt", "r") as file:
-                stopwords = file.read().splitlines()
 
         self.stop_words = stopwords
         self.stemmer = PorterStemmer()
@@ -36,9 +42,9 @@ class TextPreprocessor:
         """
         Downloads the required NLTK resources.
         """
-        nltk.download("punkt")
-        nltk.download("averaged_perceptron_tagger")
-        nltk.download("wordnet")
+        nltk.download("punkt", quiet=True)
+        nltk.download("averaged_perceptron_tagger", quiet=True)
+        nltk.download("wordnet", quiet=True)
 
     def to_lower(self, text: str) -> str:
         return text.lower()
@@ -87,15 +93,15 @@ class TextPreprocessor:
         )
 
     def preprocess_text(
-        self,
-        text: str,
-        to_lower: bool = True,
-        keep_alpha_numeric: bool = True,
-        remove_number: bool = True,
-        remove_stopword: bool = False,
-        stem_word: bool = False,
-        lemmatize_word: bool = True,
-        top_n_stopwords: int = 5,
+            self,
+            text: str,
+            to_lower: bool = True,
+            keep_alpha_numeric: bool = True,
+            remove_number: bool = True,
+            remove_stopword: bool = False,
+            stem_word: bool = False,
+            lemmatize_word: bool = True,
+            top_n_stopwords: int = 5,
     ) -> str:
         if to_lower:
             text = self.to_lower(text)
