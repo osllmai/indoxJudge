@@ -23,7 +23,7 @@ setup(
     description='Indox Judge',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author='nerdstudio',
+    author='osllm',
     author_email='ashkan@nematifamilyfundation.onmicrosoft.com',
     url='https://github.com/osllmai/inDoxJudge',
     keywords=['RAG', 'LLM'],
