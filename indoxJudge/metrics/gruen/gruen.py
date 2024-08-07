@@ -412,3 +412,4 @@ class Gruen:
         ]
         gruen_scores = [round(score, 2) for score in gruen_scores]
         return gruen_scores
+

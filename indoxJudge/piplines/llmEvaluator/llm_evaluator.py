@@ -15,7 +15,6 @@ logger.add(sys.stdout,
            level="ERROR")
 
 
-# Perplexity , Exact Match (EM),Diversity,Latency
 
 
 class LlmEvaluation:
@@ -43,6 +42,7 @@ class LlmEvaluation:
             Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
             BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
             BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
+
             # Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
             # Gruen(candidates=llm_response)
         ]
@@ -60,10 +60,6 @@ class LlmEvaluation:
                 metric.set_model(self.model)
         logger.info("Model set for all metrics.")
 
-    # def display_evaluation(self):
-    #     from .graph.plots import MetricVisualizer
-    #     visualizer = MetricVisualizer(self.metrics_score)
-    #     return visualizer.show_all_plots()
 
     def judge(self):
         """
@@ -163,6 +159,7 @@ class LlmEvaluation:
                     self.evaluation_score += score
 
                     self.metrics_score["Toxicity"] = score
+
                 elif isinstance(metric, Bias):
                     score = metric.measure()
                     results['Bias'] = {
@@ -173,6 +170,8 @@ class LlmEvaluation:
                     }
                     self.evaluation_score += score
                     self.metrics_score["Bias"] = score
+
+
                 elif isinstance(metric, BertScore):
                     score = metric.measure()
                     results['BertScore'] = {
@@ -220,6 +219,5 @@ class LlmEvaluation:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
         return results
 
-    def plot(self):
         visualizer = MetricsVisualizer(metrics=self.metrics_score, score=self.evaluation_score/10)
         return visualizer.plot()

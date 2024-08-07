@@ -1,3 +1,4 @@
+
 from .g_eval import GEval
 from .knowledge_retention import KnowledgeRetention
 from .bertscore import BertScore
@@ -11,3 +12,9 @@ from .bleu import BLEU
 from .answer_relevancy import AnswerRelevancy
 from .meteor import METEOR
 from .gruen import Gruen
+from .fairness import Fairness
+from .harmfulness import Harmfulness
+from .privacy import Privacy
+from .machine_ethics import MachineEthics
+from .misinformation import Misinformation
+from .stereotype_bias import StereotypeBias
