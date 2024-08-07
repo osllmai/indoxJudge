@@ -12,6 +12,7 @@ from indoxJudge.metrics import (
     METEOR,
 )
 from .graph.ragplot import RagVisualizer
+import warnings
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -22,6 +23,7 @@ logger.add(
     sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
 )
 
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*`resume_download` is deprecated.*")
 class RagEvaluator:
     """
     The RagEvaluator class is designed to evaluate various aspects of language model outputs using specified metrics.
