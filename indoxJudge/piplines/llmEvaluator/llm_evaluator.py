@@ -4,7 +4,6 @@ from indoxJudge.metrics import (Faithfulness, AnswerRelevancy, Bias, Gruen, Roug
                                 KnowledgeRetention, BLEU, Hallucination, Toxicity, BertScore)
 from .graph.metrics_visualizer import MetricsVisualizer
 
-
 # Set up logging
 logger.remove()  # Remove the default logger
 logger.add(sys.stdout,
@@ -15,9 +14,7 @@ logger.add(sys.stdout,
            level="ERROR")
 
 
-
-
-class LlmEvaluation:
+class LlmEvaluator:
     """
     The Evaluator class is designed to evaluate various aspects of language model outputs using specified metrics.
 
@@ -59,7 +56,6 @@ class LlmEvaluation:
             if hasattr(metric, 'set_model'):
                 metric.set_model(self.model)
         logger.info("Model set for all metrics.")
-
 
     def judge(self):
         """
@@ -219,5 +215,6 @@ class LlmEvaluation:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
         return results
 
-        visualizer = MetricsVisualizer(metrics=self.metrics_score, score=self.evaluation_score/10)
+    def plot(self):
+        visualizer = MetricsVisualizer(metrics=self.metrics_score, score=self.evaluation_score / 10)
         return visualizer.plot()
