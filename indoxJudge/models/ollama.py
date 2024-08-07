@@ -1,7 +1,6 @@
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from loguru import logger
 import sys
-from indox.core import BaseLLM
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -14,7 +13,7 @@ logger.add(sys.stdout,
            level="ERROR")
 
 
-class Ollama(BaseLLM):
+class Ollama:
     model: str = ""
 
     def __init__(self, model):
