@@ -267,8 +267,8 @@ class LLMComparison:
         )
         return fig
 
-    def plot(self):
-        app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, dbc.themes.DARKLY])
+    def plot(self, mode="external"):
+        app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, dbc.themes.DARKLY,dbc.icons.BOOTSTRAP])
 
         app.layout = html.Div([
             html.Link(href='/assets/style.css', rel='stylesheet'),
@@ -278,7 +278,8 @@ class LLMComparison:
                     dbc.Col(
                         html.H2("IndoxJudge", className="text-center my-4 display-4 text-custom-primary",
                                 id="title-text"), width=10),
-                    dbc.Col(dbc.Switch(id="dark-mode-switch", label="Dark Mode", className="my-4"), width=2)
+                    html.I(className="bi bi-brightness-low"),
+                    dbc.Col(dbc.Switch(id="dark-mode-switch", label="Dark Mode", className="my-4"), width=2,)
                 ], align="center"),
                 dbc.Row([
                     dbc.Col([
@@ -470,6 +471,4 @@ class LLMComparison:
 
             return radar_chart, bar_chart, scatter_plot, line_plot, heatmap, violin_plot, gauge_chart, table
 
-        # app.run(jupyter_mode="external")
-        app.run(jupyter_mode="tab")
-        # app.run()
+        app.run(jupyter_mode=mode)

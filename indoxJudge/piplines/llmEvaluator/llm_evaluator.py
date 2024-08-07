@@ -221,5 +221,5 @@ class LlmEvaluation:
         return results
 
     def plot(self):
-        visualizer = MetricsVisualizer(metrics=self.metrics_score, score=self.evaluation_score)
+        visualizer = MetricsVisualizer(metrics=self.metrics_score, score=self.evaluation_score/10)
         return visualizer.plot()

@@ -12,16 +12,18 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name='IndoxJudge',
+    name='indoxJudge',
     version='0.0.0',
     license='MIT',
     packages=find_packages(),
-    package_data={'IndoxJudge': ['config.yaml']},
+    package_data={
+        'indoxJudge.pipelines.llmEvaluator.graph.assets': ['style.css'],
+    },
     include_package_data=True,
     description='Indox Judge',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author='nerdstudio',
+    author='osllm',
     author_email='ashkan@nematifamilyfundation.onmicrosoft.com',
     url='https://github.com/osllmai/inDoxJudge',
     keywords=['RAG', 'LLM'],
@@ -34,6 +36,7 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
     python_requires='>=3.9',
 )
