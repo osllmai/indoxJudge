@@ -42,9 +42,9 @@ class TextPreprocessor:
         """
         Downloads the required NLTK resources.
         """
-        nltk.download("punkt")
-        nltk.download("averaged_perceptron_tagger")
-        nltk.download("wordnet")
+        nltk.download("punkt", quiet=True)
+        nltk.download("averaged_perceptron_tagger", quiet=True)
+        nltk.download("wordnet", quiet=True)
 
     def to_lower(self, text: str) -> str:
         return text.lower()
