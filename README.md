@@ -100,7 +100,7 @@ load_dotenv()
 INDOX_API_KEY = os.getenv("INDOX_API_KEY")
 
 # Import IndoxJudge and supported models
-from indoxJudge import Evaluator
+from indoxJudge.piplines import CustomEvaluator
 from indoxJudge.models import IndoxApi
 from indoxJudge.metrics import Faithfulness
 
@@ -122,7 +122,7 @@ response = "The Mediterranean diet is known for its health benefits, including r
 faithfulness_metrics = Faithfulness(llm_response=response, retrieval_context=retrieval_context)
 
 # Create an evaluator with the selected metrics
-evaluator = Evaluator(metrics=[faithfulness_metrics], model=model)
+evaluator = CustomEvaluator(metrics=[faithfulness_metrics], model=model)
 
 # Evaluate the response
 faithfulness_result = evaluator.evaluate()
