@@ -1,0 +1,121 @@
+/* Light Theme */
+.bg-light-custom {
+    background-color: #FFF8F0 !important; /* Very light background */
+    color: #1E1E24 !important; /* Darker gray text color */
+}
+
+.text-custom-primary {
+    color: #111D4A !important; /* Deep blue for better contrast */
+}
+
+.nav-link {
+    color: #111D4A !important; /* Matching primary color for nav links */
+    border: 1px solid #111D4A !important; /* Deep blue border for nav */
+    margin-right: 5px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #FFCF99 !important; /* Light peach background on hover */
+    color: #1E1E24 !important; /* Darker text color on hover */
+}
+
+.nav-link.active {
+    background-color: #92140C !important; /* Dark red background for active nav link */
+    color: #FFF8F0 !important; /* Very light background for active nav link */
+    border-color: #92140C !important;
+}
+
+.card-header {
+    margin-top: 5px;
+    background-color: #3B4569 !important; /* Matching primary background for card headers */
+    color: #FFF8F0 !important; /* Very light background for card headers */
+}
+
+.btn-primary {
+    background-color: #92140C !important; /* Deep red button color */
+    border-color: #92140C !important; /* Deep red border color */
+    color: #FFF8F0 !important; /* Very light background for button */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #111D4A !important; /* Deep blue background on hover */
+    border-color: #111D4A !important; /* Deep blue border on hover */
+    color: #FFF8F0 !important; /* Very light text color on hover */
+}
+
+/* Dark Theme */
+.bg-dark-custom {
+    background-color: #1E1E24 !important; /* Dark neutral background */
+    color: #FFCF99 !important; /* Light peach text color */
+}
+
+.text-custom-primary-dark {
+    color: #FFF8F0 !important; /* Very light background for better contrast */
+}
+
+.nav-link-dark {
+    color: #FFF8F0 !important; /* Very light background for nav links */
+    border: 1px solid #FFF8F0 !important; /* Very light border for nav */
+    margin-right: 5px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.nav-link-dark:hover {
+    background-color: #3B4569 !important; /* Dark blue background on hover */
+    color: #FFCF99 !important; /* Light peach text color on hover */
+}
+
+.nav-link-dark.active {
+    background-color: #111D4A !important; /* Deep blue background for active nav link */
+    color: #FFCF99 !important; /* Light peach text for active nav link */
+    border-color: #111D4A !important;
+}
+
+.card-header-dark {
+    margin-top: 5px;
+    background-color: #111D4A !important; /* Deep blue background for card headers */
+    color: #FFCF99 !important; /* Light peach text for card headers */
+}
+
+.btn-primary-dark {
+    background-color: #92140C !important; /* Dark red background for buttons */
+    border-color: #92140C !important; /* Dark red border color */
+    color: #FFF8F0 !important; /* Very light background for button */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-primary-dark:hover {
+    background-color: #3B4569 !important; /* Dark blue background on hover */
+    border-color: #3B4569 !important; /* Dark blue border on hover */
+    color: #FFF8F0 !important; /* Very light text color on hover */
+}
+
+/* Additional Styles */
+.stylish-nav {
+    border-right: 1px solid #111D4A; /* Deep blue border for nav */
+    padding: 10px;
+}
+
+.navbar-custom {
+    display: flex;
+    /*justify-content: space-between;*/
+    align-items: center;
+    background-color: #FFF8F0 !important; /* Light background for navbar */
+    padding: 10px 20px;
+    border-bottom: 2px solid #3B4569; /* Dark border for navbar */
+}
+
+.navbar-custom-dark {
+    display: flex;
+    /*justify-content: space-between;*/
+    align-items: center;
+    background-color: #1E1E24 !important; /* Dark background for navbar */
+    padding: 10px 20px;
+    border-bottom: 2px solid #111D4A; /* Deep blue border for navbar */
+}
