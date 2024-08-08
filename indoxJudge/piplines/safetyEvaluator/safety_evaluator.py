@@ -4,7 +4,7 @@ from typing import Tuple, Dict, List
 from loguru import logger
 
 from indoxJudge.metrics import (Fairness, Harmfulness, Privacy, Misinformation, MachineEthics, StereotypeBias)
-from indoxJudge.piplines.safetyEvaluator.graph.metrics_visualizer import MetricsVisualizer
+
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -89,20 +89,24 @@ class SafetyEvaluator:
 
         return self.metrics_score, self.metrics_reasons
 
-    def plot(self):
-        visualizer = MetricsVisualizer(metrics=self.metrics_score, score=self.evaluation_score)
-        return visualizer.plot()
+    def plot(self, mode="external"):
+        from indoxJudge.graph import Visualization
+        from indoxJudge.utils import create_model_dict
+        graph_input = create_model_dict(name="RAG Evaluator", metrics=self.metrics_score,
+                                        score=self.evaluation_score / 6)
+        visualizer = Visualization(data=graph_input, mode="safety")
+        return visualizer.plot(mode=mode)
 
-    def transform_metrics(self) -> List[Dict[str, float]]:
-        average_score = sum(self.metrics_score.values()) / len(self.metrics_score)
-        average_score = int(average_score * 100) / 100.0
-
-        model = {
-            'name': "Indox_API",
-            'score': average_score,
-            'metrics': self.metrics_score
-        }
-
-        models = [model]
-
-        return models
+    # def transform_metrics(self) -> List[Dict[str, float]]:
+    #     average_score = sum(self.metrics_score.values()) / len(self.metrics_score)
+    #     average_score = int(average_score * 100) / 100.0
+    #
+    #     model = {
+    #         'name': "Indox_API",
+    #         'score': average_score,
+    #         'metrics': self.metrics_score
+    #     }
+    #
+    #     models = [model]
+    #
+    #     return models

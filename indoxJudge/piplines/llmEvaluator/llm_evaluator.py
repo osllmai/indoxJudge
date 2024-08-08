@@ -14,7 +14,7 @@ logger.add(sys.stdout,
            level="ERROR")
 
 
-class LlmEvaluator:
+class LLMEvaluator:
     """
     The Evaluator class is designed to evaluate various aspects of language model outputs using specified metrics.
 
@@ -215,9 +215,10 @@ class LlmEvaluator:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
         return results
 
-    def plot(self):
+    def plot(self, mode="external"):
         from indoxJudge.graph import Visualization
         from indoxJudge.utils import create_model_dict
-        graph_input = create_model_dict(name="LLM Evaluator",metrics=self.metrics_score,score=self.evaluation_score / 10)
-        visualizer = Visualization(data=graph_input,mode="llm")
-        return visualizer.plot()
+        graph_input = create_model_dict(name="LLM Evaluator", metrics=self.metrics_score,
+                                        score=self.evaluation_score / 10)
+        visualizer = Visualization(data=graph_input, mode="llm")
+        return visualizer.plot(mode=mode)

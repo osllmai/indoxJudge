@@ -167,6 +167,10 @@ class RagEvaluator:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
         return results
 
-    def plot(self):
-        visualizer = RagVisualizer(scores=self.metrics_score)#, score=self.evaluation_score)
-        return visualizer.get_dashboard_html()
+    def plot(self, mode="external"):
+        from indoxJudge.graph import Visualization
+        from indoxJudge.utils import create_model_dict
+        graph_input = create_model_dict(name="RAG Evaluator", metrics=self.metrics_score,
+                                        score=self.evaluation_score / 10)
+        visualizer = Visualization(data=graph_input, mode="rag")
+        return visualizer.plot(mode=mode)

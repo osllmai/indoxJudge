@@ -5,62 +5,83 @@ from plotly.subplots import make_subplots
 from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input
-import statistics
-from typing import Union
+from typing import Union, List, Dict
 
 
 class Visualization:
     """
-    Visualization class to generate different types of charts for model evaluation.
+    A class to create and manage visualizations for model evaluation metrics.
 
-    This class provides methods to create radar charts, scatter plots, and gauge charts
-    for comparing the performance of multiple machine learning models. It supports both
-    light and dark themes and adapts its visualization based on the specified mode.
+    Attributes:
+        mode (str): The mode of the visualization ('llm', 'safety', or 'rag').
+        light_template (str): The light theme template for Plotly.
+        dark_template (str): The dark theme template for Plotly.
+        current_template (str): The current theme template for Plotly.
+        models (list): A list of model data.
+        plots (list): A list of plot types to be generated based on the mode and number of models.
+
+    Methods:
+        determine_plots(): Determines the types of plots to generate based on the mode and number of models.
+        set_theme(theme: str): Sets the current theme template.
+        create_radar_chart(): Creates a radar chart for the evaluation metrics.
+        create_bar_chart(): Creates a bar chart for the evaluation metrics.
+        create_gauge_chart(): Creates a gauge chart for the overall scores.
+        create_scatter_plot(): Creates a scatter plot for the evaluation metrics.
+        create_line_plot(): Creates a line plot for the evaluation metrics.
+        create_heatmap(): Creates a heatmap for the evaluation metrics.
+        create_violin_plot(): Creates a violin plot for the evaluation metrics.
+        create_table(): Creates a table for the evaluation metrics.
+        get_plot(plot_type: str): Returns the specified plot.
+        create_layout(): Creates the layout for the Dash application.
+        plot(): Runs the Dash application.
     """
 
-    def __init__(self, data: Union[list[dict], dict], mode: str = 'llm'):
+    def __init__(self, data: Union[List[Dict], Dict], mode: str = 'llm'):
         """
-        Initializes the Visualization object with data and a mode.
+        Initializes the Visualization object with data and mode.
 
-        Parameters:
-        -----------
-        data : list of dict or dict
-            The data to visualize. For 'llm' and 'safety' modes, this should be a list of dictionaries,
-            each containing 'name' and 'score'. For 'rag' mode, this should be a dictionary with metrics
-            as keys and their corresponding values.
-        mode : str, optional
-            The mode of visualization, which can be 'llm', 'safety', or 'rag'. Default is 'llm'.
-
-        Raises:
-        -------
-        ValueError:
-            If the mode is not one of 'llm', 'safety', or 'rag'.
+        Args:
+            data (Union[List[Dict], Dict]): The data for the models.
+            mode (str): The mode of the visualization ('llm', 'safety', or 'rag').
         """
         self.mode = mode
         self.light_template = "plotly_white"
         self.dark_template = "plotly_dark"
         self.current_template = self.light_template
+        self.models = data if isinstance(data, list) else [data]
+        self.plots = self.determine_plots()
 
-        if mode in ['llm', 'safety']:
-            self.models = data
-        elif mode == 'rag':
-            self.rag_data = data
-            self.metrics = list(self.rag_data.keys())
-            self.values = list(self.rag_data.values())
-            self.overall_score = statistics.mean(self.values)
-        else:
-            raise ValueError("Mode must be either 'llm', 'rag', or 'safety'")
+    def determine_plots(self):
+        """
+        Determines the types of plots to generate based on the mode and number of models.
+
+        Returns:
+            list: A list of plot types to be generated.
+        """
+        if self.mode == 'llm':
+            if len(self.models) == 1:
+                return ['bar_chart', 'radar_chart', 'gauge_chart']
+            else:
+                return ['radar_chart', 'bar_chart', 'scatter_plot', 'line_plot', 'heatmap', 'violin_plot',
+                        'gauge_chart', 'table']
+        elif self.mode == 'safety':
+            if len(self.models) == 1:
+                return ['bar_chart', 'gauge_chart']
+            else:
+                return ['radar_chart', 'bar_chart', 'gauge_chart']
+        elif self.mode == 'rag':
+            return ['bar_chart', 'gauge_chart']
 
     def set_theme(self, theme: str):
-        """Sets the theme for the visualizations.
+        """
+        Sets the current theme template.
 
         Args:
-            theme (str): The desired theme. Must be either 'light' or 'dark'.
+            theme (str): The theme to set ('light' or 'dark').
 
         Raises:
-            ValueError: If the provided theme is invalid.
+            ValueError: If the theme is not 'light' or 'dark'.
         """
-
         if theme not in ('light', 'dark'):
             raise ValueError("Invalid theme. Must be 'light' or 'dark'.")
 
@@ -68,19 +89,11 @@ class Visualization:
 
     def create_radar_chart(self):
         """
-        Creates a radar chart comparing the metrics of multiple models.
-
-        The chart visualizes the performance of different models across various metrics.
+        Creates a radar chart for the evaluation metrics.
 
         Returns:
-            plotly.graph_objs._figure.Figure: A radar chart figure.
-
-        Raises:
-            ValueError: If the current mode is not 'llm' or 'safety'.
+            plotly.graph_objects.Figure: The radar chart figure.
         """
-
-        if self.mode not in ['llm', 'safety']:
-            raise ValueError("Radar chart is only available in LLM and Safety modes")
         fig = go.Figure()
         for model in self.models:
             name = model['name']
@@ -113,196 +126,117 @@ class Visualization:
 
     def create_bar_chart(self):
         """
-        Creates a bar chart visualizing evaluation metrics.
-
-        The function generates a bar chart comparing the performance of different models
-        across various metrics (LLM and Safety modes) or displaying RAG (Red, Amber,
-        Green) metrics (RAG mode).
-
-        Args:
-            self: An object of the class containing the data.
+        Creates a bar chart for the evaluation metrics.
 
         Returns:
-            plotly.graph_objs._figure.Figure: A bar chart figure.
-
-        Raises:
-            ValueError: If the current mode is not 'llm', 'safety', or 'rag'.
+            plotly.express.Figure: The bar chart figure.
         """
-        if self.mode in ['llm', 'safety']:
-            data = []
-            for model in self.models:
+        data = []
+        for model in self.models:
+            if len(self.models) == 1:
+                metrics = model['metrics']
+                for metric, value in metrics.items():
+                    data.append({"Metric": metric, "Value": value})
+                    df = pd.DataFrame(data)
+                    fig = px.bar(df, x='Metric', y='Value', color='Metric', barmode='group', text='Value',
+                                 template=self.current_template)
+                fig.update_layout(
+                    title='Evaluation Metrics Bar Chart',
+                    xaxis_title='Metrics',
+                    yaxis_title='Values',
+                    xaxis_tickangle=-45,
+
+                )
+            else:
                 name = model['name']
                 metrics = model['metrics']
                 for metric, value in metrics.items():
-                    data.append({"Model": name, "Metric": metric, "Value": value})
-
-            df = pd.DataFrame(data)
-
-            fig = px.bar(df, x='Metric', y='Value', color='Model', barmode='group', text='Value',
-                         template=self.current_template)
-            fig.update_layout(
-                title='Evaluation Metrics Bar Chart',
-                xaxis_title='Metrics',
-                yaxis_title='Values',
-                xaxis_tickangle=-45
-            )
-        elif self.mode == 'rag':
-            df = pd.DataFrame({'Metric': self.metrics, 'Value': self.values})
-            df = df.sort_values('Value', ascending=False)
-
-            fig = px.bar(df, x='Metric', y='Value', text='Value',
-                         template=self.current_template,
-                         color='Metric',
-                         color_discrete_sequence=px.colors.qualitative.Plotly)  # Use a predefined color sequence
-
-            fig.update_traces(texttemplate='%{text:.2f}', textposition='auto')
-
-            fig.update_layout(
-                title="RAG Metrics Comparison",
-                xaxis_title="Metrics",
-                yaxis_title="Score",
-                xaxis_tickangle=-45,
-                yaxis=dict(range=[0, 1]),
-                height=500,
-                margin=dict(l=50, r=50, t=50, b=100),
-                showlegend=False
-            )
-
+                    data.append({'Model': name, "Metric": metric, "Value": value})
+                    df = pd.DataFrame(data)
+                    fig = px.bar(df, x='Metric', y='Value', color='Model', barmode='group', text='Value',
+                                 template=self.current_template)
+                fig.update_layout(
+                    title='Evaluation Metrics Bar Chart',
+                    xaxis_title='Metrics',
+                    yaxis_title='Values',
+                    xaxis_tickangle=-45
+                )
         return fig
 
     def create_gauge_chart(self):
         """
-        Creates a gauge chart visualizing evaluation scores.
-
-        Generates a gauge chart comparing the scores of multiple models in LLM or Safety modes,
-        or displays an overall evaluation score in RAG mode.
+        Creates a gauge chart for the overall scores.
 
         Returns:
-            plotly.graph_objs._figure.Figure: A gauge chart figure.
+            plotly.subplots.make_subplots: The gauge chart figure.
         """
-        if self.mode == 'llm':
+        fig = make_subplots(
+            rows=1,
+            cols=len(self.models),
+            specs=[[{'type': 'indicator'}] * len(self.models)],
+            subplot_titles=[model['name'] for model in self.models]
+        )
 
-            fig = make_subplots(rows=1, cols=len(self.models), specs=[[{'type': 'indicator'}] * len(self.models)],
-                                subplot_titles=[model['name'] for model in self.models])
+        for i, model in enumerate(self.models, 1):
+            name = model['name']
+            score = model['score']
 
-            for i, model in enumerate(self.models, 1):
-                name = model['name']
-                score = model['score']
-                fig.add_trace(go.Indicator(
-                    mode="gauge+number+delta",
-                    value=score,
-                    delta={'reference': 0.5, 'increasing': {'color': "green"}},
-                    gauge={
-                        'axis': {'range': [0, 1], 'tickwidth': 0.7, 'tickcolor': "darkblue"},
-                        'bar': {'color': "darkblue"},
-                        'bgcolor': "white",
-                        'borderwidth': 2,
-                        'bordercolor': "gray",
-                        'steps': [
-                            {'range': [0, 0.2], 'color': "red"},
-                            {'range': [0.2, 0.4], 'color': "orange"},
-                            {'range': [0.4, 0.6], 'color': "yellow"},
-                            {'range': [0.6, 0.8], 'color': "lightgreen"},
-                            {'range': [0.8, 1], 'color': "green"}],
-                        'threshold': {
-                            'line': {'color': "black", 'width': 4},
-                            'thickness': 0.75,
-                            'value': score}
-                    }
-                ), row=1, col=i)
+            if self.mode == 'llm' or 'rag':
+                steps = [
+                    {'range': [0, 0.2], 'color': "red"},
+                    {'range': [0.2, 0.4], 'color': "orange"},
+                    {'range': [0.4, 0.6], 'color': "yellow"},
+                    {'range': [0.6, 0.8], 'color': "lightgreen"},
+                    {'range': [0.8, 1], 'color': "green"}
+                ]
+            elif self.mode == 'safety':
+                steps = [
+                    {'range': [0, 0.2], 'color': "green"},
+                    {'range': [0.2, 0.4], 'color': "lightgreen"},
+                    {'range': [0.4, 0.6], 'color': "yellow"},
+                    {'range': [0.6, 0.8], 'color': "orange"},
+                    {'range': [0.8, 1], 'color': "red"}
+                ]
 
-            font = {'color': "white", 'family': "Arial"} if self.current_template == "plotly_dark" else {
-                'color': "black", 'family': "Arial"}
-            paper_bgcolor = "black" if self.current_template == "plotly_dark" else "white"
-            plot_bgcolor = "white" if self.current_template == "plotly_dark" else "black"
-            fig.update_layout(
-                title='Overall Evaluation Scores',
-                font=font,
-                paper_bgcolor=paper_bgcolor,
-                plot_bgcolor=plot_bgcolor,
-                template=self.current_template
-            )
-        elif self.mode == 'safety':
-
-            fig = make_subplots(rows=1, cols=len(self.models), specs=[[{'type': 'indicator'}] * len(self.models)],
-                                subplot_titles=[model['name'] for model in self.models])
-
-            for i, model in enumerate(self.models, 1):
-                name = model['name']
-                score = model['score']
-                fig.add_trace(go.Indicator(
-                    mode="gauge+number+delta",
-                    value=score,
-                    delta={'reference': 0.5, 'increasing': {'color': "green"}},
-                    gauge={
-                        'axis': {'range': [0, 1], 'tickwidth': 0.7, 'tickcolor': "darkblue"},
-                        'bar': {'color': "darkblue"},
-                        'bgcolor': "white",
-                        'borderwidth': 2,
-                        'bordercolor': "gray",
-                        'steps': [
-                            {'range': [0, 0.2], 'color': "green"},
-                            {'range': [0.2, 0.4], 'color': "lightgreen"},
-                            {'range': [0.4, 0.6], 'color': "yellow"},
-                            {'range': [0.6, 0.8], 'color': "orange"},
-                            {'range': [0.8, 1], 'color': "red"}],
-                        'threshold': {
-                            'line': {'color': "black", 'width': 4},
-                            'thickness': 0.75,
-                            'value': score}
-                    }
-                ), row=1, col=i)
-
-            font = {'color': "white", 'family': "Arial"} if self.current_template == "plotly_dark" else {
-                'color': "black", 'family': "Arial"}
-            paper_bgcolor = "black" if self.current_template == "plotly_dark" else "white"
-            plot_bgcolor = "white" if self.current_template == "plotly_dark" else "black"
-            fig.update_layout(
-                title='Overall Evaluation Scores',
-                font=font,
-                paper_bgcolor=paper_bgcolor,
-                plot_bgcolor=plot_bgcolor,
-                template=self.current_template
-            )
-        elif self.mode == 'rag':
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=round(self.overall_score, 2),
+            fig.add_trace(go.Indicator(
+                mode="gauge+number+delta",
+                value=score,
+                delta={'reference': 0.5, 'increasing': {'color': "green"}},
                 gauge={
                     'axis': {'range': [0, 1], 'tickwidth': 0.7, 'tickcolor': "darkblue"},
                     'bar': {'color': "darkblue"},
                     'bgcolor': "white",
                     'borderwidth': 2,
                     'bordercolor': "gray",
-                    'steps': [
-                        {'range': [0, 0.2], 'color': "red"},
-                        {'range': [0.2, 0.4], 'color': "orange"},
-                        {'range': [0.4, 0.6], 'color': "yellow"},
-                        {'range': [0.6, 0.8], 'color': "lightgreen"},
-                        {'range': [0.8, 1], 'color': "green"}],
+                    'steps': steps,
                     'threshold': {
                         'line': {'color': "black", 'width': 4},
-                        'thickness': 0.75}
+                        'thickness': 0.75,
+                        'value': score
+                    }
                 }
-            ))
+            ), row=1, col=i)
 
-            font = {'color': "white", 'family': "Arial"} if self.current_template == "plotly_dark" else {
-                'color': "black", 'family': "Arial"}
-            paper_bgcolor = "black" if self.current_template == "plotly_dark" else "white"
-            plot_bgcolor = "white" if self.current_template == "plotly_dark" else "black"
-            fig.update_layout(
-                title='Overall Evaluation Scores',
-                font=font,
-                paper_bgcolor=paper_bgcolor,
-                plot_bgcolor=plot_bgcolor,
-                template=self.current_template
-            )
+        font = {'color': "white", 'family': "Arial"} if self.current_template == "plotly_dark" else {'color': "black",
+                                                                                                     'family': "Arial"}
+        paper_bgcolor = "black" if self.current_template == "plotly_dark" else "white"
+        plot_bgcolor = "white" if self.current_template == "plotly_dark" else "black"
+
+        fig.update_layout(
+            title='Overall Evaluation Scores',
+            font=font,
+            paper_bgcolor=paper_bgcolor,
+            plot_bgcolor=plot_bgcolor,
+            template=self.current_template
+        )
         return fig
 
     def create_scatter_plot(self):
         """
-        Creates a scatter plot comparing the metrics of multiple models.
-        Returns the scatter plot figure.
+        Creates a scatter plot for the evaluation metrics.
+
+        Returns:
+            plotly.express.Figure: The scatter plot figure.
         """
         data = []
         for model in self.models:
@@ -324,8 +258,10 @@ class Visualization:
 
     def create_line_plot(self):
         """
-        Creates a line plot comparing the metrics of multiple models.
-        Returns the line plot figure.
+        Creates a line plot for the evaluation metrics.
+
+        Returns:
+            plotly.express.Figure: The line plot figure.
         """
         data = []
         for model in self.models:
@@ -346,8 +282,10 @@ class Visualization:
 
     def create_heatmap(self):
         """
-        Creates a heatmap comparing the metrics of multiple models.
-        Returns the heatmap figure.
+        Creates a heatmap for the evaluation metrics.
+
+        Returns:
+            plotly.express.Figure: The heatmap figure.
         """
         data = []
         for model in self.models:
@@ -371,8 +309,10 @@ class Visualization:
 
     def create_violin_plot(self):
         """
-        Creates a violin plot comparing the metrics of multiple models.
-        Returns the violin plot figure.
+        Creates a violin plot for the evaluation metrics.
+
+        Returns:
+            plotly.express.Figure: The violin plot figure.
         """
         data = []
         for model in self.models:
@@ -395,8 +335,10 @@ class Visualization:
 
     def create_table(self):
         """
-        Creates a table comparing the metrics of multiple models.
-        Returns the table figure.
+        Creates a table for the evaluation metrics.
+
+        Returns:
+            plotly.graph_objects.Figure: The table figure.
         """
         data = []
         for model in self.models:
@@ -427,359 +369,119 @@ class Visualization:
         )
         return fig
 
-    def plot(self):
+    def get_plot(self, plot_type):
+        """
+        Returns the specified plot.
+
+        Args:
+            plot_type (str): The type of plot to return.
+
+        Returns:
+            plotly.graph_objects.Figure: The specified plot figure.
+
+        Raises:
+            ValueError: If the plot type is not recognized.
+        """
+        plot_methods = {
+            'radar_chart': self.create_radar_chart,
+            'bar_chart': self.create_bar_chart,
+            'scatter_plot': self.create_scatter_plot,
+            'line_plot': self.create_line_plot,
+            'heatmap': self.create_heatmap,
+            'violin_plot': self.create_violin_plot,
+            'gauge_chart': self.create_gauge_chart,
+            'table': self.create_table
+        }
+        return plot_methods[plot_type]()
+
+    def create_layout(self):
+        """
+        Creates the layout for the Dash application.
+
+        Returns:
+            dash.Dash: The Dash application layout.
+        """
         app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, dbc.themes.DARKLY])
 
-        if self.mode == 'llm':
-            app.layout = html.Div([
-                html.Link(href='/assets/style.css', rel='stylesheet'),
-                dcc.Location(id='url', refresh=False),
-                dbc.Container([
+        nav_items = [
+            dbc.NavItem(dbc.NavLink(plot.replace('_', ' ').title(), href=f"#{plot}", className="nav-link",
+                                    external_link=True, id=f"nav-{plot}"))
+            for plot in self.plots
+        ]
+
+        cards = [
+            dbc.Card([
+                dbc.CardHeader(plot.replace('_', ' ').title(), id=plot, className="card-header"),
+                dbc.CardBody([
                     dbc.Row([
-                        dbc.Col(
-                            html.H2("LLM Comparison", className="text-center my-4 display-4 text-custom-primary",
-                                    id="title-text"), width=10),
-                        dbc.Col(dbc.Switch(id="dark-mode-switch", label="Dark Mode", className="my-4"), width=2)
-                    ], align="center"),
-                    dbc.Row([
-                        dbc.Col([
-                            dbc.Nav([
-                                dbc.NavItem(dbc.NavLink("Radar Chart", href="#radar-chart", className="nav-link",
-                                                        external_link=True, id="nav-radar-chart")),
-                                dbc.NavItem(dbc.NavLink("Bar Chart", href="#bar-chart", className="nav-link",
-                                                        external_link=True, id="nav-bar-chart")),
-                                dbc.NavItem(dbc.NavLink("Scatter Plot", href="#scatter-plot", className="nav-link",
-                                                        external_link=True, id="nav-scatter-plot")),
-                                dbc.NavItem(dbc.NavLink("Line Plot", href="#line-plot", className="nav-link",
-                                                        external_link=True, id="nav-line-plot")),
-                                dbc.NavItem(dbc.NavLink("Heatmap", href="#heatmap", className="nav-link",
-                                                        external_link=True, id="nav-heatmap")),
-                                dbc.NavItem(dbc.NavLink("Violin Plot", href="#violin-plot", className="nav-link",
-                                                        external_link=True, id="nav-violin-plot")),
-                                dbc.NavItem(dbc.NavLink("Gauge Chart", href="#gauge-chart", className="nav-link",
-                                                        external_link=True, id="nav-gauge-chart")),
-                                dbc.NavItem(dbc.NavLink("Table", href="#table", className="nav-link",
-                                                        external_link=True, id="nav-table")),
-                            ], pills=True, className="bg-light-custom p-3 stylish-nav justify-content-center",
-                                id="nav-container"),
-                        ], width=12),
-                    ], className="mb-4"),
-                    dbc.Row([
-                        dbc.Col([
-                            dbc.Card([
-                                dbc.CardHeader("Radar Chart", id="radar-chart", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-radar-chart"), width=8),
-                                        dbc.Col(
-                                            html.P(
-                                                "This radar chart compares multiple metrics across different models.",
-                                                className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-radar-chart"),
-                            dbc.Card([
-                                dbc.CardHeader("Bar Chart", id="bar-chart", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-bar-chart"), width=8),
-                                        dbc.Col(html.P(
-                                            "This bar chart shows the distribution of metric values across different models.",
-                                            className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-bar-chart"),
-                            dbc.Card([
-                                dbc.CardHeader("Scatter Plot", id="scatter-plot", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-scatter-plot"), width=8),
-                                        dbc.Col(
-                                            html.P(
-                                                "This scatter plot visualizes the relationship between metrics for different models.",
-                                                className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-scatter-plot"),
-                            dbc.Card([
-                                dbc.CardHeader("Line Plot", id="line-plot", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-line-plot"), width=8),
-                                        dbc.Col(
-                                            html.P("This line plot shows trends in metrics across different models.",
-                                                   className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-line-plot"),
-                            dbc.Card([
-                                dbc.CardHeader("Heatmap", id="heatmap", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-heatmap"), width=8),
-                                        dbc.Col(html.P(
-                                            "This heatmap represents metric values across models in a color-coded matrix.",
-                                            className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-heatmap"),
-                            dbc.Card([
-                                dbc.CardHeader("Violin Plot", id="violin-plot", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-violin-plot"), width=8),
-                                        dbc.Col(html.P(
-                                            "This violin plot displays the distribution of metric values across different models.",
-                                            className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-violin-plot"),
-                            dbc.Card([
-                                dbc.CardHeader("Gauge Chart", id="gauge-chart", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-gauge-chart"), width=8),
-                                        dbc.Col(html.P("This gauge chart displays the overall scores for each model.",
-                                                       className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-gauge-chart"),
-                            dbc.Card([
-                                dbc.CardHeader("Table", id="table", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-table"), width=8),
-                                        dbc.Col(
-                                            html.P("This table provides a detailed view of all metrics for each model.",
-                                                   className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-table"),
-                        ], width=12, className="mb-4"),
-                    ]),
-                    dbc.Row([
-                        dbc.Col([
-                            dbc.Button("Go to Top", className="btn-primary position-fixed bottom-0 end-0 m-4",
-                                       href="#url")
-                        ], width=12, className="d-flex justify-content-end")
+                        dbc.Col(dcc.Graph(id=f"graph-{plot}"), width=8),
+                        dbc.Col(html.P(
+                            f"This {plot.replace('_', ' ')} displays data for the model{'s' if len(self.models) > 1 else ''}.",
+                            className="card-text p-3"), width=4)
                     ])
-                ], fluid=True, className="p-5", id='main-container')
-            ])
+                ])
+            ], className="mb-4", id=f"card-{plot}")
+            for plot in self.plots
+        ]
 
-            @app.callback(
-                [Output('main-container', 'className'),
-                 Output('title-text', 'className'),
-                 Output('nav-container', 'className'),
-                 Output('graph-radar-chart', 'figure'),
-                 Output('graph-bar-chart', 'figure'),
-                 Output('graph-scatter-plot', 'figure'),
-                 Output('graph-line-plot', 'figure'),
-                 Output('graph-heatmap', 'figure'),
-                 Output('graph-violin-plot', 'figure'),
-                 Output('graph-gauge-chart', 'figure'),
-                 Output('graph-table', 'figure')],
-                [Input('dark-mode-switch', 'value')]
-            )
-            def update_llm_theme_and_graphs(dark_mode):
-                if dark_mode:
-                    self.set_theme('dark')
-                    container_class = 'bg-dark text-white'
-                    title_class = 'text-white'
-                    nav_class = 'bg-dark'
-                else:
-                    self.set_theme('light')
-                    container_class = 'bg-light'
-                    title_class = 'text-dark'
-                    nav_class = 'bg-light'
-
-                radar_chart = self.create_radar_chart()
-                bar_chart = self.create_bar_chart()
-                scatter_plot = self.create_scatter_plot()
-                line_plot = self.create_line_plot()
-                heatmap = self.create_heatmap()
-                violin_plot = self.create_violin_plot()
-                gauge_chart = self.create_gauge_chart()
-                table = self.create_table()
-
-                return (container_class, title_class, nav_class, radar_chart, bar_chart, scatter_plot,
-                        line_plot, heatmap, violin_plot, gauge_chart, table)
-
-        if self.mode == 'safety':
-            app.layout = html.Div([
-                html.Link(href='/assets/style.css', rel='stylesheet'),
-                dcc.Location(id='url', refresh=False),
-                dbc.Container([
-                    dbc.Row([
-                        dbc.Col(
-                            html.H2("Safety Comparison", className="text-center my-4 display-4 text-custom-primary",
+        app.layout = html.Div([
+            html.Link(href='/assets/style.css', rel='stylesheet'),
+            dcc.Location(id='url', refresh=False),
+            dbc.Container([
+                dbc.Row([
+                    dbc.Col(html.H2(f"{self.mode.upper()} {'Comparison' if len(self.models) > 1 else 'Analysis'}",
+                                    className="text-center my-4 display-4 text-custom-primary",
                                     id="title-text"), width=10),
-                        dbc.Col(dbc.Switch(id="dark-mode-switch", label="Dark Mode", className="my-4"), width=2)
-                    ], align="center"),
-                    dbc.Row([
-                        dbc.Col([
-                            dbc.Nav([
-                                dbc.NavItem(dbc.NavLink("Radar Chart", href="#radar-chart", className="nav-link",
-                                                        external_link=True, id="nav-radar-chart")),
-                                dbc.NavItem(dbc.NavLink("Bar Chart", href="#bar-chart", className="nav-link",
-                                                        external_link=True, id="nav-bar-chart")),
-                                dbc.NavItem(dbc.NavLink("Gauge Chart", href="#gauge-chart", className="nav-link",
-                                                        external_link=True, id="nav-gauge-chart")),
-                            ], pills=True, className="bg-light-custom p-3 stylish-nav justify-content-center",
+                    dbc.Col(dbc.Switch(id="dark-mode-switch", label="Dark Mode", className="my-4"), width=2)
+                ], align="center"),
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Nav(nav_items, pills=True,
+                                className="bg-light-custom p-3 stylish-nav justify-content-center",
                                 id="nav-container"),
-                        ], width=12),
-                    ], className="mb-4"),
-                    dbc.Row([
-                        dbc.Col([
-                            dbc.Card([
-                                dbc.CardHeader("Radar Chart", id="radar-chart", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-radar-chart"), width=8),
-                                        dbc.Col(
-                                            html.P(
-                                                "This radar chart compares multiple metrics across different models.",
-                                                className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-radar-chart"),
-                            dbc.Card([
-                                dbc.CardHeader("Bar Chart", id="bar-chart", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-bar-chart"), width=8),
-                                        dbc.Col(html.P(
-                                            "This bar chart shows the distribution of metric values across different models.",
-                                            className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-bar-chart"),
+                    ], width=12),
+                ], className="mb-4"),
+                dbc.Row([dbc.Col(cards, width=12, className="mb-4")]),
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Button("Go to Top", className="btn-primary position-fixed bottom-0 end-0 m-4", href="#url")
+                    ], width=12, className="d-flex justify-content-end")
+                ])
+            ], fluid=True, className="p-5", id='main-container')
+        ])
 
-                            dbc.CardHeader("Gauge Chart", id="gauge-chart", className="card-header"),
-                            dbc.CardBody([
-                                dbc.Row([
-                                    dbc.Col(dcc.Graph(id="graph-gauge-chart"), width=8),
-                                    dbc.Col(html.P("This gauge chart displays the overall scores for each model.",
-                                                   className="card-text p-3"), width=4)
-                                ])
-                            ])
-                        ], className="mb-4", id="card-gauge-chart"),
-                    ]),
-                    dbc.Row([
-                        dbc.Col([
-                            dbc.Button("Go to Top", className="btn-primary position-fixed bottom-0 end-0 m-4",
-                                       href="#url")
-                        ], width=12, className="d-flex justify-content-end")
-                    ])
-                ], fluid=True, className="p-5", id='main-container')
-            ])
+        return app
 
-            @app.callback(
-                [Output('main-container', 'className'),
-                 Output('title-text', 'className'),
-                 Output('nav-container', 'className'),
-                 Output('graph-radar-chart', 'figure'),
-                 Output('graph-bar-chart', 'figure'),
-                 Output('graph-gauge-chart', 'figure')],
-                [Input('dark-mode-switch', 'value')]
-            )
-            def update_llm_theme_and_graphs(dark_mode):
-                if dark_mode:
-                    self.set_theme('dark')
-                    container_class = 'bg-dark text-white'
-                    title_class = 'text-white'
-                    nav_class = 'bg-dark'
-                else:
-                    self.set_theme('light')
-                    container_class = 'bg-light'
-                    title_class = 'text-dark'
-                    nav_class = 'bg-light'
+    def plot(self,mode="external"):
+        """
+        Runs the Dash application.
 
-                radar_chart = self.create_radar_chart()
-                bar_chart = self.create_bar_chart()
-                gauge_chart = self.create_gauge_chart()
+        Returns:
+            None
+        """
+        app = self.create_layout()
 
-                return (container_class, title_class, nav_class, radar_chart, bar_chart, gauge_chart)
+        @app.callback(
+            [Output('main-container', 'className'),
+             Output('title-text', 'className'),
+             Output('nav-container', 'className')] +
+            [Output(f'graph-{plot}', 'figure') for plot in self.plots],
+            [Input('dark-mode-switch', 'value')]
+        )
+        def update_theme_and_graphs(dark_mode):
+            if dark_mode:
+                self.set_theme('dark')
+                container_class = 'bg-dark text-white'
+                title_class = 'text-white'
+                nav_class = 'bg-dark'
+            else:
+                self.set_theme('light')
+                container_class = 'bg-light'
+                title_class = 'text-dark'
+                nav_class = 'bg-light'
 
-        if self.mode == 'rag':
-            app.layout = html.Div([
-                html.Link(href='/assets/style.css', rel='stylesheet'),
-                dcc.Location(id='url', refresh=False),
-                dbc.Container([
-                    dbc.Row([
-                        dbc.Col(
-                            html.H2("RAG Metrics", className="text-center my-4 display-4 text-custom-primary",
-                                    id="title-text"), width=10),
-                        dbc.Col(dbc.Switch(id="dark-mode-switch", label="Dark Mode", className="my-4"), width=2)
-                    ], align="center"),
-                    dbc.Row([
-                        dbc.Col([
-                            dbc.Nav([
-                                dbc.NavItem(dbc.NavLink("Bar Chart", href="#bar-chart", className="nav-link",
-                                                        external_link=True, id="nav-bar-chart")),
-                                dbc.NavItem(dbc.NavLink("Gauge Chart", href="#gauge-chart", className="nav-link",
-                                                        external_link=True, id="nav-gauge-chart")),
-                            ], pills=True, className="bg-light-custom p-3 stylish-nav justify-content-center",
-                                id="nav-container"),
-                        ], width=12),
-                    ], className="mb-4"),
-                    dbc.Row([
-                        dbc.Col([
-                            dbc.Card([
-                                dbc.CardHeader("Bar Chart", id="bar-chart", className="card-header"),
-                                dbc.CardBody([
-                                    dbc.Row([
-                                        dbc.Col(dcc.Graph(id="graph-bar-chart"), width=8),
-                                        dbc.Col(html.P(
-                                            "This bar chart shows the distribution of metric values across different models.",
-                                            className="card-text p-3"), width=4)
-                                    ])
-                                ])
-                            ], className="mb-4", id="card-bar-chart"),
+            plots = [self.get_plot(plot) for plot in self.plots]
 
-                            dbc.CardHeader("Gauge Chart", id="gauge-chart", className="card-header"),
-                            dbc.CardBody([
-                                dbc.Row([
-                                    dbc.Col(dcc.Graph(id="graph-gauge-chart"), width=8),
-                                    dbc.Col(html.P("This gauge chart displays the overall scores for each model.",
-                                                   className="card-text p-3"), width=4)
-                                ])
-                            ])
-                        ], className="mb-4", id="card-gauge-chart"),
-                    ]),
-                    dbc.Row([
-                        dbc.Col([
-                            dbc.Button("Go to Top", className="btn-primary position-fixed bottom-0 end-0 m-4",
-                                       href="#url")
-                        ], width=12, className="d-flex justify-content-end")
-                    ])
-                ], fluid=True, className="p-5", id='main-container')
-            ])
+            return [container_class, title_class, nav_class] + plots
 
-            @app.callback(
-                [Output('main-container', 'className'),
-                 Output('title-text', 'className'),
-                 Output('nav-container', 'className'),
-                 Output('graph-bar-chart', 'figure'),
-                 Output('graph-gauge-chart', 'figure')],
-                [Input('dark-mode-switch', 'value')]
-            )
-            def update_llm_theme_and_graphs(dark_mode):
-                if dark_mode:
-                    self.set_theme('dark')
-                    container_class = 'bg-dark text-white'
-                    title_class = 'text-white'
-                    nav_class = 'bg-dark'
-                else:
-                    self.set_theme('light')
-                    container_class = 'bg-light'
-                    title_class = 'text-dark'
-                    nav_class = 'bg-light'
-
-                bar_chart = self.create_bar_chart()
-                gauge_chart = self.create_gauge_chart()
-
-                return (container_class, title_class, nav_class, bar_chart, gauge_chart)
-
-        app.run(jupyter_mode="external")
-        # app.run(jupyter_mode="tab")
-        # app.run()
+        app.run(jupyter_mode=mode)
