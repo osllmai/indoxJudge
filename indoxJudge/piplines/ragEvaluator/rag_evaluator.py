@@ -12,6 +12,7 @@ from indoxJudge.metrics import (
     METEOR,
 )
 from .graph.ragplot import RagVisualizer
+from typing import Union
 import warnings
 
 # Set up logging
@@ -32,7 +33,7 @@ class RagEvaluator:
     Knowledge Retention, BertScore, and METEOR.
     """
 
-    def __init__(self, llm_as_judge, llm_response, retrieval_context, query):
+    def __init__(self, llm_as_judge:object, llm_response:str, retrieval_context:Union[str, list[str]], query:str):
         """
         Initializes the RagEvaluator with a language model and a list of metrics.
 
@@ -168,5 +169,9 @@ class RagEvaluator:
         return results
 
     def plot(self):
-        visualizer = RagVisualizer(scores=self.metrics_score)#, score=self.evaluation_score)
-        return visualizer.get_dashboard_html()
+        from indoxJudge.graph import Visualization
+        from indoxJudge.utils import create_model_dict
+
+        rag_scores = create_model_dict(name='Rag',score=(self.evaluation_score/10),metrics=self.metrics_score),
+        visualizer = Visualization(data=rag_scores,mode='rag')
+        return visualizer.plot()
