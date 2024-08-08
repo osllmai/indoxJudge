@@ -17,7 +17,7 @@ class BertScore:
         self,
         llm_response
         retrieval_context,
-        model_name = "roberta-base",
+        model_name = "bert-base-uncased",
         max_length = 1024,
     ):
         """
@@ -38,7 +38,7 @@ class BertScore:
 
 - **retrieval_context**: The expected responses for comparison. Can be a single string or a list of strings.
 
-- **model_name**: The name of the pre-trained transformer model used for generating text embeddings. Default is `"roberta-base"`.
+- **model_name**: The name of the pre-trained transformer model used for generating text embeddings. Default is `"bert-base-uncased"`.
 
 - **max_length**: The maximum length for input sequences that the model will handle. Default is `1024`.
 
@@ -48,7 +48,6 @@ Here is an example of how to use the `BertScore` class:
 
 ```python
 from indoxJudge.metrics import BertScore
-from indoxJudge import Evaluator
 
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."
@@ -66,6 +65,5 @@ bert_score = BertScore(
 )
 
 # Measure the similarity
-evaluator = Evaluator(model=None, metrics=[bert_score])
-result = evaluator.judge()
+result = bert_score.measure()
 ```

@@ -38,9 +38,9 @@ Here is an example of how to use the `Rouge` class:
 
 ```python
 from indoxJudge.metrics import Rouge
-from indoxJudge import Evaluator
 
 # Define a sample response and context"
+llm_response = "The quick brown fox jumps over the lazy dog."
 retrieval_context = [
     "The fast brown fox leaps over the lazy dog.",
     "A speedy brown fox jumps over a sleepy dog."
@@ -54,6 +54,5 @@ rouge = Rouge(
 )
 
 # Measure the ROUGE score
-evaluator = Evaluator(model=None, metrics[rouge])
-result = evaluator.judge()
+result = rouge.measure()
 ```

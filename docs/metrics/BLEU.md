@@ -45,7 +45,6 @@ Here is an example of how to use the `BLEU` class:
 
 ```python
 from indoxJudge.metrics import BLEU
-from indoxJudge import Evaluator
 
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."
@@ -63,6 +62,5 @@ bleu = BLEU(
 )
 
 # Measure the BLEU score
-evaluator = Evaluator(model=None, metrics=[bleu])
-result = evaluator.judge()
+result = bleu.measure()
 ```

@@ -34,7 +34,6 @@ Here is an example of how to use the `METEOR` class:
 
 ```python
 from indoxJudge.metrics import METEOR
-from indoxJudge import Evaluator
 
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."
@@ -50,6 +49,5 @@ meteor = METEOR(
 )
 
 # Measure the METEOR score
-evaluator = Evaluator(model=None, metrics[meteor])
-result = evaluator.judge()
+result = meteor.measure()()
 ```
