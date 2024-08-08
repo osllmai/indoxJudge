@@ -81,6 +81,3 @@ class Hallucination:
     def _call_language_model(self, prompt: str) -> str:
         response = self.model.generate_evaluation_response(prompt=prompt)
         return response
-
-
-
