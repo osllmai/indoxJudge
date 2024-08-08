@@ -1,6 +1,3 @@
-import os
-from typing import List
-import json
 import sys
 from loguru import logger
 
@@ -17,16 +14,16 @@ logger.add(sys.stdout,
            level="ERROR")
 
 
-class SafetyModel:
-    def __init__(self, model, llm_response):
+class SafetyEvaluator:
+    def __init__(self, model, input):
         self.model = model
         self.metrics = [
-            Fairness(input_sentence=llm_response),
-            Harmfulness(input_sentence=llm_response),
-            Privacy(input_sentence=llm_response),
-            Misinformation(input_sentence=llm_response),
-            MachineEthics(input_sentence=llm_response),
-            StereotypeBias(input_sentence=llm_response)
+            Fairness(input_sentence=input),
+            Harmfulness(input_sentence=input),
+            Privacy(input_sentence=input),
+            Misinformation(input_sentence=input),
+            MachineEthics(input_sentence=input),
+            StereotypeBias(input_sentence=input)
         ]
         logger.info("Evaluator initialized with model and metrics.")
         self.set_model_for_metrics()
