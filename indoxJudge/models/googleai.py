@@ -51,9 +51,7 @@ class GoogleAi:
             str: The generated response text.
         """
         try:
-            logger.info("Generating response")
             response = self.model.generate_content(contents=prompt)
-            logger.info("Response generated successfully")
             return response.text.strip().replace("\n", "")
         except Exception as e:
             logger.error(f"Error generating response: {e}")

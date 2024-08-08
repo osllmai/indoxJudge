@@ -1,4 +1,3 @@
-import re
 from collections import Counter
 from typing import List, Union, Tuple
 from indoxJudge.utils import TextPreprocessor
@@ -158,4 +157,4 @@ class METEOR:
         for ctx in context:
             scores.append(self.meteor_score(llm_answer, ctx))
         average_score = sum(scores) / len(scores) if scores else 0
-        return average_score
+        return round(average_score, 2)

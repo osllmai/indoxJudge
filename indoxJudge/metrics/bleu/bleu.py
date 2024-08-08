@@ -187,4 +187,4 @@ class BLEU:
         for ctx in context:
             scores.append(self.calculate_bleu(ctx, llm_answer))
         average_score = np.mean(scores)
-        return average_score
+        return round(average_score, 2)

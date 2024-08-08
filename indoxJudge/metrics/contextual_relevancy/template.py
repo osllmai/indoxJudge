@@ -1,4 +1,3 @@
-# Template class
 class ContextualRelevancyTemplate:
     @staticmethod
     def generate_reason(query: str, irrelevancies: str, score: float) -> str:
@@ -33,21 +32,25 @@ JSON:
     def generate_verdict(query: str, context: str) -> str:
         return f"""Based on the input and context, please generate a JSON object to indicate whether the context 
         is relevant to the provided input. The JSON will have 1 mandatory field: 'verdict', and 1 optional field: 'reason'.
-    The 'verdict' key should STRICTLY be either 'yes' or 'no', and states whether the context is relevant to the input. 
+    The 'verdict' key should STRICTLY be either 'yes', 'partial', or 'no', indicating whether the context is relevant, partially relevant, or irrelevant to the input. 
     Provide a 'reason' explaining your choice. If the verdict is 'no', you MUST quote the irrelevant parts of the context 
-    to back up your reason. If the verdict is 'yes', explain why the context is relevant.
+    to back up your reason. If the verdict is 'yes' or 'partial', explain why the context is relevant or partially relevant.
 
     **
     IMPORTANT: Please make sure to only return in JSON format.
     Example Context: "Einstein won the Nobel Prize for his discovery of the photoelectric effect. He won the Nobel Prize in 
     1968. There was a cat."
-    Example Input: "When what was some of Einstein's achievements?"
+    Example Input: "What were some of Einstein's achievements?"
 
     Example:
     {{
         "verdict": "no",
         "reason": "Although the context contains information about Einstein winning the Nobel Prize, it irrelevantly includes 
         'There was a cat' when it has nothing to do with Einstein's achievements."
+    }},
+    {{
+        "verdict": "partial",
+        "reason": "The context mentions Einstein's Nobel Prize for his discovery of the photoelectric effect, which is relevant, but includes incorrect information about the year and irrelevant mention of a cat."
     }},
     {{
         "verdict": "yes",

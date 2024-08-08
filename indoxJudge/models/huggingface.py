@@ -66,7 +66,6 @@ class HuggingFaceModel:
         }
 
         try:
-            logger.info("Sending request to Hugging Face API")
             response = requests.post(
                 f"https://api-inference.huggingface.co/models/{self.model}",
                 headers=headers,
@@ -74,7 +73,6 @@ class HuggingFaceModel:
             )
 
             if response.status_code == 200:
-                logger.info("Received successful response from Hugging Face API")
                 answer_data = response.json()
                 if isinstance(answer_data, list) and len(answer_data) > 0:
                     answer_data = answer_data[0]
@@ -102,7 +100,6 @@ class HuggingFaceModel:
             str: The generated evaluation response.
         """
         try:
-            logger.info("Generating evaluation response")
             system_prompt = """
             You are a grader assessing for LLM evaluation.
             """

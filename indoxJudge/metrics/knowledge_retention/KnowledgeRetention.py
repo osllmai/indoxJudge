@@ -1,5 +1,6 @@
 from typing import List, Dict, Union
 from pydantic import BaseModel, Field
+
 import json
 
 from .template import KnowledgeRetentionTemplate
