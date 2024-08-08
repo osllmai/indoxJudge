@@ -1,7 +1,8 @@
 /* Light Theme */
 .bg-light-custom {
-    background: linear-gradient( 83deg , rgb(43, 5, 118), rgb(39, 6, 96),rgb(82, 14, 172) , rgb(91, 44, 185)) !important; /* Very light background */
-    color: #ffffff !important; /* Darker gray text color */
+    background:rgb(246, 246, 246) !important; 
+    color: black !important; 
+    transition: all .2s;
     
 }
 .header{
@@ -15,16 +16,20 @@
 .navbar-custom{
     justify-content: center;
     margin: 20px 0 100px 0;
-    background: linear-gradient( 320deg ,transparent , rgba(43, 5, 80, 0.515) ,rgba(35, 5, 62, 0.434), transparent );
+    background-color: rgb(237, 237, 237);
+    color: black;
     padding: 20px;
-    backdrop-filter: blur(19px);
-    -webkit-backdrop-filter: blur(19px);
+
     
     
 }
+
+.nav-link{
+    color: black !important;
+}
 .nav-link:hover{
-    color: rgb(73, 27, 73);
-    background-color: #ffffff;
+    color: rgb(237, 237, 237) !important;
+    background-color: black;
 
     
 }
@@ -50,24 +55,96 @@
 }
 
 .card-text{
-    background: rgba(0, 0, 0, 0.2);
+    background: rgb(237, 237, 237);
     height: 100%;
+    color: black;
     backdrop-filter: blur(80px);
 }
 .card-body{
     border: none;
-    box-shadow: 0 15px 10px rgba(0, 0, 0, 0.287);
-    margin-bottom: 100px;
-    border-radius: 20px;
+    box-shadow: 0 2px 20px 15px inset rgb(237, 237, 237);
+    margin-bottom: 20px;
+    border-radius: 8px;
     padding: 40px;
     
     
 }
+
 .btn-gtt{
-    background-color: rgb(129, 10, 203);
+    background-color: rgba(215, 215, 215, 0.891);
     border: none;
     outline: none;
 }
 .btn-gtt:hover{
-    background-color: rgb(109, 10, 170);
+    background-color: rgb(181, 181, 181);
+}
+.change-bg{
+   
+    display: flex;
+    align-items: center;
+}
+.modebtn{
+    margin: 0 14px;
+
+    
+    
+}
+/* sun icon */
+.bi-brightness-high-fill{
+    font-size: 24px;
+   
+}
+/* moon icon */
+.bi-moon-fill{
+    color: rgb(133, 133, 133);
+}
+.form-check-input{
+    background-color: rgb(233, 233, 233);
+ 
+}
+/* toogle body */
+.sc-bxivhb{                                                   
+    background-color: rgb(233, 233, 233);
+    margin: 0 5px;
+    border: 1px solid rgb(218, 218, 218);
+    width: 52px;
+    
+}
+/* toogle circle */
+.sc-ifAKCX{
+    background-color: rgb(133, 133, 133);
+      
+}
+/* toogle body */
+.daq-toggleswitch--light__indicator--off{
+    background-color: rgb(217, 217, 217);
+}
+.daq-toggleswitch--light__indicator--on{
+    background-color: rgb(33, 33, 33);
+}
+.bg-dark-custom{
+    background-color: rgb(56, 56, 56);
+    color: white;
+}
+
+.navbar-custom-dark{
+    justify-content: center;
+    margin: 20px 0 100px 0;
+    background-color: rgb(41, 41, 41);
+    color: rgb(217, 217, 217);
+    padding: 20px;
+    transition: all .2s;
+
+}
+
+.card-header-dark{
+    border: none;
+    margin-bottom: 100px;
+    border-radius: 8px;
+    padding: 40px;
+    
+}
+.nav-link-dark{
+    color: white !important;
+  
 }
