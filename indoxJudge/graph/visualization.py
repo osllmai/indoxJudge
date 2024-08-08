@@ -6,6 +6,7 @@ from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input
 from typing import Union, List, Dict
+import dash_daq as daq
 
 
 class Visualization:
@@ -368,20 +369,7 @@ class Visualization:
             template=self.current_template
         )
         return fig
-
     def get_plot(self, plot_type):
-        """
-        Returns the specified plot.
-
-        Args:
-            plot_type (str): The type of plot to return.
-
-        Returns:
-            plotly.graph_objects.Figure: The specified plot figure.
-
-        Raises:
-            ValueError: If the plot type is not recognized.
-        """
         plot_methods = {
             'radar_chart': self.create_radar_chart,
             'bar_chart': self.create_bar_chart,
@@ -392,16 +380,13 @@ class Visualization:
             'gauge_chart': self.create_gauge_chart,
             'table': self.create_table
         }
-        return plot_methods[plot_type]()
+        if plot_type in plot_methods:
+            return plot_methods[plot_type]()
+        else:
+            raise ValueError(f"Plot type {plot_type} not recognized.")
 
     def create_layout(self):
-        """
-        Creates the layout for the Dash application.
-
-        Returns:
-            dash.Dash: The Dash application layout.
-        """
-        app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, dbc.themes.DARKLY])
+        app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, dbc.themes.DARKLY, dbc.icons.BOOTSTRAP])
 
         nav_items = [
             dbc.NavItem(dbc.NavLink(plot.replace('_', ' ').title(), href=f"#{plot}", className="nav-link",
@@ -411,7 +396,7 @@ class Visualization:
 
         cards = [
             dbc.Card([
-                dbc.CardHeader(plot.replace('_', ' ').title(), id=plot, className="card-header"),
+                dbc.CardHeader(html.H4(plot.replace('_', ' ').title(), id=plot, className="display-4 cart-title")),
                 dbc.CardBody([
                     dbc.Row([
                         dbc.Col(dcc.Graph(id=f"graph-{plot}"), width=8),
@@ -429,36 +414,30 @@ class Visualization:
             dcc.Location(id='url', refresh=False),
             dbc.Container([
                 dbc.Row([
-                    dbc.Col(html.H2(f"{self.mode.upper()} {'Comparison' if len(self.models) > 1 else 'Analysis'}",
-                                    className="text-center my-4 display-4 text-custom-primary",
-                                    id="title-text"), width=10),
-                    dbc.Col(dbc.Switch(id="dark-mode-switch", label="Dark Mode", className="my-4"), width=2)
-                ], align="center"),
+                    dbc.Col(html.H2("IndoxJudge", className="text-center display-4", id="title-text"), width=10),
+                    dbc.Col([
+                        html.I(className="bi bi-brightness-high-fill"),
+                        daq.ToggleSwitch(id="dark-mode-switch", value=False, className="my-4 out modebtn"),
+                        html.I(className="bi bi-moon-fill"),
+                    ], className='change-bg', width=2),
+                ], className='header', align="center"),
                 dbc.Row([
                     dbc.Col([
-                        dbc.Nav(nav_items, pills=True,
-                                className="bg-light-custom p-3 stylish-nav justify-content-center",
-                                id="nav-container"),
+                        dbc.Nav(nav_items, pills=True, className="bg-light-custom stylish-nav justify-content-center", id="nav-container"),
                     ], width=12),
                 ], className="mb-4"),
                 dbc.Row([dbc.Col(cards, width=12, className="mb-4")]),
                 dbc.Row([
                     dbc.Col([
-                        dbc.Button("Go to Top", className="btn-primary position-fixed bottom-0 end-0 m-4", href="#url")
-                    ], width=12, className="d-flex justify-content-end")
+                        dbc.Button("Go to Top", className="btn-primary btn-gtt position-fixed bottom-0 end-0 m-4", href="#url")
+                    ], width=12, className="d-flex justify-content-end btn-gtt-container")
                 ])
-            ], fluid=True, className="p-5", id='main-container')
+            ], fluid=True, id='main-container', className='bg-dark-custom')
         ])
 
         return app
 
-    def plot(self,mode="external"):
-        """
-        Runs the Dash application.
-
-        Returns:
-            None
-        """
+    def plot(self, mode="external"):
         app = self.create_layout()
 
         @app.callback(
@@ -471,14 +450,14 @@ class Visualization:
         def update_theme_and_graphs(dark_mode):
             if dark_mode:
                 self.set_theme('dark')
-                container_class = 'bg-dark text-white'
-                title_class = 'text-white'
-                nav_class = 'bg-dark'
+                container_class = 'bg-dark-custom'
+                title_class = 'text-custom-primary-dark'
+                nav_class = 'navbar-custom-dark'
             else:
                 self.set_theme('light')
-                container_class = 'bg-light'
-                title_class = 'text-dark'
-                nav_class = 'bg-light'
+                container_class = 'bg-light-custom'
+                title_class = 'text-custom-primary'
+                nav_class = 'navbar-custom'
 
             plots = [self.get_plot(plot) for plot in self.plots]
 
