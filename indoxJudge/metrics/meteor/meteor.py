@@ -1,4 +1,3 @@
-import re
 from collections import Counter
 from typing import List, Union, Tuple
 from indoxJudge.utils import TextPreprocessor
