@@ -1,4 +1,6 @@
 import sys
+from typing import Tuple, Dict, List
+
 from loguru import logger
 
 from indoxJudge.metrics import (Fairness, Harmfulness, Privacy, Misinformation, MachineEthics, StereotypeBias)

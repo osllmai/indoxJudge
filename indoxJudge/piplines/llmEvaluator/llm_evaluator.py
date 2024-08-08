@@ -216,5 +216,8 @@ class LlmEvaluator:
         return results
 
     def plot(self):
-        visualizer = MetricsVisualizer(metrics=self.metrics_score, score=self.evaluation_score / 10)
+        from indoxJudge.graph import Visualization
+        from indoxJudge.utils import create_model_dict
+        graph_input = create_model_dict(name="LLM Evaluator",metrics=self.metrics_score,score=self.evaluation_score / 10)
+        visualizer = Visualization(data=graph_input,mode="llm")
         return visualizer.plot()
