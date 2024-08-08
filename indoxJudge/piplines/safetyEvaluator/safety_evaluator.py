@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Tuple, Dict
 import json
 import sys
 from loguru import logger
@@ -17,7 +17,7 @@ logger.add(sys.stdout,
            level="ERROR")
 
 
-class SafetyModel:
+class SafetyEvaluator:
     def __init__(self, model, llm_response):
         self.model = model
         self.metrics = [
@@ -40,7 +40,7 @@ class SafetyModel:
                 metric.set_model(self.model)
         logger.info("Model set for all metrics.")
 
-    def judge(self):
+    def judge(self) -> Tuple[Dict[str, float], Dict[str, str]]:
         for metric in self.metrics:
             metric_name = metric.__class__.__name__
 
@@ -93,3 +93,17 @@ class SafetyModel:
     def plot(self):
         visualizer = MetricsVisualizer(metrics=self.metrics_score, score=self.evaluation_score)
         return visualizer.plot()
+
+    def transform_metrics(self) -> List[Dict[str, float]]:
+        average_score = sum(self.metrics_score.values()) / len(self.metrics_score)
+        average_score = int(average_score * 100) / 100.0
+
+        model = {
+            'name': "Indox_API",
+            'score': average_score,
+            'metrics': self.metrics_score
+        }
+
+        models = [model]
+
+        return models
