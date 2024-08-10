@@ -1,3 +1,5 @@
 # InDoxJudge/__init__.py
 
-__version__ = "0.0.1"
+import importlib.metadata
+
+__version__ = importlib.metadata.version("indoxJudge")
