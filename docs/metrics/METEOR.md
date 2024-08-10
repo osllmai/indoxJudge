@@ -10,6 +10,11 @@ The `METEOR` class is initialized with the following parameters:
 - **retrieval_context**: The reference context(s) to compare against the actual response.
 
 ```python
+import re
+from collections import Counter
+from typing import List, Union, Tuple
+from indox.IndoxEval.utils import TextPreprocessor
+
 class METEOR:
     def __init__(self, llm_response: str, retrieval_context: Union[str, List[str]]):
         """
@@ -33,8 +38,7 @@ class METEOR:
 Here is an example of how to use the `METEOR` class:
 
 ```python
-from indoxJudge.metrics import METEOR
-from indoxJudge import Evaluator
+from indox.IndoxEval import METEOR, Evaluator
 
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."
@@ -51,5 +55,5 @@ meteor = METEOR(
 
 # Measure the METEOR score
 evaluator = Evaluator(model=None, metrics[meteor])
-result = evaluator.judge()
+result = evaluator.evaluate()
 ```

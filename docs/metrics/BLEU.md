@@ -12,6 +12,12 @@ The `BLEU` class is initialized with the following parameters:
 - **remove_repeating_ngrams**: Option to remove repeating n-grams from consideration.
 
 ```python
+import numpy as np
+import math
+from collections import Counter
+from typing import List, Union
+from indox.IndoxEval.utils import TextPreprocessor
+
 class BLEU:
     def __init__(
         self,
@@ -44,8 +50,7 @@ class BLEU:
 Here is an example of how to use the `BLEU` class:
 
 ```python
-from indoxJudge.metrics import BLEU
-from indoxJudge import Evaluator
+from indox.IndoxEval import BLEU, Evaluator
 
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."
@@ -64,5 +69,5 @@ bleu = BLEU(
 
 # Measure the BLEU score
 evaluator = Evaluator(model=None, metrics=[bleu])
-result = evaluator.judge()
+result = evaluator.evaluate()
 ```

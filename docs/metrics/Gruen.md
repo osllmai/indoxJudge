@@ -7,8 +7,6 @@ Class for evaluating the quality of generated text using various metrics, includ
 The `Gruen` class is initialized with the following parameters:
 
 - **candidates**: The candidate text(s) to evaluate.
-- **use_spacy**: Whether to use `spacy` for focus score calculation.
-- **use_nltk**: Whether to use `nltk` for sentence tokenization.
 
 ```python
 class Gruen:
@@ -18,17 +16,16 @@ class Gruen:
 
         Parameters:
         candidates (Union[str, List[str]]): The candidate text(s) to evaluate.
-        use_spacy (bool): Whether to use spacy for focus score calculation.
-        use_nltk (bool): Whether to use nltk for sentence tokenization.
         """
+        if isinstance(candidates, str):
+            candidates = [candidates]
+        self.candidates = candidates
+        self.stop_words = set(stopwords.words('english'))
+        self.lemmatizer = WordNetLemmatizer()
 ```
 ## Parameters Explanation
 
 - **candidates**: The actual texts to be evaluated. Can be a single string or a list of strings.
-
-- **use_spacy**: A boolean flag to indicate whether to use `spacy` for focus score calculation. Default is `True`.
-
-- **use_nltk**: A boolean flag to indicate whether to use `nltk` for sentence tokenization. Default is `True`.
 
 ## Usage Example
 
@@ -36,7 +33,6 @@ Here is an example of how to use the `Gruen` class:
 
 ```python
 from indoxJudge.metrics import Gruen
-from indoxJudge import Evaluator
 
 # Define sample candidate texts
 candidates = [
@@ -47,11 +43,8 @@ candidates = [
 # Initialize the Gruen object
 gruen = Gruen(
     candidates=candidates,
-    use_spacy=True,
-    use_nltk=True
 )
 
 # Calculate the GRUEN scores
-evaluator = Evaluator(model=None, metrics=[gruen])
-result = evaluator.judge()
+result = gruen.measure()
 ```

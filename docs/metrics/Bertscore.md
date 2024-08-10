@@ -12,6 +12,11 @@ The `BertScore` class is initialized with the following parameters:
 - **max_length**: The maximum length of input sequences to be processed by the model.
 
 ```python
+import torch
+from transformers import AutoTokenizer, AutoModel
+import numpy as np
+from typing import Union, List, Dict
+
 class BertScore:
     def __init__(
         self,
@@ -47,8 +52,7 @@ class BertScore:
 Here is an example of how to use the `BertScore` class:
 
 ```python
-from indoxJudge.metrics import BertScore
-from indoxJudge import Evaluator
+from indox.IndoxEval import BertScore, Evaluator
 
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."
@@ -67,5 +71,5 @@ bert_score = BertScore(
 
 # Measure the similarity
 evaluator = Evaluator(model=None, metrics=[bert_score])
-result = evaluator.judge()
+result = evaluator.evaluate()
 ```

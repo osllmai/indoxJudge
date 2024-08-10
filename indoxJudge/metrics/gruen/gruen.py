@@ -255,7 +255,7 @@ class Gruen:
             if len(summary) == 1:
                 continue
             flag = sum(
-                self._if_two_sentence_redundant(summary[j].strip(), summary[k].strip())
+                self._if_two_sentences_redundant(summary[j].strip(), summary[k].strip())
                 for j in range(len(summary) - 1)
                 for k in range(j + 1, len(summary))
             )

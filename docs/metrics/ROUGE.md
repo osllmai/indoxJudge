@@ -11,6 +11,11 @@ The `Rouge` class is initialized with the following parameters:
 - **n**: The size of the n-grams to use for evaluation (e.g., 1 for unigrams, 2 for bigrams, etc.).
 
 ```python
+from collections import Counter
+from typing import Union, List, Tuple, Dict
+import numpy as np
+from indox.IndoxEval.utils import TextPreprocessor
+
 class Rouge:
     def __init__(
         self, llm_response: str, retrieval_context: Union[str, List[str]], n: int = 1
@@ -37,8 +42,7 @@ class Rouge:
 Here is an example of how to use the `Rouge` class:
 
 ```python
-from indoxJudge.metrics import Rouge
-from indoxJudge import Evaluator
+from indox.IndoxEval import Rouge, Evaluator
 
 # Define a sample response and context"
 retrieval_context = [
@@ -55,5 +59,5 @@ rouge = Rouge(
 
 # Measure the ROUGE score
 evaluator = Evaluator(model=None, metrics[rouge])
-result = evaluator.judge()
+result = evaluator.evaluate()
 ```

@@ -8,6 +8,24 @@ A class for preprocessing text data, including methods for tokenization, stopwor
 The `TextPreprocessor` class is initialized with a list of stopwords and instances of `PorterStemmer` and `WordNetLemmatizer`.
 
 ```python
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+from nltk.corpus import wordnet
+from typing import List
+from nltk import pos_tag
+
+nltk.download("punkt")
+nltk.download("averaged_perceptron_tagger")
+nltk.download("wordnet")
+
+
+with open("indox/IndoxEval/utils/stopwords.txt", "r") as file:
+    stopwords = file.read().splitlines()
+
 class TextPreprocessor:
     def __init__(self, stopwords: List[str] = stopwords):
         """
