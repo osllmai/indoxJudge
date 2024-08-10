@@ -71,7 +71,7 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import GEval
-from indoxJudge import Evaluator
+from indoxJudge.piplines import CustomEvaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -97,6 +97,6 @@ geval_metric = GEval(
 )
 
 # Create an evaluator with the GEval metric
-evaluator = Evaluator(model=llm, metrics=[geval_metric])
+evaluator = CustomEvaluator(model=llm, metrics=[geval_metric])
 result = evaluator.judge()
 ```

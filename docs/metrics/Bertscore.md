@@ -48,7 +48,7 @@ Here is an example of how to use the `BertScore` class:
 
 ```python
 from indoxJudge.metrics import BertScore
-from indoxJudge import Evaluator
+from indoxJudge.piplines import CustomEvaluator
 
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."
@@ -66,6 +66,6 @@ bert_score = BertScore(
 )
 
 # Measure the similarity
-evaluator = Evaluator(model=None, metrics=[bert_score])
+evaluator = CustomEvaluator(model=None, metrics=[bert_score])
 result = evaluator.judge()
 ```

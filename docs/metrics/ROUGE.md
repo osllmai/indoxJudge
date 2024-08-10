@@ -38,7 +38,7 @@ Here is an example of how to use the `Rouge` class:
 
 ```python
 from indoxJudge.metrics import Rouge
-from indoxJudge import Evaluator
+from indoxJudge.piplines import CustomEvaluator
 
 # Define a sample response and context"
 retrieval_context = [

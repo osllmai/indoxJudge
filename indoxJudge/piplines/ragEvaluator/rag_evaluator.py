@@ -11,7 +11,6 @@ from indoxJudge.metrics import (
     BertScore,
     METEOR,
 )
-from .graph.ragplot import RagVisualizer
 import warnings
 
 # Set up logging

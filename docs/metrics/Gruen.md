@@ -36,7 +36,7 @@ Here is an example of how to use the `Gruen` class:
 
 ```python
 from indoxJudge.metrics import Gruen
-from indoxJudge import Evaluator
+from indoxJudge.piplines import CustomEvaluator
 
 # Define sample candidate texts
 candidates = [
@@ -52,6 +52,6 @@ gruen = Gruen(
 )
 
 # Calculate the GRUEN scores
-evaluator = Evaluator(model=None, metrics=[gruen])
+evaluator = CustomEvaluator(model=None, metrics=[gruen])
 result = evaluator.judge()
 ```
