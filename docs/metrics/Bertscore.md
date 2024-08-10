@@ -12,17 +12,12 @@ The `BertScore` class is initialized with the following parameters:
 - **max_length**: The maximum length of input sequences to be processed by the model.
 
 ```python
-import torch
-from transformers import AutoTokenizer, AutoModel
-import numpy as np
-from typing import Union, List, Dict
-
 class BertScore:
     def __init__(
         self,
         llm_response
         retrieval_context,
-        model_name = "roberta-base",
+        model_name = "bert-base-uncased",
         max_length = 1024,
     ):
         """
@@ -43,7 +38,7 @@ class BertScore:
 
 - **retrieval_context**: The expected responses for comparison. Can be a single string or a list of strings.
 
-- **model_name**: The name of the pre-trained transformer model used for generating text embeddings. Default is `"roberta-base"`.
+- **model_name**: The name of the pre-trained transformer model used for generating text embeddings. Default is `"bert-base-uncased"`.
 
 - **max_length**: The maximum length for input sequences that the model will handle. Default is `1024`.
 
@@ -52,8 +47,7 @@ class BertScore:
 Here is an example of how to use the `BertScore` class:
 
 ```python
-from indox.IndoxEval import BertScore, Evaluator
-
+from indoxJudge.metrics import BertScore
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."
 retrieval_context = [
@@ -65,11 +59,9 @@ retrieval_context = [
 bert_score = BertScore(
     llm_response=llm_response,
     retrieval_context=retrieval_context,
-    model_name="roberta-base",
     max_length=512
 )
 
 # Measure the similarity
-evaluator = Evaluator(model=None, metrics=[bert_score])
-result = evaluator.evaluate()
+result = bert_score.measure()
 ```

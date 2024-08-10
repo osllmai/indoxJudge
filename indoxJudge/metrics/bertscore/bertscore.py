@@ -1,8 +1,6 @@
 import numpy as np
 from typing import Union, List, Dict
 import torch
-from transformers import AutoTokenizer, AutoModel
-
 
 class BertScore:
     def __init__(
@@ -23,11 +21,14 @@ class BertScore:
                           Defaults to "roberta-base".
         max_length (int): The maximum length of input sequences to be processed by the model. Defaults to 1024.
         """
+        from transformers import AutoTokenizer, AutoModel
+
         self.llm_response = llm_response
         self.retrieval_context = retrieval_context
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
         self.max_length = max_length
+        self.score = None
 
     def measure(self) -> float:
         """
