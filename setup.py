@@ -26,7 +26,7 @@ setup(
     author='osllm',
     author_email='ashkan@nematifamilyfundation.onmicrosoft.com',
     url='https://github.com/osllmai/inDoxJudge',
-    keywords=['RAG', 'LLM'],
+    keywords=['Evaluation', 'Safety Check', 'LLM Comparison', 'RAG', 'LLM'],
     install_requires=packages,
     classifiers=[
         'Development Status :: 3 - Alpha',
