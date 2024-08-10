@@ -17,6 +17,14 @@ from transformers import (
 from transformers import glue_convert_examples_to_features
 from transformers.data.processors.utils import InputExample
 from typing import List, Union
+import warnings
+from transformers import logging
+
+# Suppress specific warnings
+warnings.filterwarnings("ignore", category=UserWarning, message="Some weights of the model checkpoint at")
+logging.set_verbosity_error()
+warnings.filterwarnings("ignore", message="`resume_download` is deprecated and will be removed in version 1.0.0.")
+warnings.filterwarnings("ignore", message="This function will be removed from the library soon, preprocessing should be handled with the 🤗 Datasets library.")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
