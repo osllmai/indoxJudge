@@ -1,4 +1,35 @@
-# IndoxJudge
+<p align="center">
+
+
+<div style="position: relative; width: 100%; text-align: center;">
+    <h1>inDoxJudge</h1>
+    <a href="https://github.com/osllmai/inDoxJudge">
+<img src="https://readme-typing-svg.demolab.com?font=Georgia&size=16&duration=3000&pause=500&multiline=true&width=700&height=100&lines=InDoxJudge;LLM+Evaluation+%7C+RAG+Evaluation+%7C+Safety+Evaluation+%7C+LLM+Comparison;Copyright+©️+OSLLAM.ai" alt="Typing SVG" style="margin-top: 20px;"/>
+    </a>
+</div>
+
+</br>
+
+[![License](https://img.shields.io/github/license/osllmai/inDox)](https://github.com/osllmai/inDox/blob/main/LICENSE)
+[![PyPI](https://badge.fury.io/py/indoxJudge.svg)](https://pypi.org/project/IndoxJudge/0.0.1/)
+[![Python](https://img.shields.io/pypi/pyversions/indoxJudge.svg)](https://pypi.org/project/indoxJudge/0.0.1/)
+[![Downloads](https://static.pepy.tech/badge/indoxJudge)](https://pepy.tech/project/indoxJudge)
+
+[![Discord](https://img.shields.io/discord/1223867382460579961?label=Discord&logo=Discord&style=social)](https://discord.com/invite/ossllmai)
+[![GitHub stars](https://img.shields.io/github/stars/osllmai/inDoxJudge?style=social)](https://github.com/osllmai/inDoxJudge)
+
+
+
+
+<p align="center">
+  <a href="https://osllm.ai">Official Website</a> &bull; <a href="https://github.com/osllmai/inDox/wiki">Documentation</a> &bull; <a href="https://discord.gg/qrCc56ZR">Discord</a>
+</p>
+
+
+<p align="center">
+  <b>NEW:</b> <a href="https://docs.google.com/forms/d/1CQXJvxLUqLBSXnjqQmRpOyZqD6nrKubLz2WTcIJ37fU/prefill">Subscribe to our mailing list</a> for updates and news!
+</p>
+
 
 Welcome to IndoxJudge! This repository provides a comprehensive suite of evaluation metrics for assessing the performance and quality of large language models (LLMs). Whether you're a researcher, developer, or enthusiast, this toolkit offers essential tools to measure various aspects of LLMs, including knowledge retention, bias, toxicity, and more.
 
@@ -9,6 +40,8 @@ IndoxJudge is designed to provide a standardized and extensible framework for ev
 ## Features
 
 - **Comprehensive Metrics**: Evaluate LLMs across multiple dimensions, including accuracy, bias, toxicity, and contextual relevancy.
+- **RAG Evaluation**: Includes specialized metrics for evaluating retrieval-augmented generation (RAG) models.
+- **Safety Evaluation**: Assess the safety of model outputs, focusing on toxicity, bias, and ethical considerations.
 - **Extensible Framework**: Easily integrate new metrics or customize existing ones to suit specific needs.
 - **User-Friendly Interface**: Intuitive and easy-to-use interface for seamless evaluation.
 - **Continuous Updates**: Regular updates to incorporate new metrics and improvements.
@@ -45,6 +78,7 @@ IndoxJudge includes the following metrics, with more being added:
 ## Installation
 
 To install IndoxJudge, follow these steps:
+
 
 ```bash
 git clone https://github.com/yourusername/indoxjudge.git
@@ -125,7 +159,7 @@ faithfulness_metrics = Faithfulness(llm_response=response, retrieval_context=ret
 evaluator = CustomEvaluator(metrics=[faithfulness_metrics], model=model)
 
 # Evaluate the response
-faithfulness_result = evaluator.evaluate()
+faithfulness_result = evaluator.judge()
 
 # Output the evaluation result
 print(faithfulness_result)
