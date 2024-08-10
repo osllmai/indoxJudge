@@ -97,15 +97,15 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-INDOX_API_KEY = os.getenv("INDOX_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Import IndoxJudge and supported models
 from indoxJudge.piplines import CustomEvaluator
-from indoxJudge.models import IndoxApi
+from indoxJudge.models import OpenAi
 from indoxJudge.metrics import Faithfulness
 
 # Initialize the model with your API key
-model = IndoxApi(api_key=INDOX_API_KEY)
+model = OpenAi(api_key=OPENAI_API_KEY,model="gpt-4o")
 
 # Define your query and retrieval context
 query = "What are the benefits of a Mediterranean diet?"
