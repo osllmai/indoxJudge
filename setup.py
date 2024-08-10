@@ -13,7 +13,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='indoxJudge',
-    version='0.0.0',
+    version='0.0.1',
     license='MIT',
     packages=find_packages(),
     package_data={
