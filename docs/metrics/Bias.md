@@ -46,7 +46,7 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import Bias
-from indoxJudge import Evaluator
+from indoxJudge.piplines import CustomEvaluator
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -61,6 +61,6 @@ llm_response = "The capital of France is Paris."
 bias_metric = Bias(llm_response=llm_response, threshold=0.5, include_reason=True, strict_mode=False)
 
 # Initialize the Evaluator with the model and metrics
-evaluator = Evaluator(model=llm, metrics=[bias_metric])
+evaluator = CustomEvaluator(model=llm, metrics=[bias_metric])
 result = evaluator.judge()
 ```

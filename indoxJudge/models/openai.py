@@ -20,6 +20,7 @@ class OpenAi:
     This class uses the OpenAI API to send requests and receive responses, which are utilized
     for evaluating the performance of language models.
     """
+
     def __init__(self, api_key: str, model: str):
         """
         Initializes the OpenAi class with the specified API key and model version.
@@ -39,7 +40,7 @@ class OpenAi:
             raise
 
     @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
-    def _generate_response(self, messages: list, max_tokens: int = 250, temperature: float = 0) -> str:
+    def _generate_response(self, messages: list, max_tokens: int = 400, temperature: float = 0.00001) -> str:
         """
         Generates a response from the OpenAI model.
 
@@ -82,7 +83,7 @@ class OpenAi:
                 {"role": "system", "content": "You are an assistant for LLM evaluation"},
                 {"role": "user", "content": prompt},
             ]
-            return self._generate_response(messages, max_tokens=150, temperature=0)
+            return self._generate_response(messages, max_tokens=400, temperature=0.00001)
         except Exception as e:
             logger.error(f"Error generating response to custom prompt: {e}")
             return str(e)

@@ -369,6 +369,7 @@ class Visualization:
             template=self.current_template
         )
         return fig
+
     def get_plot(self, plot_type):
         plot_methods = {
             'radar_chart': self.create_radar_chart,
@@ -423,13 +424,15 @@ class Visualization:
                 ], className='header', align="center"),
                 dbc.Row([
                     dbc.Col([
-                        dbc.Nav(nav_items, pills=True, className="bg-light-custom stylish-nav justify-content-center", id="nav-container"),
+                        dbc.Nav(nav_items, pills=True, className="bg-light-custom stylish-nav justify-content-center",
+                                id="nav-container"),
                     ], width=12),
                 ], className="mb-4"),
                 dbc.Row([dbc.Col(cards, width=12, className="mb-4")]),
                 dbc.Row([
                     dbc.Col([
-                        dbc.Button("Go to Top", className="btn-primary btn-gtt position-fixed bottom-0 end-0 m-4", href="#url")
+                        dbc.Button("Go to Top", className="btn-primary btn-gtt position-fixed bottom-0 end-0 m-4",
+                                   href="#url")
                     ], width=12, className="d-flex justify-content-end btn-gtt-container")
                 ])
             ], fluid=True, id='main-container', className='bg-dark-custom')

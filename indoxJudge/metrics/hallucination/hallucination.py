@@ -76,7 +76,7 @@ class Hallucination:
         hallucination_count = sum(1 for verdict in self.verdicts if verdict.verdict.strip().lower() == "no")
 
         score = hallucination_count / number_of_verdicts
-        return 1 if self.strict_mode and score > self.threshold else round(score, 2)
+        return 1 if self.strict_mode and score > self.threshold else score
 
     def _call_language_model(self, prompt: str) -> str:
         response = self.model.generate_evaluation_response(prompt=prompt)

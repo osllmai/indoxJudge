@@ -31,7 +31,7 @@ Here is an example of how to use the `ContextualRelevancy` class:
 import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
-from indoxJudge import Evaluator
+from indoxJudge.piplines import CustomEvaluator
 from indoxJudge.metrics import ContextualRelevancy
 
 load_dotenv()
@@ -50,6 +50,6 @@ retrieval_context = [
 
 # Initialize the ContextualRelevancy metric
 contextual_relevancy_metric = ContextualRelevancy(query=query, retrieval_context=retrieval_context)
-evaluator = Evaluator(model=llm, metrics=[contextual_relevancy_metric])
+evaluator = CustomEvaluator(model=llm, metrics=[contextual_relevancy_metric])
 result = evaluator.judge()
 ```

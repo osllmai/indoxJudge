@@ -1,6 +1,5 @@
 from collections import Counter
 from typing import List, Union, Tuple
-from indoxJudge.utils import TextPreprocessor
 
 
 class METEOR:
@@ -37,6 +36,9 @@ class METEOR:
         Returns:
         str: The preprocessed text.
         """
+        from indoxJudge.utils import TextPreprocessor
+        from indoxJudge.utils import nltk_download
+        nltk_download()
         preprocessor = TextPreprocessor()
         preprocessing_methods = [
             preprocessor.to_lower,

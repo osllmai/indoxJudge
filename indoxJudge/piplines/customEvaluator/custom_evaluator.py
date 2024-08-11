@@ -4,7 +4,7 @@ from loguru import logger
 import sys
 from indoxJudge.metrics import Faithfulness, Privacy, Misinformation, MachineEthics, StereotypeBias, Fairness, \
     Harmfulness, AnswerRelevancy, KnowledgeRetention, Hallucination, Toxicity, Bias, BertScore, BLEU, \
-    ContextualRelevancy, GEval, METEOR
+    ContextualRelevancy, GEval, METEOR, Gruen
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -194,11 +194,12 @@ class CustomEvaluator:
                     #
                     #     self.metrics_score["Rouge"] = score
                     #     self.metrics_score["Rouge"] = score
-                    # elif isinstance(metric, Gruen):
-                    #     score = metric.measure()
-                    #     results['gruen'] = {
-                    #         'score': score
-                    #     }
+                elif isinstance(metric, Gruen):
+                        score = metric.measure()
+                        results['gruen'] = {
+                            'score': score
+                        }
+
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
                     results['AnswerRelevancy'] = {

@@ -55,7 +55,7 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import AnswerRelevancy
-from indoxJudge import Evaluator
+from indoxJudge.piplines import CustomEvaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -71,13 +71,12 @@ llm_response = "The capital of France is Paris."
 answer_relevancy_metric = AnswerRelevancy(
     query=query, 
     llm_response=llm_response, 
-    model=llm, 
     threshold=0.5, 
     include_reason=True, 
     strict_mode=False
 )
 
-evaluator = Evaluator(model=llm, metrics=[answer_relevancy_metric])
+evaluator = CustomEvaluator(model=llm, metrics=[answer_relevancy_metric])
 result = evaluator.judge()
 ```
 

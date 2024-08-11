@@ -1,14 +1,6 @@
 import re
 from typing import List
 
-import nltk
-from nltk.stem import PorterStemmer
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
-from nltk.corpus import wordnet
-from nltk import pos_tag
-
-
 stopwords = [
     "the", "of", "and", "a", "to", "in", "is", "you", "that", "it",
     "he", "was", "for", "on", "are", "as", "with", "his", "they", "I",
@@ -30,21 +22,14 @@ class TextPreprocessor:
         Parameters:
         stopwords (List[str]): A list of stopwords to use for text preprocessing.
         """
-        self.download_nltk_resources()
+        from indoxJudge.utils import nltk_download
+        from nltk.stem import PorterStemmer
+        from nltk.stem import WordNetLemmatizer
 
-
+        nltk_download()
         self.stop_words = stopwords
         self.stemmer = PorterStemmer()
         self.lemmatizer = WordNetLemmatizer()
-
-    @staticmethod
-    def download_nltk_resources():
-        """
-        Downloads the required NLTK resources.
-        """
-        nltk.download("punkt", quiet=True)
-        nltk.download("averaged_perceptron_tagger", quiet=True)
-        nltk.download("wordnet", quiet=True)
 
     def to_lower(self, text: str) -> str:
         return text.lower()
@@ -58,6 +43,8 @@ class TextPreprocessor:
         return re.sub(r"\b\d+\b", "", text)
 
     def remove_stopword(self, text: str, top_n_stopwords: int = 5) -> str:
+        from nltk.tokenize import word_tokenize
+
         self.stop_words = self.stop_words[0:top_n_stopwords]
         return " ".join(
             [
@@ -68,9 +55,13 @@ class TextPreprocessor:
         )
 
     def stem_word(self, text: str) -> str:
+        from nltk.tokenize import word_tokenize
+
         return " ".join([self.stemmer.stem(word) for word in word_tokenize(text)])
 
     def get_wordnet_pos(self, treebank_tag: str) -> str:
+        from nltk.corpus import wordnet
+
         if treebank_tag.startswith("J"):
             return wordnet.ADJ
         elif treebank_tag.startswith("V"):
@@ -83,6 +74,9 @@ class TextPreprocessor:
             return wordnet.NOUN
 
     def lemmatize_word(self, text: str) -> str:
+        from nltk import pos_tag
+        from nltk.tokenize import word_tokenize
+
         tokens = word_tokenize(text)
         tagged_tokens = pos_tag(tokens)
         return " ".join(

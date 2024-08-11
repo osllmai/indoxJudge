@@ -3,27 +3,17 @@ import math
 import numpy as np
 import re
 import string
-import torch
-from nltk import download, word_tokenize, sent_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from tqdm import tqdm
-from transformers import (
-    BertConfig,
-    BertForSequenceClassification,
-    BertTokenizer,
-    BertForMaskedLM,
-)
-from transformers import glue_convert_examples_to_features
-from transformers.data.processors.utils import InputExample
 from typing import List, Union
+import warnings
+from transformers import logging
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Suppress specific warnings
+warnings.filterwarnings("ignore", category=UserWarning, message="Some weights of the model checkpoint at")
+logging.set_verbosity_error()
+warnings.filterwarnings("ignore", message="`resume_download` is deprecated and will be removed in version 1.0.0.")
+warnings.filterwarnings("ignore", message="This function will be removed from the library soon, preprocessing should be handled with the 🤗 Datasets library.")
 
-# Download required NLTK resources
-download('punkt', quiet=True)
-download('stopwords', quiet=True)
-download('wordnet', quiet=True)
+
 
 class Gruen:
     def __init__(self, candidates: Union[str, List[str]]):
@@ -33,11 +23,16 @@ class Gruen:
         Parameters:
         candidates (Union[str, List[str]]): The candidate text(s) to evaluate.
         """
+        import torch
+        from nltk.corpus import stopwords
+        from nltk.stem import WordNetLemmatizer
+
         if isinstance(candidates, str):
             candidates = [candidates]
         self.candidates = candidates
         self.stop_words = set(stopwords.words('english'))
         self.lemmatizer = WordNetLemmatizer()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def preprocess_candidates(self) -> List[List[str]]:
         """
@@ -46,6 +41,8 @@ class Gruen:
         Returns:
         List[List[str]]: A list of lists, each containing sentences from the preprocessed candidate texts.
         """
+        from nltk import sent_tokenize
+
         processed_candidates = []
         for candidate in self.candidates:
             candidate = self._clean_text(candidate)
@@ -68,6 +65,7 @@ class Gruen:
         Returns:
         str: The cleaned text.
         """
+
         text = text.strip()
         text = ". ".join(text.split("\n\n"))
         text = ". ".join(text.split("\n"))
@@ -90,8 +88,12 @@ class Gruen:
         Returns:
         List[float]: The LM scores for the sentences.
         """
+        import torch
+        from transformers import BertForMaskedLM, BertTokenizer
+        from tqdm import tqdm
+
         model_name = "bert-base-cased"
-        model = BertForMaskedLM.from_pretrained(model_name).to(device)
+        model = BertForMaskedLM.from_pretrained(model_name).to(self.device)
         model.eval()
         tokenizer = BertTokenizer.from_pretrained(model_name)
 
@@ -118,10 +120,13 @@ class Gruen:
         Returns:
         float: The calculated score for the sentence.
         """
+        import torch
+        import math
+
         tokens = tokenizer.tokenize(sentence)
         if len(tokens) > 510:
             tokens = tokens[:510]
-        input_ids = torch.tensor(tokenizer.encode(tokens)).unsqueeze(0).to(device)
+        input_ids = torch.tensor(tokenizer.encode(tokens)).unsqueeze(0).to(self.device)
         with torch.no_grad():
             loss = model(input_ids, labels=input_ids)[0]
         return math.exp(loss.item())
@@ -144,19 +149,26 @@ class Gruen:
         return self._convert_sentence_to_paragraph_scores(cola_scores, sentence_lengths)
 
     def _load_pretrained_cola_model(self, model_name: str):
+
+        from transformers import BertConfig, BertForSequenceClassification, BertTokenizer
+        import torch
+
         config = BertConfig.from_pretrained(
             model_name, num_labels=2, finetuning_task="CoLA"
         )
         tokenizer = BertTokenizer.from_pretrained(model_name, do_lower_case=True)
         model = BertForSequenceClassification.from_pretrained(
             model_name, config=config
-        ).to(device)
+        ).to(self.device)
         model.eval()
         return tokenizer, model
 
     def _evaluate_cola(
-        self, model, candidates: List[str], tokenizer, model_name: str
+            self, model, candidates: List[str], tokenizer, model_name: str
     ) -> List[float]:
+        import torch
+        from tqdm import tqdm
+
         dataset = self._load_and_cache_examples(candidates, tokenizer)
         dataloader = torch.utils.data.DataLoader(
             dataset,
@@ -165,7 +177,7 @@ class Gruen:
         )
         preds = None
         for batch in tqdm(dataloader, desc="Evaluating"):
-            batch = tuple(t.to(device) for t in batch)
+            batch = tuple(t.to(self.device) for t in batch)
             with torch.no_grad():
                 inputs = {
                     "input_ids": batch[0],
@@ -184,6 +196,10 @@ class Gruen:
         return preds[:, 1].tolist()
 
     def _load_and_cache_examples(self, candidates: List[str], tokenizer):
+        import torch
+        from transformers import glue_convert_examples_to_features
+        from transformers.data.processors.utils import InputExample
+
         examples = [
             InputExample(guid=str(i), text_a=c) for i, c in enumerate(candidates)
         ]
@@ -207,7 +223,7 @@ class Gruen:
         )
 
     def _convert_sentence_to_paragraph_scores(
-        self, sentence_scores: List[float], sent_length: List[int]
+            self, sentence_scores: List[float], sent_length: List[int]
     ) -> List[float]:
         paragraph_scores = []
         pointer = 0
@@ -215,13 +231,13 @@ class Gruen:
             if length == 0:
                 paragraph_scores.append(0.0)
                 continue
-            temp_scores = sentence_scores[pointer : pointer + length]
+            temp_scores = sentence_scores[pointer: pointer + length]
             paragraph_scores.append(sum(temp_scores) / length)
             pointer += length
         return paragraph_scores
 
     def get_grammaticality_score(
-        self, processed_candidates: List[List[str]]
+            self, processed_candidates: List[List[str]]
     ) -> List[float]:
         """
         Calculate the grammaticality score using LM and CoLA scores.
@@ -250,12 +266,14 @@ class Gruen:
         Returns:
         List[float]: The redundancy scores.
         """
+        from difflib import SequenceMatcher
+
         redundancy_scores = [0.0] * len(all_summary)
         for i, summary in enumerate(all_summary):
             if len(summary) == 1:
                 continue
             flag = sum(
-                self._if_two_sentence_redundant(summary[j].strip(), summary[k].strip())
+                self._if_two_sentences_redundant(summary[j].strip(), summary[k].strip())
                 for j in range(len(summary) - 1)
                 for k in range(j + 1, len(summary))
             )
@@ -274,9 +292,9 @@ class Gruen:
         int: Redundancy flag (0 or higher).
         """
         if (
-            sentence_a == sentence_b
-            or sentence_a in sentence_b
-            or sentence_b in sentence_a
+                sentence_a == sentence_b
+                or sentence_a in sentence_b
+                or sentence_b in sentence_a
         ):
             return 4
         redundancy_flag = 0
@@ -290,15 +308,15 @@ class Gruen:
                 redundancy_flag += 1
             LCS_word_length = len(
                 sentence_a[
-                    longest_common_substring[0] : (
+                longest_common_substring[0]: (
                         longest_common_substring[0] + LCS_length
-                    )
+                )
                 ]
                 .strip()
                 .split()
             )
             if LCS_word_length > 0.8 * min(
-                len(sentence_a_split), len(sentence_b_split)
+                    len(sentence_a_split), len(sentence_b_split)
             ):
                 redundancy_flag += 1
             edit_distance = self._levenshtein_distance(sentence_a, sentence_b)
@@ -308,7 +326,7 @@ class Gruen:
                 [word for word in sentence_a_split if word in sentence_b_split]
             )
             if common_word_count > 0.8 * min(
-                len(sentence_a_split), len(sentence_b_split)
+                    len(sentence_a_split), len(sentence_b_split)
             ):
                 redundancy_flag += 1
         return redundancy_flag
@@ -358,7 +376,7 @@ class Gruen:
                 continue
             scores = []
             for j in range(1, len(summary)):
-                similarity = self._sentence_similarity(summary[j-1], summary[j])
+                similarity = self._sentence_similarity(summary[j - 1], summary[j])
                 scores.append(1.0 / (1.0 + math.exp(-similarity + 7)))
             all_scores.append(scores)
         return [0.0 if not scores or min(scores) < 0.05 else -0.1 for scores in all_scores]
@@ -375,6 +393,7 @@ class Gruen:
         float: Similarity score between the two sentences.
         """
         # Tokenize and lemmatize the sentences
+        from nltk.tokenize import word_tokenize
         words1 = [self.lemmatizer.lemmatize(word.lower()) for word in word_tokenize(sentence1) if word.lower() not in self.stop_words]
         words2 = [self.lemmatizer.lemmatize(word.lower()) for word in word_tokenize(sentence2) if word.lower() not in self.stop_words]
 
@@ -412,4 +431,3 @@ class Gruen:
         ]
         gruen_scores = [round(score, 2) for score in gruen_scores]
         return gruen_scores
-

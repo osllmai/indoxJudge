@@ -1,8 +1,5 @@
 import numpy as np
 from typing import Union, List, Dict
-import torch
-from transformers import AutoTokenizer, AutoModel
-
 
 class BertScore:
     def __init__(
@@ -11,6 +8,7 @@ class BertScore:
             retrieval_context: Union[str, List[str]],
             model_name: str = "bert-base-uncased",
             max_length: int = 1024,
+
     ):
         """
         Initialize the BertScore class to evaluate the similarity between a generated response
@@ -23,11 +21,14 @@ class BertScore:
                           Defaults to "roberta-base".
         max_length (int): The maximum length of input sequences to be processed by the model. Defaults to 1024.
         """
+        from transformers import AutoTokenizer, AutoModel
+
         self.llm_response = llm_response
         self.retrieval_context = retrieval_context
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
         self.max_length = max_length
+        self.score = None
 
     def measure(self) -> float:
         """
@@ -41,7 +42,7 @@ class BertScore:
         )
         return self.score
 
-    def get_embeddings(self, text: str) -> torch.Tensor:
+    def get_embeddings(self, text: str):
         """
         Generate embeddings for the given text using the pre-trained model.
 
@@ -51,6 +52,8 @@ class BertScore:
         Returns:
         torch.Tensor: The generated embeddings.
         """
+        import torch
+
         inputs = self.tokenizer(
             text,
             return_tensors="pt",
