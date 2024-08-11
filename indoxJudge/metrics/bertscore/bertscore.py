@@ -1,7 +1,6 @@
 import numpy as np
 from typing import Union, List, Dict
 
-
 class BertScore:
     def __init__(
             self,
@@ -29,6 +28,7 @@ class BertScore:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
         self.max_length = max_length
+        self.score = None
 
     def measure(self) -> float:
         """

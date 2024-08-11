@@ -1,3 +1,6 @@
+import nltk
+
+
 def create_model_dict(name, score, metrics):
     """
     Creates a dictionary for a model with the given name, score, and metrics.
@@ -15,3 +18,10 @@ def create_model_dict(name, score, metrics):
         'score': score,
         'metrics': metrics
     }
+
+def nltk_download():
+    from nltk import download
+
+    download('punkt', quiet=True)
+    download('stopwords', quiet=True)
+    download('wordnet', quiet=True)

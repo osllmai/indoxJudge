@@ -17,7 +17,7 @@ class BertScore:
         self,
         llm_response
         retrieval_context,
-        model_name = "roberta-base",
+        model_name = "bert-base-uncased",
         max_length = 1024,
     ):
         """
@@ -38,7 +38,7 @@ class BertScore:
 
 - **retrieval_context**: The expected responses for comparison. Can be a single string or a list of strings.
 
-- **model_name**: The name of the pre-trained transformer model used for generating text embeddings. Default is `"roberta-base"`.
+- **model_name**: The name of the pre-trained transformer model used for generating text embeddings. Default is `"bert-base-uncased"`.
 
 - **max_length**: The maximum length for input sequences that the model will handle. Default is `1024`.
 
@@ -61,7 +61,6 @@ retrieval_context = [
 bert_score = BertScore(
     llm_response=llm_response,
     retrieval_context=retrieval_context,
-    model_name="roberta-base",
     max_length=512
 )
 

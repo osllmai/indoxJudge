@@ -2,16 +2,15 @@ import numpy as np
 import math
 from collections import Counter
 from typing import List, Union
-from indoxJudge.utils import TextPreprocessor
 
 
 class BLEU:
     def __init__(
-        self,
-        llm_response: str,
-        retrieval_context: Union[str, List[str]],
-        n: int = 2,
-        remove_repeating_ngrams: bool = False,
+            self,
+            llm_response: str,
+            retrieval_context: Union[str, List[str]],
+            n: int = 2,
+            remove_repeating_ngrams: bool = False,
     ):
         """
         Initialize the BLEU evaluator with the desired n-gram size and option to remove repeating n-grams.
@@ -49,6 +48,9 @@ class BLEU:
         Returns:
         str: The preprocessed text.
         """
+        from indoxJudge.utils import TextPreprocessor
+        from indoxJudge.utils import nltk_download
+        nltk_download()
         preprocessor = TextPreprocessor()
         preprocessing_methods = [
             preprocessor.to_lower,
@@ -84,7 +86,7 @@ class BLEU:
         List[str]: The list of n-grams.
         """
         tokens = self.tokenize(text)
-        ngrams = [" ".join(tokens[i : i + n]) for i in range(len(tokens) - n + 1)]
+        ngrams = [" ".join(tokens[i: i + n]) for i in range(len(tokens) - n + 1)]
         if self.remove_repeating_ngrams:
             ngrams = list(set(ngrams))
         return ngrams
@@ -107,7 +109,7 @@ class BLEU:
             return np.exp(penalty)
 
     def calculate_clipped_precision(
-        self, context_ngrams: Counter, llm_answer_ngrams: Counter
+            self, context_ngrams: Counter, llm_answer_ngrams: Counter
     ) -> float:
         """
         Calculate the clipped precision for the BLEU score.
@@ -165,7 +167,7 @@ class BLEU:
         return score
 
     def _calculate_score(
-        self, context: Union[str, List[str]], llm_answer: Union[str, List[str]]
+            self, context: Union[str, List[str]], llm_answer: Union[str, List[str]]
     ) -> float:
         """
         Calculate the average BLEU score for the given context(s) and language model response.
