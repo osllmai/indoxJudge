@@ -5,7 +5,8 @@ from typing import List
 class FaithfulnessTemplate:
     @staticmethod
     def generate_claims(text: str) -> str:
-        return f"""Based on the given text, please generate a comprehensive list of FACTUAL claims that can inferred from the provided text.
+        return f"""Based on the given text, please generate a comprehensive list of FACTUAL claims that can inferred 
+        from the provided text.
 
 Example:
 Example Text: 
@@ -21,8 +22,10 @@ Example JSON:
 ===== END OF EXAMPLE ======
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the "claims" key as a list of strings. No words or explanation is needed.
-Only include claims that are factual, and the claims you extract should include the full context it was presented in, NOT cherry picked facts.
+IMPORTANT: Please make sure to only return in JSON format, with the "claims" key as a list of strings.
+ No words or explanation is needed.
+Only include claims that are factual, and the claims you extract should include the full context it was presented in, 
+NOT cherry picked facts.
 You should NOT include any prior knowledge, and take the text at face value when extracting claims.
 **
 
@@ -34,7 +37,8 @@ JSON:
 
     @staticmethod
     def generate_truths(text: str) -> str:
-        return f"""Based on the given text, please generate a comprehensive list of FACTUAL, undisputed truths that can inferred from the provided text.
+        return f"""Based on the given text, please generate a comprehensive list of FACTUAL, 
+        undisputed truths that can inferred from the provided text.
 
 Example:
 Example Text: 
@@ -50,7 +54,8 @@ Example JSON:
 ===== END OF EXAMPLE ======
 
 **
-IMPORTANT: Please make sure to only return in JSON format, with the "truths" key as a list of strings. No words or explanation is needed.
+IMPORTANT: Please make sure to only return in JSON format, with the "truths" key as a list of strings.
+ No words or explanation is needed.
 Only include truths that are factual.
 **
 
@@ -63,15 +68,22 @@ JSON:
     @staticmethod
     def generate_verdicts(claims: List[str], retrieval_context: str) -> str:
         claims_json = json.dumps(claims, indent=4)
-        return f"""Based on the given claims, which is a list of strings, generate a list of JSON objects to indicate whether EACH claim contradicts any facts in the retrieval context. The JSON will have 2 fields: 'verdict' and 'reason'.
-The 'verdict' key should STRICTLY be either 'yes', 'no', or 'idk', which states whether the given claim agrees with the context. 
+        return f"""Based on the given claims, which is a list of strings, generate a list of JSON objects to indicate 
+        whether EACH claim contradicts any facts in the retrieval context. The JSON will have 2 fields: 'verdict' 
+        and 'reason'.
+The 'verdict' key should STRICTLY be either 'yes', 'no', or 'idk', which states whether the given claim agrees with the 
+context. 
 Provide a 'reason' ONLY if the answer is 'no'. 
-The provided claim is drawn from the actual output. Try to provide a correction in the reason using the facts in the retrieval context.
+The provided claim is drawn from the actual output. Try to provide a correction in the reason using the facts
+ in the retrieval context.
 
 **
 IMPORTANT: Please make sure to only return in JSON format, with the 'verdicts' key as a list of JSON objects.
-Example retrieval contexts: "Einstein won the Nobel Prize for his discovery of the photoelectric effect. Einstein won the Nobel Prize in 1968. Einstein is a German Scientist."
-Example claims: ["Barack Obama is a caucasian male.", "Zurich is a city in London", "Einstein won the Nobel Prize for the discovery of the photoelectric effect which may have contributed to his fame.", "Einstein won the Nobel Prize in 1969 for his discovery of the photoelectric effect.", "Einstein was a Germen chef."]
+Example retrieval contexts: "Einstein won the Nobel Prize for his discovery of the photoelectric effect. Einstein won
+ the Nobel Prize in 1968. Einstein is a German Scientist."
+Example claims: ["Barack Obama is a caucasian male.", "Zurich is a city in London", "Einstein won the Nobel Prize for
+ the discovery of the photoelectric effect which may have contributed to his fame.", "Einstein won the Nobel Prize 
+ in 1969 for his discovery of the photoelectric effect.", "Einstein was a Germen chef."]
 
 Example:
 {{

@@ -2,7 +2,6 @@ from loguru import logger
 import sys
 from indoxJudge.metrics import (Faithfulness, AnswerRelevancy, Bias, Gruen, Rouge,
                                 KnowledgeRetention, BLEU, Hallucination, Toxicity, BertScore)
-from .graph.metrics_visualizer import MetricsVisualizer
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -19,7 +18,7 @@ class LLMEvaluator:
     The Evaluator class is designed to evaluate various aspects of language model outputs using specified metrics.
 
     It supports metrics such as Faithfulness, Answer Relevancy, Bias, Contextual Relevancy, GEval, Hallucination,
-    Knowledge Retention, Toxicity, BertScore, BLEU, Rouge, and METEOR.
+    Knowledge Retention, Toxicity, BertScore, BLEU, and Gruen.
     """
 
     def __init__(self, llm_as_judge, llm_response, retrieval_context, query):
@@ -41,7 +40,7 @@ class LLMEvaluator:
             BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
 
             # Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
-            # Gruen(candidates=llm_response)
+            Gruen(candidates=llm_response)
         ]
         logger.info("Evaluator initialized with model and metrics.")
         self.set_model_for_metrics()
@@ -94,34 +93,6 @@ class LLMEvaluator:
                     }
                     self.evaluation_score += score
                     self.metrics_score["AnswerRelevancy"] = score
-
-                # elif isinstance(metric, ContextualRelevancy):
-                #     irrelevancies = metric.get_irrelevancies(metric.query, metric.retrieval_contexts)
-                #     metric.set_irrelevancies(irrelevancies)
-                #     verdicts = metric.get_verdicts(metric.query, metric.retrieval_contexts)
-                #     metric.verdicts = verdicts.verdicts  # Ensure verdicts are stored in the metric object
-                #
-                #     # Determine the score, e.g., based on the number of relevant contexts
-                #     score = metric.calculate_score()
-                #     reason = metric.get_reason(irrelevancies, score)
-                #     results = {
-                #         'ContextualRelevancy': {
-                #             'verdicts': [verdict.dict() for verdict in verdicts.verdicts],
-                #             'reason': reason.dict(),
-                #             'score': score
-                #         }
-                #     }
-                #     self.evaluation_score += score
-                #
-                #     self.metrics_score["ContextualRelevancy"] = score
-                # elif isinstance(metric, GEval):
-                #     geval_result = metric.g_eval()
-                #     results['GEVal'] = geval_result.replace("\n", " ")
-                #     geval_data = json.loads(results["GEVal"])
-                #     score = geval_data["score"]
-                #     self.evaluation_score += int(score) / 8
-                #
-                #     self.metrics_score["GEVal"] = int(score) / 8
 
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
@@ -204,11 +175,13 @@ class LLMEvaluator:
                 #
                 #     self.metrics_score["Rouge"] = score
                 #     self.metrics_score["Rouge"] = score
-                # elif isinstance(metric, Gruen):
-                #     score = metric.measure()
-                #     results['gruen'] = {
-                #         'score': score
-                #     }
+                elif isinstance(metric, Gruen):
+                    score = metric.measure()
+                    results['gruen'] = {
+                        'score': score[0]
+                    }
+                    self.evaluation_score += score[0]
+                    self.metrics_score["gruen"] = score[0]
                 logger.info(f"Completed evaluation for metric: {metric_name}")
 
             except Exception as e:
@@ -219,6 +192,6 @@ class LLMEvaluator:
         from indoxJudge.graph import Visualization
         from indoxJudge.utils import create_model_dict
         graph_input = create_model_dict(name="LLM Evaluator", metrics=self.metrics_score,
-                                        score=self.evaluation_score / 10)
+                                        score=self.evaluation_score / 9)
         visualizer = Visualization(data=graph_input, mode="llm")
         return visualizer.plot(mode=mode)

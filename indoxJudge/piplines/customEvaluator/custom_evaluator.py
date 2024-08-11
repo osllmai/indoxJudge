@@ -197,8 +197,10 @@ class CustomEvaluator:
                 elif isinstance(metric, Gruen):
                     score = metric.measure()
                     results['gruen'] = {
-                        'score': score
+                        'score': score[0]
                     }
+                    self.evaluation_score += score[0]
+                    self.metrics_score["gruen"] = score[0]
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
                     results['AnswerRelevancy'] = {

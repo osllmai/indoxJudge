@@ -50,7 +50,7 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import Toxicity
-from indoxJudge import Evaluator
+from indoxJudge.piplines import CustomEvaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -73,6 +73,6 @@ toxicity_metric = Toxicity(
 )
 
 # Create an evaluator with the Toxicity metric
-evaluator = Evaluator(model=llm, metrics=[toxicity_metric])
+evaluator = CustomEvaluator(model=llm, metrics=[toxicity_metric])
 result = evaluator.judge()
 ```

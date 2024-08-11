@@ -14,6 +14,7 @@ warnings.filterwarnings("ignore", message="`resume_download` is deprecated and w
 warnings.filterwarnings("ignore", message="This function will be removed from the library soon, preprocessing should be handled with the 🤗 Datasets library.")
 
 
+
 class Gruen:
     def __init__(self, candidates: Union[str, List[str]]):
         """
@@ -164,7 +165,7 @@ class Gruen:
         return tokenizer, model
 
     def _evaluate_cola(
-        self, model, candidates: List[str], tokenizer, model_name: str
+            self, model, candidates: List[str], tokenizer, model_name: str
     ) -> List[float]:
         import torch
         from tqdm import tqdm
@@ -223,7 +224,7 @@ class Gruen:
         )
 
     def _convert_sentence_to_paragraph_scores(
-        self, sentence_scores: List[float], sent_length: List[int]
+            self, sentence_scores: List[float], sent_length: List[int]
     ) -> List[float]:
         paragraph_scores = []
         pointer = 0
@@ -231,13 +232,13 @@ class Gruen:
             if length == 0:
                 paragraph_scores.append(0.0)
                 continue
-            temp_scores = sentence_scores[pointer : pointer + length]
+            temp_scores = sentence_scores[pointer: pointer + length]
             paragraph_scores.append(sum(temp_scores) / length)
             pointer += length
         return paragraph_scores
 
     def get_grammaticality_score(
-        self, processed_candidates: List[List[str]]
+            self, processed_candidates: List[List[str]]
     ) -> List[float]:
         """
         Calculate the grammaticality score using LM and CoLA scores.
@@ -292,9 +293,9 @@ class Gruen:
         int: Redundancy flag (0 or higher).
         """
         if (
-            sentence_a == sentence_b
-            or sentence_a in sentence_b
-            or sentence_b in sentence_a
+                sentence_a == sentence_b
+                or sentence_a in sentence_b
+                or sentence_b in sentence_a
         ):
             return 4
         redundancy_flag = 0
@@ -308,15 +309,15 @@ class Gruen:
                 redundancy_flag += 1
             LCS_word_length = len(
                 sentence_a[
-                    longest_common_substring[0] : (
+                longest_common_substring[0]: (
                         longest_common_substring[0] + LCS_length
-                    )
+                )
                 ]
                 .strip()
                 .split()
             )
             if LCS_word_length > 0.8 * min(
-                len(sentence_a_split), len(sentence_b_split)
+                    len(sentence_a_split), len(sentence_b_split)
             ):
                 redundancy_flag += 1
             edit_distance = self._levenshtein_distance(sentence_a, sentence_b)
@@ -326,7 +327,7 @@ class Gruen:
                 [word for word in sentence_a_split if word in sentence_b_split]
             )
             if common_word_count > 0.8 * min(
-                len(sentence_a_split), len(sentence_b_split)
+                    len(sentence_a_split), len(sentence_b_split)
             ):
                 redundancy_flag += 1
         return redundancy_flag
@@ -376,7 +377,7 @@ class Gruen:
                 continue
             scores = []
             for j in range(1, len(summary)):
-                similarity = self._sentence_similarity(summary[j-1], summary[j])
+                similarity = self._sentence_similarity(summary[j - 1], summary[j])
                 scores.append(1.0 / (1.0 + math.exp(-similarity + 7)))
             all_scores.append(scores)
         return [0.0 if not scores or min(scores) < 0.05 else -0.1 for scores in all_scores]
@@ -431,4 +432,3 @@ class Gruen:
         ]
         gruen_scores = [round(score, 2) for score in gruen_scores]
         return gruen_scores
-

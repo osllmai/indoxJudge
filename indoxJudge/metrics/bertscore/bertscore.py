@@ -1,6 +1,5 @@
 import numpy as np
 from typing import Union, List, Dict
-import torch
 
 class BertScore:
     def __init__(
@@ -9,6 +8,7 @@ class BertScore:
             retrieval_context: Union[str, List[str]],
             model_name: str = "bert-base-uncased",
             max_length: int = 1024,
+
     ):
         """
         Initialize the BertScore class to evaluate the similarity between a generated response
@@ -42,7 +42,7 @@ class BertScore:
         )
         return self.score
 
-    def get_embeddings(self, text: str) -> torch.Tensor:
+    def get_embeddings(self, text: str):
         """
         Generate embeddings for the given text using the pre-trained model.
 
@@ -52,6 +52,8 @@ class BertScore:
         Returns:
         torch.Tensor: The generated embeddings.
         """
+        import torch
+
         inputs = self.tokenizer(
             text,
             return_tensors="pt",
