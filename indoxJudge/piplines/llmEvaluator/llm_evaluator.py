@@ -1,6 +1,6 @@
 from loguru import logger
 import sys
-from indoxJudge.metrics import (Faithfulness, AnswerRelevancy, Bias, Gruen, Rouge,
+from indoxJudge.metrics import (Faithfulness, AnswerRelevancy, Bias, Gruen,
                                 KnowledgeRetention, BLEU, Hallucination, Toxicity, BertScore)
 
 # Set up logging
@@ -165,16 +165,7 @@ class LLMEvaluator:
                     }
                     self.evaluation_score += score
                     self.metrics_score["BLEU"] = score
-                # elif isinstance(metric, Rouge):
-                #     score = metric.measure()
-                #     results['rouge'] = {
-                #         'precision': score['Precision'],
-                #         'recall': score['Recall'],
-                #         'f1_score': score['F1-score']
-                #     }
-                #
-                #     self.metrics_score["Rouge"] = score
-                #     self.metrics_score["Rouge"] = score
+
                 elif isinstance(metric, Gruen):
                     score = metric.measure()
                     results['gruen'] = {
