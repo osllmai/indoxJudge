@@ -23,6 +23,8 @@ logger.add(
 )
 
 warnings.filterwarnings("ignore", category=FutureWarning, message=".*`resume_download` is deprecated.*")
+
+
 class RagEvaluator:
     """
     The RagEvaluator class is designed to evaluate various aspects of language model outputs using specified metrics.
@@ -46,7 +48,8 @@ class RagEvaluator:
             Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context),
             AnswerRelevancy(query=query, llm_response=llm_response),
             ContextualRelevancy(query=query, retrieval_context=retrieval_context),
-            GEval(parameters="Rag Pipeline", llm_response=llm_response, query=query, retrieval_context=retrieval_context),
+            GEval(parameters="Rag Pipeline", llm_response=llm_response, query=query,
+                  retrieval_context=retrieval_context),
             Hallucination(llm_response=llm_response, retrieval_context=retrieval_context),
             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
             BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
@@ -107,7 +110,8 @@ class RagEvaluator:
                     irrelevancies = metric.get_irrelevancies(metric.query, metric.retrieval_contexts)
                     metric.set_irrelevancies(irrelevancies)
                     verdicts = metric.get_verdicts(metric.query, metric.retrieval_contexts)
-                    score = 1.0 if not irrelevancies else max(0, 1.0 - len(irrelevancies) / len(metric.retrieval_contexts))
+                    score = 1.0 if not irrelevancies else max(0,
+                                                              1.0 - len(irrelevancies) / len(metric.retrieval_contexts))
                     reason = metric.get_reason(irrelevancies, score)
                     results['ContextualRelevancy'] = {
                         'verdicts': [verdict.dict() for verdict in verdicts.verdicts],
