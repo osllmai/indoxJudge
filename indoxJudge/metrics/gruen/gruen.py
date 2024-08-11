@@ -26,7 +26,8 @@ class Gruen:
         import torch
         from nltk.corpus import stopwords
         from nltk.stem import WordNetLemmatizer
-
+        from indoxJudge.utils import nltk_download
+        nltk_download()
         if isinstance(candidates, str):
             candidates = [candidates]
         self.candidates = candidates
