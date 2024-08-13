@@ -13,6 +13,7 @@ def create_model_dict(name, score, metrics):
     Returns:
     dict: A dictionary representing the model with its name, score, and metrics.
     """
+
     return {
         'name': name,
         'score': score,
