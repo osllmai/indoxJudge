@@ -38,7 +38,7 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import Faithfulness
-from indoxJudge.piplines import CustomEvaluator
+from indoxJudge.pipelines import CustomEvaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")

@@ -45,7 +45,7 @@ Here is an example of how to use the `BLEU` class:
 
 ```python
 from indoxJudge.metrics import BLEU
-from indoxJudge.piplines import CustomEvaluator
+from indoxJudge.pipelines import CustomEvaluator
 
 # Define a sample response and context
 llm_response = "The quick brown fox jumps over the lazy dog."

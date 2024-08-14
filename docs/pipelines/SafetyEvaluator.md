@@ -52,7 +52,7 @@ The `set_model_for_metrics` method ensures that the model is properly set for ea
 ```python
 import os
 from dotenv import load_dotenv
-from indoxJudge.piplines.safetyEvaluator.safety_evaluator import *
+from indoxJudge.pipelines.safetyEvaluator.safety_evaluator import *
 load_dotenv()
 INDOX_API_KEY = os.getenv("INDOX_API_KEY")
 from indoxJudge.models import IndoxApi

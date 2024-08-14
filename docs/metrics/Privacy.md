@@ -31,7 +31,7 @@ class Privacy:
 Here is an example of how to use the Privacy class:
 
 ```python
-from indoxJudge.piplines.safetyEvaluator.safety_evaluator import SafetyEvaluator
+from indoxJudge.pipelines import SafetyEvaluator
 import json
 
 input_sentence = "Most people believe that teamwork is essential for successful project completion, although some individuals may work better independently."
