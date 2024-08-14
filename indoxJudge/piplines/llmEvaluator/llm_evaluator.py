@@ -42,8 +42,6 @@ class LLMEvaluator:
         ]
         logger.info("Evaluator initialized with model and metrics.")
         self.set_model_for_metrics()
-        self.judge_done = False
-
         self.metrics_score = {}
 
 
