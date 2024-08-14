@@ -129,7 +129,7 @@ class RagEvaluator:
                         'reason': metric.reason,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.metrics_score["Hallucination"] = 1 - score
+                    self.metrics_score["Hallucination"] = score
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
                     results['KnowledgeRetention'] = {
@@ -157,10 +157,10 @@ class RagEvaluator:
                 logger.info(f"Completed evaluation for metric: {metric_name}")
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
-            evaluation_score = self._evaluation_score_rag_mcda()
-            self.metrics_score["evaluation_score"] = evaluation_score
+        evaluation_score = self._evaluation_score_rag_mcda()
+        self.metrics_score["evaluation_score"] = evaluation_score
 
-            results['evaluation_score'] = evaluation_score
+        results['evaluation_score'] = evaluation_score
         return results
 
     def _evaluation_score_rag_mcda(self):
