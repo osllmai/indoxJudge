@@ -120,7 +120,7 @@ class RagEvaluator:
                     geval_result = metric.g_eval()
                     results['GEval'] = geval_result.replace("\n", " ")
                     geval_data = json.loads(results["GEval"])
-                    score = int(geval_data["score"]) / 8
+                    score = int(geval_data["score"]) / 10
                     self.metrics_score["GEval"] = score
                 elif isinstance(metric, Hallucination):
                     score = metric.measure()
