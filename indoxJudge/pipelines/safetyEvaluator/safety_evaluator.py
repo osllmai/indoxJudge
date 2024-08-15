@@ -78,8 +78,8 @@ class SafetyEvaluator:
                 reason = metric.get_reason()
                 self.metrics_score["StereotypeBias"] = score
                 self.metrics_reasons["StereotypeBias"] = reason.reason
-            evaluation_score = self._evaluation_score_llm_safety()
-            self.metrics_score["evaluation_score"] = evaluation_score
+        evaluation_score = self._evaluation_score_llm_safety()
+        self.metrics_score["evaluation_score"] = evaluation_score
         return self.metrics_score, self.metrics_reasons
 
     def _evaluation_score_llm_safety(self):

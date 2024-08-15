@@ -20,10 +20,11 @@ def create_model_dict(name, score, metrics):
         'metrics': metrics
     }
 
+
 def nltk_download():
     from nltk import download
 
     download('punkt', quiet=True)
     download('stopwords', quiet=True)
     download('wordnet', quiet=True)
-    download('averaged_perceptron_tagger',quiet=True)
+    download('averaged_perceptron_tagger', quiet=True)
