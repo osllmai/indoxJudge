@@ -36,12 +36,12 @@ class Reason(BaseModel):
 
 
 class Toxicity:
-    def __init__(self, messages: List[Dict[str, str]],
+    def __init__(self, messages,
                  threshold: float = 0.5,
                  include_reason: bool = True,
                  strict_mode: bool = False):
         self.model = None
-        self.messages = messages
+        self.messages = messages.split(".") if isinstance(messages, str) else messages
         self.threshold = 0 if strict_mode else threshold
         self.include_reason = include_reason
         self.strict_mode = strict_mode
@@ -63,7 +63,7 @@ class Toxicity:
         return self.score
 
     def _generate_opinions(self) -> List[str]:
-        opinions = [message["llm_response"] for message in self.messages]
+        opinions = self.messages
         prompt = ToxicityTemplate.generate_verdicts(opinions=opinions)
         response = self._call_language_model(prompt)
         data = json.loads(response)

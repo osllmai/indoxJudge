@@ -36,7 +36,7 @@ class LLMEvaluator:
             Bias(llm_response=llm_response),
             Hallucination(llm_response=llm_response, retrieval_context=retrieval_context_join),
             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
-            Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
+            Toxicity(messages=llm_response),
             BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
             BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
             Gruen(candidates=llm_response)
