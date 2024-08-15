@@ -29,11 +29,12 @@ class LLMEvaluator:
             llm_as_judge: The language model .
         """
         self.model = llm_as_judge
+        retrieval_context_join = "\n".join(retrieval_context)
         self.metrics = [
-            Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context),
+            Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context_join),
             AnswerRelevancy(query=query, llm_response=llm_response),
             Bias(llm_response=llm_response),
-            Hallucination(llm_response=llm_response, retrieval_context=retrieval_context),
+            Hallucination(llm_response=llm_response, retrieval_context=retrieval_context_join),
             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
             Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
             BertScore(llm_response=llm_response, retrieval_context=retrieval_context),

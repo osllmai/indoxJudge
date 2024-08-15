@@ -43,14 +43,15 @@ class RagEvaluator:
             retrieval_context: The context retrieved for the query.
             query: The input query.
         """
+        retrieval_context_join = "\n".join(retrieval_context)
         self.model = llm_as_judge
         self.metrics = [
-            Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context),
+            Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context_join),
             AnswerRelevancy(query=query, llm_response=llm_response),
             ContextualRelevancy(query=query, retrieval_context=retrieval_context),
             GEval(parameters="Rag Pipeline", llm_response=llm_response, query=query,
                   retrieval_context=retrieval_context),
-            Hallucination(llm_response=llm_response, retrieval_context=retrieval_context),
+            Hallucination(llm_response=llm_response, retrieval_context=retrieval_context_join),
             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
             BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
             METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
