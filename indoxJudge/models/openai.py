@@ -40,13 +40,12 @@ class OpenAi:
             raise
 
     @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
-    def _generate_response(self, messages: list, max_tokens: int = 400, temperature: float = 0.00001) -> str:
+    def _generate_response(self, messages: list, temperature: float = 0.00001) -> str:
         """
         Generates a response from the OpenAI model.
 
         Args:
             messages (list): The list of messages to send to the model, formatted as a conversation.
-            max_tokens (int, optional): The maximum number of tokens in the generated response. Defaults to 250.
             temperature (float, optional): The sampling temperature, influencing response randomness. Defaults to 0.
 
         Returns:
@@ -57,7 +56,6 @@ class OpenAi:
                 model=self.model,
                 messages=messages,
                 temperature=temperature,
-                max_tokens=max_tokens,
             )
             result = response.choices[0].message.content.strip()
             return result
@@ -83,7 +81,7 @@ class OpenAi:
                 {"role": "system", "content": "You are an assistant for LLM evaluation"},
                 {"role": "user", "content": prompt},
             ]
-            return self._generate_response(messages, max_tokens=400, temperature=0.00001)
+            return self._generate_response(messages, temperature=0.00001)
         except Exception as e:
             logger.error(f"Error generating response to custom prompt: {e}")
             return str(e)
