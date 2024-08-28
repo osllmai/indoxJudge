@@ -16,7 +16,7 @@ class ToxicityVerdicts(BaseModel):
 class SafetyToxicity:
     def __init__(self, input_sentence: str):
         self.model = None
-        self.template = ToxicityTemplate()  # استفاده از template مخصوص toxicity
+        self.template = ToxicityTemplate() 
         self.input_sentence = input_sentence
         self.toxicity_score = 0
 
