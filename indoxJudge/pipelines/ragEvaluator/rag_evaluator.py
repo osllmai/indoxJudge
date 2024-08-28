@@ -168,7 +168,7 @@ class RagEvaluator:
         from skcriteria import mkdm
         from skcriteria.madm import simple
 
-        evaluation_metrics = self.metrics_score
+        evaluation_metrics = self.metrics_score.copy()
         if "evaluation_score" in evaluation_metrics:
             del evaluation_metrics['evaluation_score']
         # Transform the values for Hallucination (lower is better)
