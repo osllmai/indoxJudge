@@ -1,1 +1,1 @@
-from .safetyToxicity import Toxicity
+from .safetyToxicity import SafetyToxicity
