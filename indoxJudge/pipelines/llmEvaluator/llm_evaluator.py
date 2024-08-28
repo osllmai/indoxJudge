@@ -29,22 +29,20 @@ class LLMEvaluator:
             llm_as_judge: The language model .
         """
         self.model = llm_as_judge
+        retrieval_context_join = "\n".join(retrieval_context)
         self.metrics = [
-            Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context),
+            Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context_join),
             AnswerRelevancy(query=query, llm_response=llm_response),
             Bias(llm_response=llm_response),
-            Hallucination(llm_response=llm_response, retrieval_context=retrieval_context),
+            Hallucination(llm_response=llm_response, retrieval_context=retrieval_context_join),
             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
-            Toxicity(messages=[{"query": query, "llm_response": llm_response}]),
+            Toxicity(messages=llm_response),
             BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
             BLEU(llm_response=llm_response, retrieval_context=retrieval_context),
-
-            # Rouge(llm_response=llm_response, retrieval_context=retrieval_context),
             Gruen(candidates=llm_response)
         ]
         logger.info("Evaluator initialized with model and metrics.")
         self.set_model_for_metrics()
-        self.evaluation_score = 0
         self.metrics_score = {}
 
     def set_model_for_metrics(self):
@@ -81,7 +79,6 @@ class LLMEvaluator:
                         'score': score,
                         'reason': reason.reason
                     }
-                    self.evaluation_score += score
                     self.metrics_score["Faithfulness"] = score
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
@@ -91,7 +88,6 @@ class LLMEvaluator:
                         'statements': metric.statements,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.evaluation_score += score
                     self.metrics_score["AnswerRelevancy"] = score
 
                 elif isinstance(metric, KnowledgeRetention):
@@ -102,8 +98,6 @@ class LLMEvaluator:
                         'verdicts': [verdict.dict() for verdict in metric.verdicts],
                         'knowledges': [knowledge.data for knowledge in metric.knowledges]
                     }
-                    self.evaluation_score += score
-
                     self.metrics_score["KnowledgeRetention"] = score
                 elif isinstance(metric, Hallucination):
                     score = metric.measure()
@@ -112,8 +106,6 @@ class LLMEvaluator:
                         'reason': metric.reason,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.evaluation_score += score
-
                     self.metrics_score["Hallucination"] = score
                 elif isinstance(metric, Toxicity):
                     score = metric.measure()
@@ -123,8 +115,6 @@ class LLMEvaluator:
                         'opinions': metric.opinions,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.evaluation_score += score
-
                     self.metrics_score["Toxicity"] = score
 
                 elif isinstance(metric, Bias):
@@ -135,9 +125,7 @@ class LLMEvaluator:
                         'opinions': metric.opinions,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.evaluation_score += score
                     self.metrics_score["Bias"] = score
-
 
                 elif isinstance(metric, BertScore):
                     score = metric.measure()
@@ -146,24 +134,16 @@ class LLMEvaluator:
                         'recall': score['Recall'],
                         'f1_score': score['F1-score']
                     }
-                    # self.evaluation_score += score
-
                     # self.metrics_score["BertScore"] = score
                     self.metrics_score['precision'] = score['Precision']
-                    self.evaluation_score += score['Precision']
-
                     self.metrics_score['recall'] = score['Recall']
-                    self.evaluation_score += score['Recall']
-
                     self.metrics_score['f1_score'] = score['F1-score']
-                    self.evaluation_score += score['F1-score']
 
                 elif isinstance(metric, BLEU):
                     score = metric.measure()
                     results['BLEU'] = {
                         'score': score
                     }
-                    self.evaluation_score += score
                     self.metrics_score["BLEU"] = score
 
                 elif isinstance(metric, Gruen):
@@ -171,18 +151,82 @@ class LLMEvaluator:
                     results['gruen'] = {
                         'score': score[0]
                     }
-                    self.evaluation_score += score[0]
                     self.metrics_score["gruen"] = score[0]
+
                 logger.info(f"Completed evaluation for metric: {metric_name}")
 
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
+
+        # Calculate the final evaluation score after all metrics have been processed
+        evaluation_score = self._evaluation_score_llm_mcda()
+
+        self.metrics_score["evaluation_score"] = evaluation_score
+
+        results['evaluation_score'] = evaluation_score
+
         return results
+
+    def _evaluation_score_llm_mcda(self):
+        from skcriteria import mkdm
+        from skcriteria.madm import simple
+        evaluation_metrics = self.metrics_score.copy()
+        if "evaluation_score" in evaluation_metrics:
+            del evaluation_metrics['evaluation_score']
+        # Transform the values for Bias, Hallucination, and Toxicity
+        evaluation_metrics['Bias'] = 1 - evaluation_metrics['Bias']
+        evaluation_metrics['Hallucination'] = 1 - evaluation_metrics['Hallucination']
+        evaluation_metrics['Toxicity'] = 1 - evaluation_metrics['Toxicity']
+
+        # Weights for each metric
+        weights = {
+            'Faithfulness': 0.2,
+            'AnswerRelevancy': 0.15,
+            'Bias': 0.1,
+            'Hallucination': 0.15,
+            'KnowledgeRetention': 0.1,
+            'Toxicity': 0.1,
+            'precision': 0.05,
+            'recall': 0.05,
+            'f1_score': 0.05,
+            'BLEU': 0.025,
+            'gruen': 0.025,
+        }
+
+        # Convert metrics and weights to lists
+        metric_values = list(evaluation_metrics.values())
+        weight_values = list(weights.values())
+
+        # Create decision matrix
+        dm = mkdm(
+            matrix=[metric_values],
+            objectives=[max] * len(metric_values),
+            weights=weight_values,
+            criteria=list(evaluation_metrics.keys())
+        )
+
+        # Additive Weighting (SAW) method
+        saw = simple.WeightedSumModel()
+        rank = saw.evaluate(dm)
+        final_score_array = rank.e_['score']
+
+        return round(final_score_array.item(), 2)
 
     def plot(self, mode="external"):
         from indoxJudge.graph import Visualization
         from indoxJudge.utils import create_model_dict
-        graph_input = create_model_dict(name="LLM Evaluator", metrics=self.metrics_score,
-                                        score=self.evaluation_score / 9)
+        metrics = self.metrics_score.copy()
+        del metrics['evaluation_score']
+        score = self.metrics_score['evaluation_score']
+        graph_input = create_model_dict(name="LLM Evaluator", metrics=metrics,
+                                        score=score)
         visualizer = Visualization(data=graph_input, mode="llm")
         return visualizer.plot(mode=mode)
+
+    def format_for_analyzer(self, name):
+        from indoxJudge.utils import create_model_dict
+        metrics = self.metrics_score.copy()
+        del metrics['evaluation_score']
+        score = self.metrics_score['evaluation_score']
+        analyzer_input = create_model_dict(name=name, score=score, metrics=metrics)
+        return analyzer_input

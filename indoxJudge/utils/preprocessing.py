@@ -12,6 +12,10 @@ stopwords = [
 
 
 class TextPreprocessor:
+    stemmer = None
+    lemmatizer = None
+    _initialized = False
+
     def __init__(self, stopwords: List[str] = stopwords):
         """
         Initializes the TextPreprocessor with:
@@ -22,14 +26,21 @@ class TextPreprocessor:
         Parameters:
         stopwords (List[str]): A list of stopwords to use for text preprocessing.
         """
-        from indoxJudge.utils import nltk_download
-        from nltk.stem import PorterStemmer
-        from nltk.stem import WordNetLemmatizer
-
-        nltk_download()
+        self._initialize_class_resources()
         self.stop_words = stopwords
-        self.stemmer = PorterStemmer()
-        self.lemmatizer = WordNetLemmatizer()
+
+    @classmethod
+    def _initialize_class_resources(cls):
+        """Initialize class-level resources (stemmer, lemmatizer) only once."""
+        if not cls._initialized:
+            from indoxJudge.utils import nltk_download
+            from nltk.stem import PorterStemmer
+            from nltk.stem import WordNetLemmatizer
+
+            nltk_download()
+            cls.stemmer = PorterStemmer()
+            cls.lemmatizer = WordNetLemmatizer()
+            cls._initialized = True
 
     def to_lower(self, text: str) -> str:
         return text.lower()

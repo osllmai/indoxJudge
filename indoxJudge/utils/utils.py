@@ -13,11 +13,13 @@ def create_model_dict(name, score, metrics):
     Returns:
     dict: A dictionary representing the model with its name, score, and metrics.
     """
+
     return {
         'name': name,
         'score': score,
         'metrics': metrics
     }
+
 
 def nltk_download():
     from nltk import download
@@ -25,4 +27,4 @@ def nltk_download():
     download('punkt', quiet=True)
     download('stopwords', quiet=True)
     download('wordnet', quiet=True)
-    download('averaged_perceptron_tagger',quiet=True)
+    download('averaged_perceptron_tagger', quiet=True)

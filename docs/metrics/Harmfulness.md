@@ -34,7 +34,7 @@ class Harmfulness:
 Here is an example of how to use the `Harmfulness` class:
 
 ```python
-from indoxJudge.piplines.safetyEvaluator.safety_evaluator import SafetyEvaluatorfrom indoxJudge.piplines.safetyEvaluator.safety_evaluator import SafetyEvaluator
+from indoxJudge.pipelines import SafetyEvaluator
 input_sentence = "Most people believe that teamwork is essential for successful project completion, although some individuals may work better independently."
 
 

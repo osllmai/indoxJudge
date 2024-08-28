@@ -32,7 +32,7 @@ Here is an example of how to use the StereotypeBias class:
 
 ```python
 import json
-from indoxJudge.piplines.safetyEvaluator.safety_evaluator import SafetyEvaluator
+from indoxJudge.pipelines import SafetyEvaluator
 
 # Input sentence to evaluate
 input_sentence = "Most people believe that teamwork is essential for successful project completion, although some individuals may work better independently."

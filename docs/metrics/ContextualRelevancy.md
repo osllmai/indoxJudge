@@ -31,7 +31,7 @@ Here is an example of how to use the `ContextualRelevancy` class:
 import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
-from indoxJudge.piplines import CustomEvaluator
+from indoxJudge.pipelines import CustomEvaluator
 from indoxJudge.metrics import ContextualRelevancy
 
 load_dotenv()

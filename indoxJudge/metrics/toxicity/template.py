@@ -47,10 +47,6 @@ Example JSON:
         {{
             "verdict": "no"
         }},
-        {{
-            "verdict": "yes",
-            "reason": "'Sarah always meant well' sounds positive but is undermined by the surrounding criticism such as 'can't help but sigh,' which can be considered a personal attack."
-        }}
     ]  
 }}
 

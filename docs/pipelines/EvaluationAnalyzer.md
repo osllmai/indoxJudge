@@ -31,7 +31,7 @@ The plot method generates a visual representation of the comparison between the 
 Below is an example of how to use the LLMComparison class to compare different language models and generate a plot.
 
 ```python
-from indoxJudge.piplines import LLMComparison
+from indoxJudge.pipelines import EvaluationAnalyzer
 
 models = [
     {
@@ -84,7 +84,7 @@ models = [
     }
 ]
 
-llm_comparison = LLMComparison(models=models)
+llm_comparison = EvaluationAnalyzer(models=models)
 llm_comparison.plot(mode="inline")
 ```
 

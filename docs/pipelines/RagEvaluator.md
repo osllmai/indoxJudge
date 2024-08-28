@@ -52,7 +52,7 @@ from dotenv import load_dotenv
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-from indoxJudge.piplines import RagEvaluator
+from indoxJudge.pipelines import RagEvaluator
 from indoxJudge.models import OpenAi
 
 query = "What are the benefits of a Mediterranean diet?"

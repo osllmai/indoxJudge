@@ -1,4 +1,4 @@
-class LLMComparison:
+class EvaluationAnalyzer:
     def __init__(self, models):
         self.models = models
 
@@ -6,3 +6,5 @@ class LLMComparison:
         from indoxJudge.graph import Visualization
         visualization = Visualization(data=self.models, mode="llm")
         return visualization.plot(mode=mode)
+
+

@@ -63,28 +63,7 @@ Example JSON:
     "verdict": "no"
 }}
 
-Example LLM message: And which city?
-Example Previous Knowledge:
-{{
-    "Address": "91 South Kensington"
-}}
-Example JSON:
-{{
-    "verdict": "no"
-}}
 
-Example LLM message: Are you allergic to anything again?
-Example Previous Knowledge:
-{{
-    "Allergies": "Peanut Butter",
-    "State of Birth": "Florida",
-    "Social Security Number": "123234"
-}}
-Example JSON:
-{{
-    "verdict": "yes",
-    "reason": "The LLM is asking for allergies when there is already previous knowledge on the peanut butter allergies."
-}}
 
 You should NOT incorporate any prior knowledge you have and take the previous knowledge at face value.
 You MUST give a "no" verdict when the LLM asks for clarifications, corrections, and confirmations, otherwise I WILL DIE.
@@ -131,29 +110,7 @@ Example JSON:
     "Birthday": "January 21st 1989"
 }}
 
-Example LLM message: "It says here you have another sister-in-law called Jennifer, is that correct?"
-Example User message: "Yes that's correct."
-Example previous knowledge:
-{{
-    "Cat's Name": "Butter",
-    "Name of sister-in-law": "Mandy"
-}}
-Example JSON:
-{{
-    "Cat's Name": "Butter",
-    "Names of sisters-in-law": ["Jennifer", "Mandy"]
-}}
 
-Example LLM message: "It what model of Tesla do you drive?"
-Example User message: "Model X"
-Example previous knowledge:
-{{
-    "Tesla Model": "Model Y"
-}}
-Example JSON:
-{{
-    "Tesla Model": "Model X"
-}}
 
 You should NOT incorporate any prior knowledge you have and take each 'LLM message' at face value.
 You should use the previous knowledge to help you in outputting the final JSON.
