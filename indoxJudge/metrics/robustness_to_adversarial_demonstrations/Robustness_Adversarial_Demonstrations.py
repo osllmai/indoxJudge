@@ -1,7 +1,7 @@
 import json
 from typing import List
 from pydantic import BaseModel, Field
-from .template import AdversarialDemonstrationsTemplate  # New template for adversarial demonstrations robustness
+from .template import AdversarialDemonstrationsTemplate  
 
 class AdversarialDemonstrationsVerdict(BaseModel):
     verdict: str
