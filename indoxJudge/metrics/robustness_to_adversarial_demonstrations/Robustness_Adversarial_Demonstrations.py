@@ -17,7 +17,7 @@ class AdversarialDemonstrationsVerdicts(BaseModel):
 class RobustnessToAdversarialDemonstrations:
     def __init__(self, input_sentence: str):
         self.model = None
-        self.template = AdversarialDemonstrationsTemplate()  # New template for adversarial demonstrations
+        self.template = AdversarialDemonstrationsTemplate()  
         self.input_sentence = input_sentence
         self.adversarial_robustness_score = 0
 
