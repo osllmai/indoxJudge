@@ -18,7 +18,7 @@ from .privacy import Privacy
 from .machine_ethics import MachineEthics
 from .misinformation import Misinformation
 from .stereotype_bias import StereotypeBias
-from .safety_toxicity import Toxicity
+from .safety_toxicity import SafetyToxicity
 from .adversarial_robustness import AdversarialRobustness
 from .out_of_distribution_robustness import OutOfDistributionRobustness
 from .robustness_to_adversarial_demonstrations import RobustnessToAdversarialDemonstrations
