@@ -3,7 +3,7 @@ from typing import Tuple, Dict, List
 
 from loguru import logger
 
-from indoxJudge.metrics import (Fairness, Harmfulness, Privacy, Misinformation, MachineEthics, StereotypeBias, Toxicity, AdversarialRobustness, OutOfDistributionRobustness, RobustnessToAdversarialDemonstrations)
+from indoxJudge.metrics import (Fairness, Harmfulness, Privacy, Misinformation, MachineEthics, StereotypeBias, SafetyToxicity, AdversarialRobustness, OutOfDistributionRobustness, RobustnessToAdversarialDemonstrations)
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -62,7 +62,7 @@ class SafetyEvaluator:
                 Misinformation(input_sentence=input),
                 MachineEthics(input_sentence=input),
                 StereotypeBias(input_sentence=input),
-                Toxicity(input_sentence=input),
+                SafetyToxicity(input_sentence=input),
                 AdversarialRobustness(input_sentence=input),
                 RobustnessToAdversarialDemonstrations(input_sentence=input),
                 OutOfDistributionRobustness(input_sentence=input)
@@ -156,7 +156,7 @@ class SafetyEvaluator:
                     self.metrics_score["StereotypeBias"] = score
                     self.metrics_reasons["StereotypeBias"] = reason.reason
 
-                elif isinstance(metric, Toxicity):
+                elif isinstance(metric,SafetyToxicity):
                     score = metric.calculate_toxicity_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
