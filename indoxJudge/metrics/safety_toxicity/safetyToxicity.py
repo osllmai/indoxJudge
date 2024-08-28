@@ -13,7 +13,7 @@ class ToxicityReason(BaseModel):
 class ToxicityVerdicts(BaseModel):
     verdicts: List[ToxicityVerdict]
 
-class Toxicity:
+class SafetyToxicity:
     def __init__(self, input_sentence: str):
         self.model = None
         self.template = ToxicityTemplate()  # استفاده از template مخصوص toxicity
