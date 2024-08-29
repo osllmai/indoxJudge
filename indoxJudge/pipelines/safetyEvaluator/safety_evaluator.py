@@ -235,9 +235,11 @@ class SafetyEvaluator:
         try:
             from indoxJudge.graph import Visualization
             from indoxJudge.utils import create_model_dict
-
-            graph_input = create_model_dict(name="Safety Evaluator", metrics=self.metrics_score,
-                                            score=self.evaluation_score / 6)
+            metrics = self.metrics_score.copy()
+            del metrics['evaluation_score']
+            score = self.metrics_score['evaluation_score']
+            graph_input = create_model_dict(name="Safety Evaluator", metrics=metrics,
+                                            score=score)
             visualizer = Visualization(data=graph_input, mode="safety")
             return visualizer.plot(mode=mode)
 
