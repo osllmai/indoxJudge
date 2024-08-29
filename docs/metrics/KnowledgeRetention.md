@@ -28,6 +28,7 @@ class KnowledgeRetention:
         strict_mode (bool): Whether to use strict mode, which forces a score of 0 if retention is below the threshold. Defaults to False.
         """
 ```
+
 # Hyperparameters Explanation
 
 - **messages**: A list of dictionaries, where each dictionary contains a query and the corresponding `llm_response`. This allows for evaluation of how well the language model retains knowledge across multiple interactions.
@@ -52,8 +53,11 @@ from indoxJudge.pipelines import CustomEvaluator
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+
 # Initialize the language model
-llm = OpenAi(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
+# it can be any OpenAI model, please refer to the [OpenAI Models documentation](https://platform.openai.com/docs/models) such as GPT-4o.
+
+llm = OpenAi(api_key=OPENAI_API_KEY, model="Open AI Model")
 
 # Define the messages containing queries and LLM responses
 messages = [
@@ -63,9 +67,9 @@ messages = [
 
 # Initialize the KnowledgeRetention evaluation metric
 knowledge_retention_metric = KnowledgeRetention(
-    messages=messages, 
-    threshold=0.5, 
-    include_reason=True, 
+    messages=messages,
+    threshold=0.5,
+    include_reason=True,
     strict_mode=False
 )
 

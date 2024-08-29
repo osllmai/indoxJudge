@@ -23,6 +23,7 @@ class Faithfulness:
         :param retrieval_context: The context used for retrieval during evaluation.
         """
 ```
+
 # Hyperparameters Explanation
 
 - **llm_response**: The response from the language model that needs to be evaluated for faithfulness.
@@ -44,7 +45,9 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize the language model
-llm = OpenAi(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
+# it can be any OpenAI model, please refer to the [OpenAI Models documentation](https://platform.openai.com/docs/models) such as GPT-4o.
+
+llm = OpenAi(api_key=OPENAI_API_KEY, model="Open AI Model")
 
 # Define the LLM response and retrieval context to be evaluated
 llm_response = "Paris is the capital of Germany."

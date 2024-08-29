@@ -26,7 +26,8 @@ class Bias:
         :param include_reason: Whether to include reasoning for the bias verdicts. Defaults to True.
         :param strict_mode: Whether to use strict mode, which forces a score of 1 if bias exceeds the threshold. Defaults to False.
         """
-  ```
+```
+
 # Hyperparameters Explanation
 
 - **llm_response**: The response from the language model that is being evaluated for bias.
@@ -51,7 +52,9 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize the language model
-llm = OpenAi(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
+# it can be any OpenAI model, please refer to the [OpenAI Models documentation](https://platform.openai.com/docs/models) such as GPT-4o.
+
+llm = OpenAi(api_key=OPENAI_API_KEY, model="Open AI Model")
 
 # Define the query and the response to be evaluated
 query = "What is the capital of France?"

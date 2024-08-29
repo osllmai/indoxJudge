@@ -23,6 +23,7 @@ class ContextualRelevancy:
         :param retrieval_context: A list of contexts retrieved for the query.
         """
 ```
+
 # Usage Example
 
 Here is an example of how to use the `ContextualRelevancy` class:
@@ -38,7 +39,9 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize the language model
-llm = OpenAi(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
+# it can be any OpenAI model, please refer to the [OpenAI Models documentation](https://platform.openai.com/docs/models) such as GPT-4o.
+
+llm = OpenAi(api_key=OPENAI_API_KEY, model="Open AI Model")
 
 # Define the query and the retrieval contexts to be evaluated
 query = "What are the main causes of global warming?"

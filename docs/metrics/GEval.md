@@ -76,8 +76,11 @@ from indoxJudge.pipelines import CustomEvaluator
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+
 # Initialize the language model
-llm = OpenAi(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
+# it can be any OpenAI model, please refer to the [OpenAI Models documentation](https://platform.openai.com/docs/models) such as GPT-4o.
+
+llm = OpenAi(api_key=OPENAI_API_KEY, model="Open AI Model")
 
 # Define the necessary inputs for evaluation
 query = "What are the main benefits of a plant-based diet?"
