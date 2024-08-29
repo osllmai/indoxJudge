@@ -55,6 +55,7 @@ IndoxJudge currently supports the following LLM models:
 - **IndoxApi**
 - **HuggingFaceModel**
 - **Mistral**
+- **Pheonix**
 - **Ollama**
 
 ## Metrics
