@@ -17,41 +17,16 @@ logger.add(sys.stdout,
 
 class SafetyEvaluator:
     """
-    A class to evaluate the safety of a model based on several metrics.
+    The SafetyEvaluator class is designed to evaluate the safety of a model based on various metrics.
 
-    Attributes
-    ----------
-    model : object
-        The model to be evaluated.
-    metrics : list
-        A list of metric instances used for evaluation.
-    evaluation_score : float
-        The cumulative score of all metrics.
-    metrics_score : dict
-        A dictionary storing the score for each metric.
-    metrics_reasons : dict
-        A dictionary storing the reason for the score of each metric.
+    It supports metrics including Fairness, Harmfulness, and other safety-related evaluations. The class calculates
+    a cumulative evaluation score and provides detailed scores and reasons for each metric.
 
-    Methods
-    -------
-    set_model_for_metrics():
-        Sets the model for all metrics.
-    judge() -> Tuple[Dict[str, float], Dict[str, str]]:
-        Evaluates all metrics and returns their scores and reasons.
-    plot(mode="external"):
-        Plots the evaluation results.
     """
 
     def __init__(self, model, input):
         """
-        Initializes the SafetyEvaluator with the given model and input sentence.
-
-        Parameters
-        ----------
-        model : object
-            The model to be evaluated.
-        input : str
-            The input sentence to evaluate the model on.
+        Initializes the SafetyEvaluator with the specified model and input sentence.
         """
         try:
             self.model = model
@@ -97,118 +72,171 @@ class SafetyEvaluator:
             logger.error(f"An error occurred while setting the model for metrics: {e}")
             raise
 
-    def judge(self) -> Tuple[Dict[str, float], Dict[str, str]]:
+    import json
+
+    def judge(self):
         """
-        Evaluates all metrics and returns their scores and reasons.
+        Evaluates the language model using the provided metrics and returns the results.
 
-        This method calculates the score and reason for each metric and aggregates them.
-
-        Returns
-        -------
-        Tuple[Dict[str, float], Dict[str, str]]
-            A tuple containing a dictionary of metric scores and a dictionary of reasons for each score.
+        Returns:
+            dict: A dictionary containing the evaluation results for each metric.
         """
-        try:
-            for metric in self.metrics:
-                metric_name = metric.__class__.__name__
+        results = {}
 
+        for metric in self.metrics:
+            metric_name = metric.__class__.__name__
+            try:
                 logger.info(f"Evaluating metric: {metric_name}")
 
                 if isinstance(metric, Fairness):
                     score = metric.calculate_fairness_score()
                     reason = metric.get_reason()
-                    self.evaluation_score += score
+                    results['Fairness'] = {
+                        'score': score,
+                        'reason': reason.reason
+                    }
                     self.metrics_score["Fairness"] = score
-                    self.metrics_reasons["Fairness"] = reason.reason
 
                 elif isinstance(metric, Harmfulness):
                     score = metric.calculate_harmfulness_score()
                     reason = metric.get_reason()
-                    self.evaluation_score += score
+                    results['Harmfulness'] = {
+                        'score': score,
+                        'reason': reason.reason
+                    }
                     self.metrics_score["Harmfulness"] = score
-                    self.metrics_reasons["Harmfulness"] = reason.reason
 
                 elif isinstance(metric, Privacy):
                     score = metric.calculate_privacy_score()
                     reason = metric.get_reason()
-                    self.evaluation_score += score
+                    results['Privacy'] = {
+                        'score': score,
+                        'reason': reason.reason
+                    }
                     self.metrics_score["Privacy"] = score
-                    self.metrics_reasons["Privacy"] = reason.reason
 
                 elif isinstance(metric, Misinformation):
                     score = metric.calculate_misinformation_score()
                     reason = metric.get_reason()
-                    self.evaluation_score += score
+                    results['Misinformation'] = {
+                        'score': score,
+                        'reason': reason.reason
+                    }
                     self.metrics_score["Misinformation"] = score
-                    self.metrics_reasons["Misinformation"] = reason.reason
 
                 elif isinstance(metric, MachineEthics):
                     score = metric.calculate_ethics_score()
                     reason = metric.get_reason()
-                    self.evaluation_score += score
+                    results['MachineEthics'] = {
+                        'score': score,
+                        'reason': reason.reason
+                    }
                     self.metrics_score["MachineEthics"] = score
-                    self.metrics_reasons["MachineEthics"] = reason.reason
 
                 elif isinstance(metric, StereotypeBias):
                     score = metric.calculate_stereotype_bias_score()
                     reason = metric.get_reason()
-                    self.evaluation_score += score
+                    results['StereotypeBias'] = {
+                        'score': score,
+                        'reason': reason.reason
+                    }
                     self.metrics_score["StereotypeBias"] = score
-                    self.metrics_reasons["StereotypeBias"] = reason.reason
 
-                elif isinstance(metric,SafetyToxicity):
+                elif isinstance(metric, SafetyToxicity):
                     score = metric.calculate_toxicity_score()
                     reason = metric.get_reason()
-                    self.evaluation_score += score
+                    results['Toxicity'] = {
+                        'score': score,
+                        'reason': reason.reason
+                    }
                     self.metrics_score["Toxicity"] = score
-                    self.metrics_reasons["Toxicity"] = reason.reason
 
                 elif isinstance(metric, AdversarialRobustness):
                     score = metric.calculate_robustness_score()
                     reason = metric.get_reason()
-                    self.evaluation_score += score
+                    results['AdversarialRobustness'] = {
+                        'score': score,
+                        'reason': reason.reason
+                    }
                     self.metrics_score["AdversarialRobustness"] = score
-                    self.metrics_reasons["AdversarialRobustness"] = reason.reason
 
                 elif isinstance(metric, OutOfDistributionRobustness):
                     score = metric.calculate_ood_robustness_score()
                     reason = metric.get_reason()
-                    self.evaluation_score += score
+                    results['OutOfDistributionRobustness'] = {
+                        'score': score,
+                        'reason': reason.reason
+                    }
                     self.metrics_score["OutOfDistributionRobustness"] = score
-                    self.metrics_reasons["OutOfDistributionRobustness"] = reason.reason
 
                 elif isinstance(metric, RobustnessToAdversarialDemonstrations):
                     score = metric.calculate_adversarial_robustness_score()
                     reason = metric.get_reason()
-                    self.evaluation_score += score
+                    results['RobustnessToAdversarialDemonstrations'] = {
+                        'score': score,
+                        'reason': reason.reason
+                    }
                     self.metrics_score["RobustnessToAdversarialDemonstrations"] = score
-                    self.metrics_reasons["RobustnessToAdversarialDemonstrations"] = reason.reason
 
-            return self.metrics_score, self.metrics_reasons
+                logger.info(f"Completed evaluation for metric: {metric_name}")
 
-        except Exception as e:
-            logger.error(f"An error occurred during evaluation: {e}")
-            raise
+            except Exception as e:
+                logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
+
+        evaluation_score = self._evaluation_score_Safety_mcda()
+        self.metrics_score["evaluation_score"] = evaluation_score
+        results['evaluation_score'] = evaluation_score
+
+        return results
+
+    def _evaluation_score_Safety_mcda(self):
+        from skcriteria import mkdm
+        from skcriteria.madm import simple
+
+        evaluation_metrics = self.metrics_score.copy()
+        if "evaluation_score" in evaluation_metrics:
+            del evaluation_metrics['evaluation_score']
+        # Weights for each metric (adjusted for Safety evaluation)
+        weights = {
+            'Fairness': 0.1,
+            'Harmfulness': 0.1,
+            'Privacy': 0.1,
+            'Misinformation': 0.1,
+            'MachineEthics': 0.1,
+            'StereotypeBias': 0.1,
+            'Toxicity': 0.1,
+            'AdversarialRobustness': 0.1,
+            'OutOfDistributionRobustness': 0.1,
+            'RobustnessToAdversarialDemonstrations': 0.1,
+        }
+
+        # Convert metrics and weights to lists
+        metric_values = list(evaluation_metrics.values())
+        weight_values = list(weights.values())
+
+        # Create decision matrix
+        dm = mkdm(
+            matrix=[metric_values],
+            objectives=[max] * len(metric_values),  # All are maximization since we adjusted the values
+            weights=weight_values,
+            criteria=list(evaluation_metrics.keys())
+        )
+
+        # Apply Simple Additive Weighting (SAW) method
+        saw = simple.WeightedSumModel()
+        rank = saw.evaluate(dm)
+        final_score_array = rank.e_['score']
+
+        # Return the rounded final score
+        return round(final_score_array.item(), 2)
 
     def plot(self, mode="external"):
-        """
-        Plots the evaluation results.
 
-        Parameters
-        ----------
-        mode : str, optional
-            The mode for plotting, by default "external".
-
-        Returns
-        -------
-        object
-            A visualization object representing the evaluation results.
-        """
         try:
             from indoxJudge.graph import Visualization
             from indoxJudge.utils import create_model_dict
 
-            graph_input = create_model_dict(name="RAG Evaluator", metrics=self.metrics_score,
+            graph_input = create_model_dict(name="Safety Evaluator", metrics=self.metrics_score,
                                             score=self.evaluation_score / 6)
             visualizer = Visualization(data=graph_input, mode="safety")
             return visualizer.plot(mode=mode)
@@ -216,6 +244,14 @@ class SafetyEvaluator:
         except Exception as e:
             logger.error(f"An error occurred during plotting: {e}")
             raise
+
+    def format_for_analyzer(self, name):
+        from indoxJudge.utils import create_model_dict
+        metrics = self.metrics_score.copy()
+        del metrics['evaluation_score']
+        score = self.metrics_score['evaluation_score']
+        analyzer_input = create_model_dict(name=name, score=score, metrics=metrics)
+        return analyzer_input
     # def transform_metrics(self) -> List[Dict[str, float]]:
     #     average_score = sum(self.metrics_score.values()) / len(self.metrics_score)
     #     average_score = int(average_score * 100) / 100.0
