@@ -33,6 +33,10 @@
 
 Welcome to IndoxJudge! This repository provides a comprehensive suite of evaluation metrics for assessing the performance and quality of large language models (LLMs). Whether you're a researcher, developer, or enthusiast, this toolkit offers essential tools to measure various aspects of LLMs, including knowledge retention, bias, toxicity, and more.
 
+
+
+![IndoxJudge](docs\image\IndoxJudge Evaluate LLMs with metrics & ModelSafety.png)
+
 ## Overview
 
 IndoxJudge is designed to provide a standardized and extensible framework for evaluating LLMs. With a focus on accuracy, fairness, and relevancy, this toolkit supports a wide range of evaluation metrics and is continuously updated to include the latest advancements in the field.
