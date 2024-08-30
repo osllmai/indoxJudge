@@ -1,6 +1,5 @@
 <p align="center">
 
-
 <div style="position: relative; width: 100%; text-align: center;">
     <h1>inDoxJudge</h1>
     <a href="https://github.com/osllmai/inDoxJudge">
@@ -18,20 +17,19 @@
 [![Discord](https://img.shields.io/discord/1223867382460579961?label=Discord&logo=Discord&style=social)](https://discord.com/invite/ossllmai)
 [![GitHub stars](https://img.shields.io/github/stars/osllmai/inDoxJudge?style=social)](https://github.com/osllmai/inDoxJudge)
 
-
-
-
 <p align="center">
   <a href="https://osllm.ai">Official Website</a> &bull; <a href="https://github.com/osllmai/inDox/wiki">Documentation</a> &bull; <a href="https://discord.gg/qrCc56ZR">Discord</a>
 </p>
-
 
 <p align="center">
   <b>NEW:</b> <a href="https://docs.google.com/forms/d/1CQXJvxLUqLBSXnjqQmRpOyZqD6nrKubLz2WTcIJ37fU/prefill">Subscribe to our mailing list</a> for updates and news!
 </p>
 
-
 Welcome to IndoxJudge! This repository provides a comprehensive suite of evaluation metrics for assessing the performance and quality of large language models (LLMs). Whether you're a researcher, developer, or enthusiast, this toolkit offers essential tools to measure various aspects of LLMs, including knowledge retention, bias, toxicity, and more.
+
+<p align="center">
+  <img src="https://github.com/osllmai/indoxJudge/blob/testing/docs/image/IndoxJudge%20Evaluate%20LLMs%20with%20metrics%20&%20Model%20Safety.png?raw=true" alt="IndoxJudge Evaluate LLMs with metrics & Model Safety">
+</p>
 
 ## Overview
 
@@ -80,11 +78,11 @@ IndoxJudge includes the following metrics, with more being added:
 
 To install IndoxJudge, follow these steps:
 
-
 ```bash
 git clone https://github.com/yourusername/indoxjudge.git
 cd indoxjudge
 ```
+
 ## Setting Up the Python Environment
 
 If you are running this project in your local IDE, please create a Python environment to ensure all dependencies are correctly managed. You can follow the steps below to set up a virtual environment named `indox_judge`:
@@ -92,10 +90,13 @@ If you are running this project in your local IDE, please create a Python enviro
 ### Windows
 
 1. **Create the virtual environment:**
+
 ```bash
 python -m venv indox_judge
 ```
+
 2. **Activate the virtual environment:**
+
 ```bash
 indox_judge\Scripts\activate
 ```
@@ -105,12 +106,15 @@ indox_judge\Scripts\activate
 1. **Create the virtual environment:**
    ```bash
    python3 -m venv indox_judge
-```
+   ```
+
+````
 
 2. **Activate the virtual environment:**
     ```bash
    source indox_judge/bin/activate
-```
+````
+
 ### Install Dependencies
 
 Once the virtual environment is activated, install the required dependencies by running:
@@ -118,9 +122,6 @@ Once the virtual environment is activated, install the required dependencies by 
 ```bash
 pip install -r requirements.txt
 ```
-
-
-
 
 ## Usage
 
@@ -165,6 +166,7 @@ faithfulness_result = evaluator.judge()
 # Output the evaluation result
 print(faithfulness_result)
 ```
+
 ## Example Output
 
 ```json
@@ -199,16 +201,17 @@ print(faithfulness_result)
   }
 }
 ```
+
 ## Roadmap
 
 We have an exciting roadmap planned for IndoxJudge:
 
-  | Plan                                                                 |
-| -------------------------------------------------------------------- |
- | Integration of additional metrics such as Diversity and Coherence.   |
+| Plan                                                                    |
+| ----------------------------------------------------------------------- |
+| Integration of additional metrics such as Diversity and Coherence.      |
 | Introduction of a graphical user interface (GUI) for easier evaluation. |
-  | Expansion of the toolkit to support evaluation in multiple languages. |
-  | Release of a benchmarking suite for standardizing LLM evaluations.   |
+| Expansion of the toolkit to support evaluation in multiple languages.   |
+| Release of a benchmarking suite for standardizing LLM evaluations.      |
 
 ## Contributing
 
@@ -219,5 +222,3 @@ We welcome contributions from the community! If you'd like to contribute, please
 3. Commit your changes (`git commit -am 'Add new feature'`)
 4. Push to the branch (`git push origin feature-branch`)
 5. Create a pull request
-
-
