@@ -18,9 +18,8 @@
 [![GitHub stars](https://img.shields.io/github/stars/osllmai/inDoxJudge?style=social)](https://github.com/osllmai/inDoxJudge)
 
 <p align="center">
-  <a href="https://osllm.ai">Official Website</a> &bull; <a href="https://github.com/osllmai/inDox/wiki">Documentation</a> &bull; <a href="https://discord.gg/qrCc56ZR">Discord</a>
+  <a href="https://osllm.ai">Official Website</a> &bull; <a href="https://evaldocs.osllm.ai/index.html">Documentation</a> &bull; <a href="https://discord.gg/qrCc56ZR">Discord</a>
 </p>
-
 <p align="center">
   <b>NEW:</b> <a href="https://docs.google.com/forms/d/1CQXJvxLUqLBSXnjqQmRpOyZqD6nrKubLz2WTcIJ37fU/prefill">Subscribe to our mailing list</a> for updates and news!
 </p>
