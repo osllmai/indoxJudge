@@ -30,7 +30,7 @@ Welcome to *IndoxJudge*! This repository provides a comprehensive suite of evalu
   <img src="https://github.com/osllmai/indoxJudge/blob/main/docs/assets/IndoxJudge%20Evaluate%20LLMs%20with%20metrics%20&%20Model%20Safety.png?raw=true" alt="IndoxJudge Evaluate LLMs with metrics & Model Safety">
 </p>
 
-## Overview
+## Overview 
 
 *IndoxJudge* is designed to provide a standardized and extensible framework for evaluating *LLMs*. With a focus on *accuracy*, *fairness*, and *relevancy*, this toolkit supports a wide range of evaluation metrics and is continuously updated to include the latest advancements in the field.
 
