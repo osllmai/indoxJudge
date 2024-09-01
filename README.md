@@ -27,7 +27,7 @@
 Welcome to *IndoxJudge*! This repository provides a comprehensive suite of evaluation metrics for assessing the performance and quality of large language models (*LLMs*). Whether you're a researcher, developer, or enthusiast, this toolkit offers essential tools to measure various aspects of *LLMs*, including *knowledge retention*, *bias*, *toxicity*, and more.
 
 <p align="center">
-  <img src="https://github.com/osllmai/indoxJudge/blob/main/docs/image/IndoxJudge%20Evaluate%20LLMs%20with%20metrics%20&%20Model%20Safety.png?raw=true" alt="IndoxJudge Evaluate LLMs with metrics & Model Safety">
+  <img src="https://raw.githubusercontent.com/osllmai/indoxJudge/master/docs/assets/IndoxJudge%20Evaluate%20LLMs%20with%20metrics%20%26%20Model%20Safety.png" alt="IndoxJudge Evaluate LLMs with metrics & Model Safety">
 </p>
 
 ## Overview
