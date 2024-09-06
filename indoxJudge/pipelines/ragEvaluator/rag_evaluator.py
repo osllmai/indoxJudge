@@ -1,3 +1,5 @@
+import re
+
 from loguru import logger
 import sys
 import json
@@ -109,14 +111,17 @@ class RagEvaluator:
         Initializes the metrics with the provided data for evaluation.
         """
         retrieval_context_join = "\n".join(retrieval_context)
-
+        retrieval_context_join = re.sub(r'\s+', ' ',
+                                        retrieval_context_join)
+        retrieval_context_join = re.sub(r'[^\w\s.,]', '',
+                                        retrieval_context_join)
         self.metrics = [
             Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context_join),
             AnswerRelevancy(query=query, llm_response=llm_response),
             ContextualRelevancy(query=query, retrieval_context=retrieval_context),
             GEval(parameters="Rag Pipeline", llm_response=llm_response, query=query,
                   retrieval_context=retrieval_context, ground_truth=ground_truth, context=context),
-            Hallucination(llm_response=llm_response, retrieval_context=retrieval_context),
+            Hallucination(llm_response=llm_response, retrieval_context=retrieval_context_join),
             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
             BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
             METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
@@ -268,11 +273,22 @@ class RagEvaluator:
         elif self.entries:
             for entry_id, entry_data in self.entries.items():
                 logger.info(f"Evaluating entry: {entry_id}")
-                llm_response = entry_data['llm_response']
-                retrieval_context = entry_data['retrieval_context']
-                query = entry_data['query']
-                ground_truth = entry_data.get('ground_truth')
-                context = entry_data.get('context')
+                llm_response = entry_data.get('llm_response', None)
+                if llm_response:
+                    llm_response = llm_response.replace('\n', ' ').strip()
+                retrieval_context = [context.replace('\n', ' ').strip() for context in
+                                     entry_data.get('retrieval_context', [])]
+
+                query = entry_data.get('query', None)
+                if query:
+                    query = query.replace('\n', ' ').strip()
+                ground_truth = entry_data.get('ground_truth', None)
+                if ground_truth:
+                    ground_truth = ground_truth.replace('\n', ' ').strip()
+                context = entry_data.get('context', None)
+                if context:
+                    context = context.replace('\n', ' ').strip()
+                self._initialize_metrics(llm_response, retrieval_context, query, ground_truth, context)
 
                 # Initialize metrics for this entry
                 self._initialize_metrics(llm_response, retrieval_context, query, ground_truth, context)
