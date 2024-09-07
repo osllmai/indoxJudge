@@ -27,6 +27,16 @@ logger.add(
 warnings.filterwarnings("ignore", category=FutureWarning, message=".*`resume_download` is deprecated.*")
 
 
+def clean_context(strings):
+    cleaned_strings = []
+    for s in strings:
+        cleaned_string = s.replace("'", "")  # Remove single quotes
+        cleaned_string = cleaned_string.replace("\n", " ")  # Remove newlines
+        cleaned_string = cleaned_string.strip()  # Strip leading and trailing spaces
+        cleaned_strings.append(cleaned_string)
+    return cleaned_strings
+
+
 class RagEvaluator:
     """
     The RagEvaluator class is designed to evaluate various aspects of language model outputs using specified metrics.
@@ -110,21 +120,22 @@ class RagEvaluator:
         """
         Initializes the metrics with the provided data for evaluation.
         """
+        clean_retrieval_context = clean_context(retrieval_context)
         retrieval_context_join = "\n".join(retrieval_context)
-        retrieval_context_join = re.sub(r'\s+', ' ',
-                                        retrieval_context_join)
-        retrieval_context_join = re.sub(r'[^\w\s.,]', '',
-                                        retrieval_context_join)
+        # retrieval_context_join = re.sub(r'\s+', ' ',
+        #                                 retrieval_context_join)
+        # retrieval_context_join = re.sub(r'[^\w\s.,]', '',
+        #                                 retrieval_context_join)
         self.metrics = [
             Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context_join),
             AnswerRelevancy(query=query, llm_response=llm_response),
-            ContextualRelevancy(query=query, retrieval_context=retrieval_context),
+            ContextualRelevancy(query=query, retrieval_context=clean_retrieval_context),
             GEval(parameters="Rag Pipeline", llm_response=llm_response, query=query,
-                  retrieval_context=retrieval_context, ground_truth=ground_truth, context=context),
-            Hallucination(llm_response=llm_response, retrieval_context=retrieval_context_join),
+                  retrieval_context=clean_retrieval_context, ground_truth=ground_truth, context=context),
+            Hallucination(llm_response=llm_response, retrieval_context=clean_retrieval_context),
             KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
-            BertScore(llm_response=llm_response, retrieval_context=retrieval_context),
-            METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
+            BertScore(llm_response=llm_response, retrieval_context=clean_retrieval_context),
+            METEOR(llm_response=llm_response, retrieval_context=clean_retrieval_context),
         ]
         self._set_model_for_metrics()
 
@@ -170,6 +181,7 @@ class RagEvaluator:
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
                     self._calculate_metric_score(parameter="AnswerRelevancy", score=score)
+
                 elif isinstance(metric, ContextualRelevancy):
                     irrelevancies = metric.get_irrelevancies(metric.query, metric.retrieval_contexts)
                     metric.set_irrelevancies(irrelevancies)
@@ -183,12 +195,14 @@ class RagEvaluator:
                         'score': score
                     }
                     self._calculate_metric_score(parameter="ContextualRelevancy", score=score)
+
                 elif isinstance(metric, GEval):
                     geval_result = metric.g_eval()
                     results['GEval'] = geval_result.replace("\n", " ")
                     geval_data = json.loads(results["GEval"])
                     score = int(geval_data["score"]) / 10
                     self._calculate_metric_score(parameter="GEval", score=score)
+
                 elif isinstance(metric, Hallucination):
                     score = metric.measure()
                     results['Hallucination'] = {
@@ -197,6 +211,7 @@ class RagEvaluator:
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
                     self._calculate_metric_score(parameter="Hallucination", score=score)
+
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
                     results['KnowledgeRetention'] = {
@@ -206,6 +221,7 @@ class RagEvaluator:
                         'knowledges': [knowledge.data for knowledge in metric.knowledges]
                     }
                     self._calculate_metric_score(parameter="KnowledgeRetention", score=score)
+
                 elif isinstance(metric, BertScore):
                     score = metric.measure()
                     results['BertScore'] = {
@@ -216,10 +232,12 @@ class RagEvaluator:
                     self._calculate_metric_score(parameter="precision", score=score['Precision'])
                     self._calculate_metric_score(parameter="recall", score=score['Recall'])
                     self._calculate_metric_score(parameter="f1_score", score=score['F1-score'])
+
                 elif isinstance(metric, METEOR):
                     score = metric.measure()
                     results["METEOR"] = {"score": score}
                     self._calculate_metric_score(parameter="METEOR", score=score)
+
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
 
@@ -269,7 +287,7 @@ class RagEvaluator:
             evaluation_score = self._evaluation_score_rag_mcda()
             self.metrics_score["evaluation_score"] = evaluation_score
             self.results['evaluation_score'] = evaluation_score
-            return self.results
+            # return self.results
         elif self.entries:
             for entry_id, entry_data in self.entries.items():
                 logger.info(f"Evaluating entry: {entry_id}")
@@ -301,7 +319,7 @@ class RagEvaluator:
             self.results = results
             self._finalize_metric_scores()  # Finalize scores after all evaluations
             logger.info(f"Evaluation Completed, Check out the results")
-            return self.results
+            # return self.results
 
     def _evaluation_score_rag_mcda(self):
         """
