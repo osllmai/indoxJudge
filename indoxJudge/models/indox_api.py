@@ -100,6 +100,8 @@ class IndoxApi:
             system_prompt = "You are an assistant for LLM evaluation."
 
             response = self._send_request(system_prompt, prompt)
+            if response.startswith("```json") and response.endswith("```"):
+                response = response[7:-3].strip()
             return response
         except Exception as e:
             logger.error(f"Error generating evaluation response: {e}")

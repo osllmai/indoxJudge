@@ -106,7 +106,9 @@ class HuggingFaceModel:
             """
 
             response = self._send_request(system_prompt + "\n" + prompt)
-            return response.strip()
+            if response.startswith("```json") and response.endswith("```"):
+                response = response[7:-3].strip()
+            return response
         except Exception as e:
             logger.error(f"Error generating evaluation response: {e}")
             return str(e)

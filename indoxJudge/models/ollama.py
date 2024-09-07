@@ -74,7 +74,10 @@ class Ollama:
         system_prompt = "You are an assistant for LLM evaluation."
         messages = system_prompt + prompt
         try:
-            return self._generate_response(messages).lower()
+            response = self._generate_response(messages).lower()
+            if response.startswith("```json") and response.endswith("```"):
+                response = response[7:-3].strip()
+            return response
         except Exception as e:
             logger.error(f"Error Generating Evaluation: {e}")
             return str(e)
