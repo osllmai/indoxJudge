@@ -1,4 +1,5 @@
 import json
+import re
 from typing import List
 from pydantic import BaseModel, Field
 from .template import ContextualRelevancyTemplate
@@ -35,12 +36,24 @@ class ContextualRelevancy:
         for retrieval_context in retrieval_contexts:
             prompt = self.template.generate_verdict(query, retrieval_context)
             response = self._call_language_model(prompt)
+
             try:
+                response = response.strip()
+
+                if response.startswith("```json") and response.endswith("```"):
+                    response = response[7:-3].strip()
+
                 data = json.loads(response)
+
                 if data["verdict"].strip().lower() == "no":
                     irrelevancies.append(data["reason"])
+
             except json.JSONDecodeError as e:
-                print(f"Error decoding JSON: {e}")
+                print(f"Error decoding JSON: {e}, response was: {response}")
+
+            except Exception as e:
+                print(f"Error: {e}, response was: {response}")
+
         return irrelevancies
 
     def set_irrelevancies(self, irrelevancies: List[str]):
@@ -59,15 +72,28 @@ class ContextualRelevancy:
     def get_verdict(self, query: str, retrieval_context: str) -> ContextualRelevancyVerdict:
         prompt = self.template.generate_verdict(query=query, context=retrieval_context)
         response = self._call_language_model(prompt)
+
         try:
+            response = response.strip()
+
+            if response.startswith("```json") and response.endswith("```"):
+                response = response[7:-3].strip()  # Strip the wrapping ```json and ```
+
+            response = re.sub(r"(?<=\w)'(?=\w)", "", response)  # Removes single quotes between words
+
             data = json.loads(response)
+
+            if "verdict" not in data:
+                raise ValueError("Missing 'verdict' key in the model's response.")
+
             return ContextualRelevancyVerdict(
                 verdict=data["verdict"],
                 reason=data.get("reason", "No reason provided")
             )
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
+        except json.JSONDecodeError:
             return ContextualRelevancyVerdict(verdict="error", reason="Error in generating verdict.")
+        except Exception:
+            return ContextualRelevancyVerdict(verdict="error", reason="Invalid format.")
 
     def get_verdicts(self, query: str, retrieval_contexts: List[str]) -> Verdicts:
         verdicts = [self.get_verdict(query, retrieval_context) for retrieval_context in retrieval_contexts]
@@ -86,5 +112,6 @@ class ContextualRelevancy:
 
     def _call_language_model(self, prompt: str) -> str:
         response = self.model.generate_evaluation_response(prompt=prompt)
+        if not response:
+            raise ValueError("Received an empty response from the model.")
         return response
-

@@ -3,16 +3,20 @@ from typing import List
 from pydantic import BaseModel, Field
 from .template import RobustnessTemplate
 
+
 class RobustnessVerdict(BaseModel):
     verdict: str
     reason: str = Field(default=None)
     score: float = Field(default=0.0)
 
+
 class Reason(BaseModel):
     reason: str
 
+
 class Verdicts(BaseModel):
     verdicts: List[RobustnessVerdict]
+
 
 class AdversarialRobustness:
     def __init__(self, input_sentence: str):

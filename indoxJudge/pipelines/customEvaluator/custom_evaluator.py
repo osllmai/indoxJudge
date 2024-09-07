@@ -38,6 +38,7 @@ class CustomEvaluator:
         self.set_model_for_metrics()
         self.evaluation_score = 0
         self.metrics_score = {}
+        self.results = {}
 
     def set_model_for_metrics(self):
         """
@@ -302,7 +303,8 @@ class CustomEvaluator:
 
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
-        return results
+        self.results = results
+        # return results
 
     def plot(self, mode="external"):
         from indoxJudge.graph import Visualization

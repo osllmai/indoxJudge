@@ -19,7 +19,7 @@ class Reason(BaseModel):
 
 
 class Hallucination:
-    def __init__(self, llm_response: str, retrieval_context: str, threshold: float = 0.5, include_reason: bool = True,
+    def __init__(self, llm_response: str, retrieval_context, threshold: float = 0.5, include_reason: bool = True,
                  strict_mode: bool = False):
         self.threshold = 0 if strict_mode else threshold
         self.include_reason = include_reason

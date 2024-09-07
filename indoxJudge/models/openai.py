@@ -15,7 +15,7 @@ logger.add(sys.stdout,
 
 class OpenAi:
     """
-    A class to interface with OpenAI's GPT-3 models for evaluation purposes.
+    A class to interface with OpenAI's models for evaluation purposes.
 
     This class uses the OpenAI API to send requests and receive responses, which are utilized
     for evaluating the performance of language models.
@@ -27,7 +27,7 @@ class OpenAi:
 
         Args:
             api_key (str): The API key for accessing the OpenAI API.
-            model (str): The GPT-3 model version to use.
+            model (str): The GPT model version to use.
         """
         from openai import OpenAI
 
@@ -81,7 +81,10 @@ class OpenAi:
                 {"role": "system", "content": "You are an assistant for LLM evaluation"},
                 {"role": "user", "content": prompt},
             ]
-            return self._generate_response(messages, temperature=0.00001)
+            response = self._generate_response(messages, temperature=0.00001)
+            if response.startswith("```json") and response.endswith("```"):
+                response = response[7:-3].strip()
+            return response
         except Exception as e:
             logger.error(f"Error generating response to custom prompt: {e}")
             return str(e)
