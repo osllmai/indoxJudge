@@ -283,10 +283,10 @@ class RagEvaluator:
         if not self.entries:
             single_result = self._evaluate()
             self.results = single_result
-            self._finalize_metric_scores()  # Finalize scores after evaluation
-            evaluation_score = self._evaluation_score_rag_mcda()
-            self.metrics_score["evaluation_score"] = evaluation_score
-            self.results['evaluation_score'] = evaluation_score
+            # self._finalize_metric_scores()  # Finalize scores after evaluation
+            # evaluation_score = self._evaluation_score_rag_mcda()
+            # self.metrics_score["evaluation_score"] = evaluation_score
+            # self.results['evaluation_score'] = evaluation_score
             # return self.results
         elif self.entries:
             for entry_id, entry_data in self.entries.items():
@@ -308,9 +308,6 @@ class RagEvaluator:
                     context = context.replace('\n', ' ').strip()
                 self._initialize_metrics(llm_response, retrieval_context, query, ground_truth, context)
 
-                # Initialize metrics for this entry
-                self._initialize_metrics(llm_response, retrieval_context, query, ground_truth, context)
-
                 # Evaluate the entry and store results
                 entry_result = self._evaluate()
                 results[entry_id] = entry_result  # Store result under unique entry key
@@ -318,6 +315,8 @@ class RagEvaluator:
 
             self.results = results
             self._finalize_metric_scores()  # Finalize scores after all evaluations
+            evaluation_score = self._evaluation_score_rag_mcda()
+            self.metrics_score["evaluation_score"] = evaluation_score
             logger.info(f"Evaluation Completed, Check out the results")
             # return self.results
 
