@@ -66,7 +66,7 @@ class IndoxApi:
                     "role": "user"
                 }
             ],
-            "model": "gpt-3.5-turbo-0125",
+            "model": "gpt-4o-mini",
             "presence_penalty": 0,
             "stream": True,
             "temperature": 0.3,
@@ -106,3 +106,19 @@ class IndoxApi:
         except Exception as e:
             logger.error(f"Error generating evaluation response: {e}")
             return str(e)
+
+    def generate_interpretation(self, models_data,mode):
+        prompt = ""
+        if mode == "comparison":
+            from .interpretation_template.comparison_template import ModelComparisonTemplate
+            prompt = ModelComparisonTemplate.generate_comparison(models=models_data, mode="llm model quality")
+        elif mode == "rag":
+            from .interpretation_template.rag_interpretation_template import RAGEvaluationTemplate
+            prompt = RAGEvaluationTemplate.generate_interpret(data=models_data)
+        elif mode == "safety":
+            pass
+        elif mode == "llm":
+            pass
+        comparison_result = self._send_request(system_prompt="your are a helpful assistant to analyze charts",
+                                               user_prompt=prompt)
+        return comparison_result

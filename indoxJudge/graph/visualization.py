@@ -37,7 +37,7 @@ class Visualization:
         plot(): Runs the Dash application.
     """
 
-    def __init__(self, data: Union[List[Dict], Dict], mode: str = 'llm'):
+    def __init__(self, data: Union[List[Dict], Dict], mode: str = 'llm', chart_interpretations=None):
         """
         Initializes the Visualization object with data and mode.
 
@@ -51,6 +51,7 @@ class Visualization:
         self.current_template = self.light_template
         self.models = data if isinstance(data, list) else [data]
         self.plots = self.determine_plots()
+        self.chart_interpretations = chart_interpretations
 
     def determine_plots(self):
         """
@@ -59,19 +60,30 @@ class Visualization:
         Returns:
             list: A list of plot types to be generated.
         """
-        if self.mode == 'llm':
-            if len(self.models) == 1:
+        # if self.mode == 'llm':
+        #     if len(self.models) == 1:
+        #         return ['bar_chart', 'radar_chart', 'gauge_chart']
+        #     else:
+        #         return ['radar_chart', 'bar_chart', 'scatter_plot', 'line_plot', 'heatmap',
+        #                 'gauge_chart', 'table']
+        # elif self.mode == 'safety':
+        #     if len(self.models) == 1:
+        #         return ['bar_chart', 'gauge_chart']
+        #     else:
+        #         return ['radar_chart', 'bar_chart', 'gauge_chart']
+        # elif self.mode == 'rag':
+        #     return ['bar_chart', 'gauge_chart']
+        if len(self.models) == 1:
+            if self.mode == 'llm':
                 return ['bar_chart', 'radar_chart', 'gauge_chart']
-            else:
-                return ['radar_chart', 'bar_chart', 'scatter_plot', 'line_plot', 'heatmap', 'violin_plot',
-                        'gauge_chart', 'table']
-        elif self.mode == 'safety':
-            if len(self.models) == 1:
+            elif self.mode == 'safety':
                 return ['bar_chart', 'gauge_chart']
-            else:
-                return ['radar_chart', 'bar_chart', 'gauge_chart']
-        elif self.mode == 'rag':
-            return ['bar_chart', 'gauge_chart']
+            elif self.mode == 'rag':
+                return ['bar_chart', 'gauge_chart']
+
+        else:
+            return ['radar_chart', 'bar_chart', 'scatter_plot', 'line_plot', 'heatmap',
+                    'gauge_chart', 'table']
 
     def set_theme(self, theme: str):
         """
@@ -394,21 +406,37 @@ class Visualization:
                                     external_link=True, id=f"nav-{plot}"))
             for plot in self.plots
         ]
-
-        cards = [
-            dbc.Card([
-                dbc.CardHeader(html.H4(plot.replace('_', ' ').title(), id=plot, className="display-4 cart-title")),
-                dbc.CardBody([
-                    dbc.Row([
-                        dbc.Col(dcc.Graph(id=f"graph-{plot}"), width=8),
-                        dbc.Col(html.P(
-                            f"This {plot.replace('_', ' ')} displays data for the model{'s' if len(self.models) > 1 else ''}.",
-                            className="card-text p-3"), width=4)
+        if not self.chart_interpretations:
+            cards = [
+                dbc.Card([
+                    dbc.CardHeader(html.H4(plot.replace('_', ' ').title(), id=plot, className="display-4 cart-title")),
+                    dbc.CardBody([
+                        dbc.Row([
+                            dbc.Col(dcc.Graph(id=f"graph-{plot}"), width=8),
+                            dbc.Col(html.P(
+                                f"This {plot.replace('_', ' ')} displays data for the model{'s' if len(self.models) > 1 else ''}.",
+                                className="card-text p-3"), width=4)
+                        ])
                     ])
-                ])
-            ], className="mb-4", id=f"card-{plot}")
-            for plot in self.plots
-        ]
+                ], className="mb-4", id=f"card-{plot}")
+                for plot in self.plots
+            ]
+        else:
+            cards = [
+                dbc.Card([
+                    dbc.CardHeader(html.H4(plot.replace('_', ' ').title(), id=plot, className="display-4 cart-title")),
+                    dbc.CardBody([
+                        dbc.Row([
+                            dbc.Col(dcc.Graph(id=f"graph-{plot}"), width=8),
+                            dbc.Col(html.P(
+                                self.chart_interpretations.get(plot.replace('_', ' ').title(),
+                                                               f"This {plot.replace('_', ' ')} displays data for the model{'s' if len(self.models) > 1 else ''}."),
+                                className="card-text p-3"), width=4)
+                        ])
+                    ])
+                ], className="mb-4", id=f"card-{plot}")
+                for plot in self.plots
+            ]
 
         app.layout = html.Div([
             html.Link(href='/assets/style.css', rel='stylesheet'),

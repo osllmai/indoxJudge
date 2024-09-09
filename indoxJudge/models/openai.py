@@ -88,3 +88,5 @@ class OpenAi:
         except Exception as e:
             logger.error(f"Error generating response to custom prompt: {e}")
             return str(e)
+
+    # def generate_interpretation(self):
