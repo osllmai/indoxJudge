@@ -106,7 +106,7 @@ class RagEvaluator:
         # Ensure only entries or individual parameters are provided
         if entries and (llm_response or retrieval_context or query or ground_truth or context):
             raise ValueError("Provide either 'entries' or individual parameters for evaluation, not both.")
-        if not entries and not (llm_response and retrieval_context and query and ground_truth and context):
+        if not entries and not (llm_response and retrieval_context and query):
             raise ValueError("Either 'entries' or all individual parameters for a single evaluation must be provided.")
 
         # If entries are provided, we will evaluate them individually
@@ -288,6 +288,9 @@ class RagEvaluator:
             # self.metrics_score["evaluation_score"] = evaluation_score
             # self.results['evaluation_score'] = evaluation_score
             # return self.results
+            evaluation_score = self._evaluation_score_rag_mcda()
+            self.metrics_score["evaluation_score"] = evaluation_score
+            logger.info(f"Evaluation Completed, Check out the results")
         elif self.entries:
             for entry_id, entry_data in self.entries.items():
                 logger.info(f"Evaluating entry: {entry_id}")
@@ -311,13 +314,14 @@ class RagEvaluator:
                 # Evaluate the entry and store results
                 entry_result = self._evaluate()
                 results[entry_id] = entry_result  # Store result under unique entry key
+                self._finalize_metric_scores()  # Finalize scores after all evaluations
+                self.results = results
+
                 logger.info(f"Completed evaluation for entry: {entry_id}")
 
-            self.results = results
-            self._finalize_metric_scores()  # Finalize scores after all evaluations
-            evaluation_score = self._evaluation_score_rag_mcda()
-            self.metrics_score["evaluation_score"] = evaluation_score
-            logger.info(f"Evaluation Completed, Check out the results")
+                evaluation_score = self._evaluation_score_rag_mcda()
+                self.metrics_score["evaluation_score"] = evaluation_score
+                logger.info(f"Evaluation Completed, Check out the results")
             # return self.results
 
     def _evaluation_score_rag_mcda(self):
@@ -370,12 +374,14 @@ class RagEvaluator:
         # Return the rounded final score
         return round(final_score_array.item(), 2)
 
-    def plot(self, mode="external"):
+    def plot(self, mode="external", interpreter=None):
         """
         Plots the evaluation results.
 
         Args:
             mode (str): The mode for plotting. Default is "external".
+            interpreter (object): An LLM model used to interpret the results before plotting. If None, the plot is generated without interpretation.
+
         """
         from indoxJudge.graph import Visualization
         from indoxJudge.utils import create_model_dict
@@ -384,8 +390,28 @@ class RagEvaluator:
         score = self.metrics_score['evaluation_score']
         graph_input = create_model_dict(name="RAG Evaluator", metrics=metrics,
                                         score=score)
-        visualizer = Visualization(data=graph_input, mode="rag")
-        return visualizer.plot(mode=mode)
+        # visualizer = Visualization(data=graph_input, mode="rag")
+        # return visualizer.plot(mode=mode)
+
+        if interpreter:
+            interpret = interpreter.generate_interpretation(models_data=graph_input, mode="rag")
+            parsed_response = json.loads(interpret)
+
+            # Extract interpretations for each chart type
+
+            bar_chart = parsed_response.get('bar_chart', 'Bar chart interpretation not found.')
+            gauge_chart = parsed_response.get('gauge_chart', 'Gauge chart interpretation not found.')
+            # Create a dictionary with the extracted interpretations
+            chart_interpretations = {
+                'Bar Chart': bar_chart,
+                'Gauge Chart': gauge_chart,
+            }
+            visualization = Visualization(data=graph_input, mode="rag", chart_interpretations=chart_interpretations)
+
+        else:
+            visualization = Visualization(data=graph_input, mode="rag")
+
+        return visualization.plot(mode=mode)
 
     def format_for_analyzer(self, name):
         """

@@ -1,3 +1,5 @@
+import json
+
 from loguru import logger
 import sys
 from indoxJudge.metrics import (Faithfulness, AnswerRelevancy, Bias, Gruen,
@@ -212,7 +214,26 @@ class LLMEvaluator:
 
         return round(final_score_array.item(), 2)
 
-    def plot(self, mode="external"):
+    #
+    # def plot(self, mode="external"):
+    #     from indoxJudge.graph import Visualization
+    #     from indoxJudge.utils import create_model_dict
+    #     metrics = self.metrics_score.copy()
+    #     del metrics['evaluation_score']
+    #     score = self.metrics_score['evaluation_score']
+    #     graph_input = create_model_dict(name="LLM Evaluator", metrics=metrics,
+    #                                     score=score)
+    #     visualizer = Visualization(data=graph_input, mode="llm")
+    #     return visualizer.plot(mode=mode)
+    def plot(self, mode="external", interpreter=None):
+        """
+        Plots the evaluation results.
+
+        Args:
+            mode (str): The mode for plotting. Default is "external".
+            interpreter (object): An LLM model used to interpret the results before plotting. If None, the plot is generated without interpretation.
+
+        """
         from indoxJudge.graph import Visualization
         from indoxJudge.utils import create_model_dict
         metrics = self.metrics_score.copy()
@@ -220,8 +241,33 @@ class LLMEvaluator:
         score = self.metrics_score['evaluation_score']
         graph_input = create_model_dict(name="LLM Evaluator", metrics=metrics,
                                         score=score)
-        visualizer = Visualization(data=graph_input, mode="llm")
-        return visualizer.plot(mode=mode)
+
+        if interpreter:
+            interpret = interpreter.generate_interpretation(models_data=graph_input, mode="llm")
+            parsed_response = json.loads(interpret)
+
+            bar_chart = parsed_response.get('bar_chart', 'Bar chart interpretation not found.')
+            radar_chart = parsed_response.get('radar_chart', 'Radar chart interpretation not found.')
+            line_plot = parsed_response.get('line_plot', 'Line plot interpretation not found.')
+            gauge_chart = parsed_response.get('gauge_chart', 'Gauge chart interpretation not found.')
+            scatter_plot = parsed_response.get('scatter_plot', 'Scatter plot interpretation not found.')
+            heatmap = parsed_response.get('heatmap', 'Heatmap interpretation not found.')
+
+            # Create a dictionary with the extracted interpretations
+            chart_interpretations = {
+                'Bar Chart': bar_chart,
+                'Radar Chart': radar_chart,
+                'Line Plot': line_plot,
+                'Gauge Chart': gauge_chart,
+                'Scatter Plot': scatter_plot,
+                'Heatmap': heatmap
+            }
+            visualization = Visualization(data=graph_input, mode="llm", chart_interpretations=chart_interpretations)
+
+        else:
+            visualization = Visualization(data=graph_input, mode="llm")
+
+        return visualization.plot(mode=mode)
 
     def format_for_analyzer(self, name):
         from indoxJudge.utils import create_model_dict

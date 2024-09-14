@@ -1,3 +1,4 @@
+import json
 import sys
 from typing import Tuple, Dict, List
 
@@ -232,7 +233,25 @@ class SafetyEvaluator:
         # Return the rounded final score
         return round(final_score_array.item(), 2)
 
-    def plot(self, mode="external"):
+    # def plot(self, mode="external"):
+    #     from indoxJudge.graph import Visualization
+    #     from indoxJudge.utils import create_model_dict
+    #     metrics = self.metrics_score.copy()
+    #     del metrics['evaluation_score']
+    #     score = self.metrics_score['evaluation_score']
+    #     graph_input = create_model_dict(name="Safety Evaluator", metrics=metrics,
+    #                                     score=score)
+    #     visualizer = Visualization(data=graph_input, mode="safety")
+    #     return visualizer.plot(mode=mode)
+    def plot(self, mode="external", interpreter=None):
+        """
+        Plots the evaluation results.
+
+        Args:
+            mode (str): The mode for plotting. Default is "external".
+            interpreter (object): An LLM model used to interpret the results before plotting. If None, the plot is generated without interpretation.
+
+        """
         from indoxJudge.graph import Visualization
         from indoxJudge.utils import create_model_dict
         metrics = self.metrics_score.copy()
@@ -240,8 +259,28 @@ class SafetyEvaluator:
         score = self.metrics_score['evaluation_score']
         graph_input = create_model_dict(name="Safety Evaluator", metrics=metrics,
                                         score=score)
-        visualizer = Visualization(data=graph_input, mode="safety")
-        return visualizer.plot(mode=mode)
+        # visualizer = Visualization(data=graph_input, mode="rag")
+        # return visualizer.plot(mode=mode)
+
+        if interpreter:
+            interpret = interpreter.generate_interpretation(models_data=graph_input, mode="safety")
+            parsed_response = json.loads(interpret)
+
+            # Extract interpretations for each chart type
+
+            bar_chart = parsed_response.get('bar_chart', 'Bar chart interpretation not found.')
+            gauge_chart = parsed_response.get('gauge_chart', 'Gauge chart interpretation not found.')
+            # Create a dictionary with the extracted interpretations
+            chart_interpretations = {
+                'Bar Chart': bar_chart,
+                'Gauge Chart': gauge_chart,
+            }
+            visualization = Visualization(data=graph_input, mode="safety", chart_interpretations=chart_interpretations)
+
+        else:
+            visualization = Visualization(data=graph_input, mode="safety")
+
+        return visualization.plot(mode=mode)
 
     def format_for_analyzer(self, name):
         from indoxJudge.utils import create_model_dict
