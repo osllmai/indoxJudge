@@ -106,7 +106,7 @@ class RagEvaluator:
         # Ensure only entries or individual parameters are provided
         if entries and (llm_response or retrieval_context or query or ground_truth or context):
             raise ValueError("Provide either 'entries' or individual parameters for evaluation, not both.")
-        if not entries and not (llm_response and retrieval_context and query and ground_truth and context):
+        if not entries and not (llm_response and retrieval_context and query):
             raise ValueError("Either 'entries' or all individual parameters for a single evaluation must be provided.")
 
         # If entries are provided, we will evaluate them individually
@@ -288,6 +288,9 @@ class RagEvaluator:
             # self.metrics_score["evaluation_score"] = evaluation_score
             # self.results['evaluation_score'] = evaluation_score
             # return self.results
+            evaluation_score = self._evaluation_score_rag_mcda()
+            self.metrics_score["evaluation_score"] = evaluation_score
+            logger.info(f"Evaluation Completed, Check out the results")
         elif self.entries:
             for entry_id, entry_data in self.entries.items():
                 logger.info(f"Evaluating entry: {entry_id}")
@@ -311,13 +314,14 @@ class RagEvaluator:
                 # Evaluate the entry and store results
                 entry_result = self._evaluate()
                 results[entry_id] = entry_result  # Store result under unique entry key
+                self._finalize_metric_scores()  # Finalize scores after all evaluations
+                self.results = results
+
                 logger.info(f"Completed evaluation for entry: {entry_id}")
 
-            self.results = results
-            self._finalize_metric_scores()  # Finalize scores after all evaluations
-            evaluation_score = self._evaluation_score_rag_mcda()
-            self.metrics_score["evaluation_score"] = evaluation_score
-            logger.info(f"Evaluation Completed, Check out the results")
+                evaluation_score = self._evaluation_score_rag_mcda()
+                self.metrics_score["evaluation_score"] = evaluation_score
+                logger.info(f"Evaluation Completed, Check out the results")
             # return self.results
 
     def _evaluation_score_rag_mcda(self):
@@ -394,6 +398,7 @@ class RagEvaluator:
             parsed_response = json.loads(interpret)
 
             # Extract interpretations for each chart type
+
             bar_chart = parsed_response.get('bar_chart', 'Bar chart interpretation not found.')
             gauge_chart = parsed_response.get('gauge_chart', 'Gauge chart interpretation not found.')
             # Create a dictionary with the extracted interpretations

@@ -89,4 +89,27 @@ class OpenAi:
             logger.error(f"Error generating response to custom prompt: {e}")
             return str(e)
 
-    # def generate_interpretation(self):
+    def generate_interpretation(self, models_data, mode):
+        prompt = ""
+        if mode == "comparison":
+            from .interpretation_template.comparison_template import ModelComparisonTemplate
+            prompt = ModelComparisonTemplate.generate_comparison(models=models_data, mode="llm model quality")
+        elif mode == "rag":
+            from .interpretation_template.rag_interpretation_template import RAGEvaluationTemplate
+            prompt = RAGEvaluationTemplate.generate_interpret(data=models_data)
+        elif mode == "safety":
+            from .interpretation_template.safety_interpretation_template import SafetyEvaluationTemplate
+            prompt = SafetyEvaluationTemplate.generate_interpret(data=models_data)
+        elif mode == "llm":
+            from .interpretation_template.llm_interpretation_template import LLMEvaluatorTemplate
+            prompt = LLMEvaluatorTemplate.generate_interpret(data=models_data)
+
+        messages = [
+            {"role": "system", "content": "your are a helpful assistant to analyze charts"},
+            {"role": "user", "content": prompt},
+        ]
+        response = self._generate_response(messages=messages)
+
+        if response.startswith("```json") and response.endswith("```"):
+            response = response[7:-3].strip()
+        return response

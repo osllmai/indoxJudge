@@ -107,7 +107,7 @@ class IndoxApi:
             logger.error(f"Error generating evaluation response: {e}")
             return str(e)
 
-    def generate_interpretation(self, models_data,mode):
+    def generate_interpretation(self, models_data, mode):
         prompt = ""
         if mode == "comparison":
             from .interpretation_template.comparison_template import ModelComparisonTemplate
@@ -116,9 +116,13 @@ class IndoxApi:
             from .interpretation_template.rag_interpretation_template import RAGEvaluationTemplate
             prompt = RAGEvaluationTemplate.generate_interpret(data=models_data)
         elif mode == "safety":
-            pass
+            from .interpretation_template.safety_interpretation_template import SafetyEvaluationTemplate
+            prompt = SafetyEvaluationTemplate.generate_interpret(data=models_data)
         elif mode == "llm":
-            pass
-        comparison_result = self._send_request(system_prompt="your are a helpful assistant to analyze charts",
-                                               user_prompt=prompt)
-        return comparison_result
+            from .interpretation_template.llm_interpretation_template import LLMEvaluatorTemplate
+            prompt = LLMEvaluatorTemplate.generate_interpret(data=models_data)
+        response = self._send_request(system_prompt="your are a helpful assistant to analyze charts",
+                                      user_prompt=prompt)
+        if response.startswith("```json") and response.endswith("```"):
+            response = response[7:-3].strip()
+        return response
