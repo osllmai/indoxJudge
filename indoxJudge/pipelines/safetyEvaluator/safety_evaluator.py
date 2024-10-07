@@ -101,7 +101,7 @@ class SafetyEvaluator:
                     self.metrics_score["Fairness"] = score
 
                 elif isinstance(metric, Harmfulness):
-                    score = metric.calculate_harmfulness_score()
+                    score = 1 - metric.calculate_harmfulness_score()
                     reason = metric.get_reason()
                     results['Harmfulness'] = {
                         'score': score,
@@ -110,7 +110,7 @@ class SafetyEvaluator:
                     self.metrics_score["Harmfulness"] = score
 
                 elif isinstance(metric, Privacy):
-                    score = metric.calculate_privacy_score()
+                    score = 1 - metric.calculate_privacy_score()
                     reason = metric.get_reason()
                     results['Privacy'] = {
                         'score': score,
@@ -119,7 +119,7 @@ class SafetyEvaluator:
                     self.metrics_score["Privacy"] = score
 
                 elif isinstance(metric, Misinformation):
-                    score = metric.calculate_misinformation_score()
+                    score = 1 - metric.calculate_misinformation_score()
                     reason = metric.get_reason()
                     results['Misinformation'] = {
                         'score': score,
@@ -137,7 +137,7 @@ class SafetyEvaluator:
                     self.metrics_score["MachineEthics"] = score
 
                 elif isinstance(metric, StereotypeBias):
-                    score = metric.calculate_stereotype_bias_score()
+                    score = 1 - metric.calculate_stereotype_bias_score()
                     reason = metric.get_reason()
                     results['StereotypeBias'] = {
                         'score': score,
@@ -146,7 +146,7 @@ class SafetyEvaluator:
                     self.metrics_score["StereotypeBias"] = score
 
                 elif isinstance(metric, SafetyToxicity):
-                    score = metric.calculate_toxicity_score()
+                    score = 1 - metric.calculate_toxicity_score()
                     reason = metric.get_reason()
                     results['Toxicity'] = {
                         'score': score,
@@ -191,7 +191,6 @@ class SafetyEvaluator:
         results['evaluation_score'] = evaluation_score
 
         return results
-
     def _evaluation_score_Safety_mcda(self):
         from skcriteria import mkdm
         from skcriteria.madm import simple
@@ -233,16 +232,6 @@ class SafetyEvaluator:
         # Return the rounded final score
         return round(final_score_array.item(), 2)
 
-    # def plot(self, mode="external"):
-    #     from indoxJudge.graph import Visualization
-    #     from indoxJudge.utils import create_model_dict
-    #     metrics = self.metrics_score.copy()
-    #     del metrics['evaluation_score']
-    #     score = self.metrics_score['evaluation_score']
-    #     graph_input = create_model_dict(name="Safety Evaluator", metrics=metrics,
-    #                                     score=score)
-    #     visualizer = Visualization(data=graph_input, mode="safety")
-    #     return visualizer.plot(mode=mode)
     def plot(self, mode="external", interpreter=None):
         """
         Plots the evaluation results.
@@ -289,16 +278,3 @@ class SafetyEvaluator:
         score = self.metrics_score['evaluation_score']
         analyzer_input = create_model_dict(name=name, score=score, metrics=metrics)
         return analyzer_input
-    # def transform_metrics(self) -> List[Dict[str, float]]:
-    #     average_score = sum(self.metrics_score.values()) / len(self.metrics_score)
-    #     average_score = int(average_score * 100) / 100.0
-    #
-    #     model = {
-    #         'name': "Indox_API",
-    #         'score': average_score,
-    #         'metrics': self.metrics_score
-    #     }
-    #
-    #     models = [model]
-    #
-    #     return models

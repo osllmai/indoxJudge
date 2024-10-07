@@ -214,17 +214,6 @@ class LLMEvaluator:
 
         return round(final_score_array.item(), 2)
 
-    #
-    # def plot(self, mode="external"):
-    #     from indoxJudge.graph import Visualization
-    #     from indoxJudge.utils import create_model_dict
-    #     metrics = self.metrics_score.copy()
-    #     del metrics['evaluation_score']
-    #     score = self.metrics_score['evaluation_score']
-    #     graph_input = create_model_dict(name="LLM Evaluator", metrics=metrics,
-    #                                     score=score)
-    #     visualizer = Visualization(data=graph_input, mode="llm")
-    #     return visualizer.plot(mode=mode)
     def plot(self, mode="external", interpreter=None):
         """
         Plots the evaluation results.
