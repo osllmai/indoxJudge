@@ -31,7 +31,10 @@ class LLMEvaluator:
             llm_as_judge: The language model .
         """
         self.model = llm_as_judge
-        retrieval_context_join = "\n".join(retrieval_context)
+        if isinstance(retrieval_context, list):
+            retrieval_context_join = "\n".join(retrieval_context)
+        else:
+            retrieval_context_join = retrieval_context
         self.metrics = [
             Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context_join),
             AnswerRelevancy(query=query, llm_response=llm_response),
@@ -81,7 +84,7 @@ class LLMEvaluator:
                         'score': score,
                         'reason': reason.reason
                     }
-                    self.metrics_score["Faithfulness"] = score
+                    self.metrics_score["Faithfulness"] = round(score, 2)
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
                     results['AnswerRelevancy'] = {
@@ -90,7 +93,7 @@ class LLMEvaluator:
                         'statements': metric.statements,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.metrics_score["AnswerRelevancy"] = score
+                    self.metrics_score["AnswerRelevancy"] = round(score, 2)
 
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
@@ -108,7 +111,7 @@ class LLMEvaluator:
                         'reason': metric.reason,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.metrics_score["Hallucination"] = score
+                    self.metrics_score["Hallucination"] = round(score, 2)
                 elif isinstance(metric, Toxicity):
                     score = metric.measure()
                     results['Toxicity'] = {
@@ -117,7 +120,7 @@ class LLMEvaluator:
                         'opinions': metric.opinions,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.metrics_score["Toxicity"] = score
+                    self.metrics_score["Toxicity"] = round(score, 2)
 
                 elif isinstance(metric, Bias):
                     score = metric.measure()
@@ -127,7 +130,7 @@ class LLMEvaluator:
                         'opinions': metric.opinions,
                         'verdicts': [verdict.dict() for verdict in metric.verdicts]
                     }
-                    self.metrics_score["Bias"] = score
+                    self.metrics_score["Bias"] = round(score, 2)
 
                 elif isinstance(metric, BertScore):
                     score = metric.measure()

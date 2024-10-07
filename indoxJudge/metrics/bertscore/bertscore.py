@@ -7,7 +7,6 @@ class BertScore:
             llm_response: str,
             retrieval_context: Union[str, List[str]],
             model_name: str = "bert-base-uncased",
-            max_length: int = 1024,
 
     ):
         """
@@ -19,7 +18,6 @@ class BertScore:
         retrieval_context (Union[str, List[str]]): The expected response(s) to compare against the actual response.
         model_name (str): The identifier for the pre-trained model to be used for generating embeddings.
                           Defaults to "roberta-base".
-        max_length (int): The maximum length of input sequences to be processed by the model. Defaults to 1024.
         """
         from transformers import AutoTokenizer, AutoModel
 
@@ -27,7 +25,6 @@ class BertScore:
         self.retrieval_context = retrieval_context
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
-        self.max_length = max_length
         self.score = None
 
     def measure(self) -> float:
@@ -59,7 +56,6 @@ class BertScore:
             return_tensors="pt",
             padding=True,
             truncation=True,
-            max_length=self.max_length,
         )
         with torch.no_grad():
             outputs = self.model(**inputs)
