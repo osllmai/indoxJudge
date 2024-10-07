@@ -2,6 +2,7 @@ import numpy as np
 import math
 from collections import Counter
 from typing import List, Union
+from nltk.tokenize import word_tokenize
 
 
 class BLEU:
@@ -11,6 +12,7 @@ class BLEU:
             retrieval_context: Union[str, List[str]],
             n: int = 2,
             remove_repeating_ngrams: bool = False,
+            chunk_size: int = 500
     ):
         """
         Initialize the BLEU evaluator with the desired n-gram size and option to remove repeating n-grams.
@@ -20,11 +22,13 @@ class BLEU:
         retrieval_context (Union[str, List[str]]): The expected response(s) to compare against the actual response.
         n (int): The maximum size of the n-grams to use for evaluation (default is 2).
         remove_repeating_ngrams (bool): Whether to remove repeating n-grams (default is False).
+        chunk_size (int): Size of each chunk when splitting a long context.
         """
         self.llm_response = llm_response
         self.retrieval_context = retrieval_context
         self.n = n
         self.remove_repeating_ngrams = remove_repeating_ngrams
+        self.chunk_size = chunk_size
 
     def measure(self) -> float:
         """
@@ -33,10 +37,10 @@ class BLEU:
         Returns:
         float: The computed BLEU score.
         """
-        self.score = self._calculate_score(
+        score = self._calculate_score(
             llm_answer=self.llm_response, context=self.retrieval_context
         )
-        return self.score
+        return score
 
     def preprocess_text(self, text: str) -> str:
         """
@@ -48,19 +52,7 @@ class BLEU:
         Returns:
         str: The preprocessed text.
         """
-        from indoxJudge.utils import TextPreprocessor
-        from indoxJudge.utils import nltk_download
-        nltk_download()
-        preprocessor = TextPreprocessor()
-        preprocessing_methods = [
-            preprocessor.to_lower,
-            preprocessor.keep_alpha_numeric,
-            preprocessor.remove_number,
-            preprocessor.remove_stopword,
-            preprocessor.lemmatize_word,
-        ]
-        preprocessed_text = preprocessor.preprocess_text(text, preprocessing_methods)
-        return preprocessed_text
+        return text.lower()
 
     def tokenize(self, text: str) -> List[str]:
         """
@@ -72,19 +64,10 @@ class BLEU:
         Returns:
         List[str]: The list of tokens.
         """
-        return text.split()
+        tokens = word_tokenize(text)
+        return tokens
 
     def get_ngrams(self, text: str, n: int) -> List[str]:
-        """
-        Generate n-grams from the given text.
-
-        Parameters:
-        text (str): The text to generate n-grams from.
-        n (int): The size of the n-grams.
-
-        Returns:
-        List[str]: The list of n-grams.
-        """
         tokens = self.tokenize(text)
         ngrams = [" ".join(tokens[i: i + n]) for i in range(len(tokens) - n + 1)]
         if self.remove_repeating_ngrams:
@@ -92,21 +75,14 @@ class BLEU:
         return ngrams
 
     def calculate_bp(self, context_length: int, llm_answer_length: int) -> float:
-        """
-        Calculate the brevity penalty for the BLEU score.
-
-        Parameters:
-        context_length (int): The length of the context text.
-        llm_answer_length (int): The length of the language model's response.
-
-        Returns:
-        float: The brevity penalty.
-        """
+        if llm_answer_length == 0:
+            return 0  # If the answer is empty, the BP should be 0
         if llm_answer_length > context_length:
             return 1
         else:
             penalty = 1 - (context_length / llm_answer_length)
-            return np.exp(penalty)
+            bp = np.exp(min(0, penalty))  # Avoid excessive penalization
+            return bp
 
     def calculate_clipped_precision(
             self, context_ngrams: Counter, llm_answer_ngrams: Counter
@@ -130,16 +106,6 @@ class BLEU:
         return clipped_count / total_count if total_count > 0 else 0
 
     def calculate_bleu(self, context: str, llm_answer: str) -> float:
-        """
-        Calculate the BLEU score for a single pair of context and language model response.
-
-        Parameters:
-        context (str): The context text.
-        llm_answer (str): The language model's response.
-
-        Returns:
-        float: The BLEU score for the given pair.
-        """
         context = self.preprocess_text(context)
         llm_answer = self.preprocess_text(llm_answer)
 
@@ -156,21 +122,42 @@ class BLEU:
             clipped_precision = self.calculate_clipped_precision(
                 context_ngrams, llm_answer_ngrams
             )
+
             clipped_precision_scores.append(
                 clipped_precision if clipped_precision > 0 else 1e-9
             )
 
+        # Use a small smoothing constant
+        smoothing = 1e-2
         weights = [1 / self.n] * self.n
-        s = (w_i * math.log(p_i) for w_i, p_i in zip(weights, clipped_precision_scores))
+        s = (w_i * math.log(p_i + smoothing) for w_i, p_i in zip(weights, clipped_precision_scores))
+
+        # Ensure BLEU score does not exceed 1.0
         score = BP * math.exp(math.fsum(s))
 
         return score
+
+    def chunk_text(self, text: str, chunk_size: int = 500) -> List[str]:
+        """
+        Split the text into smaller chunks of a specified size.
+
+        Parameters:
+        text (str): The input text to split.
+        chunk_size (int): The number of tokens per chunk.
+
+        Returns:
+        List[str]: A list of text chunks.
+        """
+        tokens = self.tokenize(text)
+        chunks = [' '.join(tokens[i:i + chunk_size]) for i in range(0, len(tokens), chunk_size)]
+        return chunks
 
     def _calculate_score(
             self, context: Union[str, List[str]], llm_answer: Union[str, List[str]]
     ) -> float:
         """
         Calculate the average BLEU score for the given context(s) and language model response.
+        If the context is too long, it will be chunked.
 
         Parameters:
         context (Union[str, List[str]]): The context text(s).
@@ -180,7 +167,7 @@ class BLEU:
         float: The average BLEU score.
         """
         if isinstance(context, str):
-            context = [context]
+            context = self.chunk_text(context)
 
         if isinstance(llm_answer, list):
             llm_answer = " ".join(llm_answer)
@@ -188,5 +175,6 @@ class BLEU:
         scores = []
         for ctx in context:
             scores.append(self.calculate_bleu(ctx, llm_answer))
+
         average_score = np.mean(scores)
         return round(average_score, 2)
