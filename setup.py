@@ -13,8 +13,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='indoxJudge',
-    version='0.0.2',
-    license='MIT',
+    version='0.0.8',
+    license='AGPL-3.0',
     packages=find_packages(),
     package_data={
         'indoxJudge.pipelines.llmEvaluator.graph.assets': ['style.css'],
@@ -32,7 +32,7 @@ setup(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',

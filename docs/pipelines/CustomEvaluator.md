@@ -1,4 +1,4 @@
-# CustomEvaluator
+# Evaluator
 
 ## Overview
 
@@ -17,7 +17,7 @@ The `CustomEvaluator` class is initialized with two main components:
 ### Example
 
 ```python
-class CustomEvaluator:
+class Evaluator:
     def __init__(self, model, metrics: List):
         """
         Initializes the Evaluator with a language model and a list of metrics.

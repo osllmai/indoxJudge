@@ -4,7 +4,7 @@ from loguru import logger
 import sys
 from indoxJudge.metrics import Faithfulness, Privacy, Misinformation, MachineEthics, StereotypeBias, Fairness, \
     Harmfulness, AnswerRelevancy, KnowledgeRetention, Hallucination, Toxicity, Bias, BertScore, BLEU, \
-    ContextualRelevancy, GEval, METEOR, Gruen
+    ContextualRelevancy, GEval, METEOR, Gruen, ToxicityDiscriminative
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -16,7 +16,7 @@ logger.add(sys.stdout,
            level="ERROR")
 
 
-class CustomEvaluator:
+class Evaluator:
     """
     The Evaluator class is designed to evaluate various aspects of language model outputs using specified metrics.
 
@@ -38,6 +38,7 @@ class CustomEvaluator:
         self.set_model_for_metrics()
         self.evaluation_score = 0
         self.metrics_score = {}
+        self.results = {}
 
     def set_model_for_metrics(self):
         """
@@ -292,6 +293,12 @@ class CustomEvaluator:
                     self.metrics_score["MachineEthics"] = score
                     results["MachineEthics"] = reason.reason
 
+                elif isinstance(metric, ToxicityDiscriminative):
+                    score = metric.measure()
+                    results["ToxicityDiscriminative"] = {"score": score}
+                    self.evaluation_score += score
+                    self.metrics_score["ToxicityDiscriminative"] = score
+
                 elif isinstance(metric, StereotypeBias):
                     score = metric.calculate_stereotype_bias_score()
                     reason = metric.get_reason()
@@ -302,7 +309,8 @@ class CustomEvaluator:
 
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
-        return results
+        self.results = results
+        # return results
 
     def plot(self, mode="external"):
         from indoxJudge.graph import Visualization

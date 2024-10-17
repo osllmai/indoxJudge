@@ -31,6 +31,7 @@ class Hallucination:
         strict_mode (bool): Whether to use strict mode, which forces a score of 1 if hallucination exceeds the threshold. Defaults to False.
         """
 ```
+
 # Hyperparameters Explanation
 
 - **llm_response**: A string containing the response from the language model that is being evaluated for hallucinations.
@@ -52,13 +53,13 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import Hallucination
-from indoxJudge.pipelines import CustomEvaluator
+from indoxJudge.pipelines import Evaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize the language model
-llm = OpenAi(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
+llm = OpenAi(api_key=OPENAI_API_KEY, model="Open AI Model")
 
 # Define the response and retrieval context to be evaluated
 llm_response = "The Eiffel Tower is located in Berlin."
@@ -66,14 +67,14 @@ retrieval_context = "The Eiffel Tower is located in Paris, France."
 
 # Initialize the Hallucination evaluation metric
 hallucination_metric = Hallucination(
-    llm_response=llm_response, 
-    retrieval_context=retrieval_context, 
-    threshold=0.5, 
-    include_reason=True, 
+    llm_response=llm_response,
+    retrieval_context=retrieval_context,
+    threshold=0.5,
+    include_reason=True,
     strict_mode=False
 )
 
 # Create an evaluator with the Hallucination metric
-evaluator = CustomEvaluator(model=llm, metrics=[hallucination_metric])
+evaluator = Evaluator(model=llm, metrics=[hallucination_metric])
 result = evaluator.judge()
 ```

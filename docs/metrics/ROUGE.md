@@ -36,7 +36,6 @@ Here is an example of how to use the `Rouge` class:
 
 ```python
 from indoxJudge.metrics import Rouge
-from indoxJudge.pipelines import CustomEvaluator
 
 # Define a sample response and context"
 llm_response = "The quick brown fox jumps over the lazy dog."

@@ -22,3 +22,5 @@ from .safety_toxicity import SafetyToxicity
 from .adversarial_robustness import AdversarialRobustness
 from .out_of_distribution_robustness import OutOfDistributionRobustness
 from .robustness_to_adversarial_demonstrations import RobustnessToAdversarialDemonstrations
+from .toxicity_discriminative import ToxicityDiscriminative
+

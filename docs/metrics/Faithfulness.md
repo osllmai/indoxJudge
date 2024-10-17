@@ -23,6 +23,7 @@ class Faithfulness:
         :param retrieval_context: The context used for retrieval during evaluation.
         """
 ```
+
 # Hyperparameters Explanation
 
 - **llm_response**: The response from the language model that needs to be evaluated for faithfulness.
@@ -38,13 +39,15 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import Faithfulness
-from indoxJudge.pipelines import CustomEvaluator
+from indoxJudge.pipelines import Evaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize the language model
-llm = OpenAi(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
+# it can be any OpenAI model, please refer to the [OpenAI Models documentation](https://platform.openai.com/docs/models) such as GPT-4o.
+
+llm = OpenAi(api_key=OPENAI_API_KEY, model="Open AI Model")
 
 # Define the LLM response and retrieval context to be evaluated
 llm_response = "Paris is the capital of Germany."
@@ -54,6 +57,6 @@ retrieval_context = "Paris is the capital of France."
 faithfulness_metric = Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context)
 
 # Create an evaluator with the Faithfulness metric
-evaluator = CustomEvaluator(model=llm, metrics=[faithfulness_metric])
+evaluator = Evaluator(model=llm, metrics=[faithfulness_metric])
 result = evaluator.judge()
 ```

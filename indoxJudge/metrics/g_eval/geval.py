@@ -19,8 +19,8 @@ class GEval:
         self.model = None
         self.query = query
         self.llm_response = llm_response
-        self.ground_truth = ground_truth or ""
-        self.context = context or ""
+        self.ground_truth = ground_truth if ground_truth is not None else ""
+        self.context = context if context is not None else ""
         self.retrieval_context = retrieval_context
         self.parameters = parameters
         self.criteria = """

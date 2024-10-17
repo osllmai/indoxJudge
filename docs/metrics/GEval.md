@@ -71,13 +71,16 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import GEval
-from indoxJudge.pipelines import CustomEvaluator
+from indoxJudge.pipelines import Evaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+
 # Initialize the language model
-llm = OpenAi(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
+# it can be any OpenAI model, please refer to the [OpenAI Models documentation](https://platform.openai.com/docs/models) such as GPT-4o.
+
+llm = OpenAi(api_key=OPENAI_API_KEY, model="Open AI Model")
 
 # Define the necessary inputs for evaluation
 query = "What are the main benefits of a plant-based diet?"
@@ -97,6 +100,6 @@ geval_metric = GEval(
 )
 
 # Create an evaluator with the GEval metric
-evaluator = CustomEvaluator(model=llm, metrics=[geval_metric])
+evaluator = Evaluator(model=llm, metrics=[geval_metric])
 result = evaluator.judge()
 ```

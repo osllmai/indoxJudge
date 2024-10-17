@@ -2,6 +2,31 @@ from collections import Counter
 from typing import List, Union, Tuple
 
 
+def preprocess_text(text: str) -> str:
+    """
+    Preprocess the given text by applying various text preprocessing methods.
+
+    Parameters:
+    text (str): The text to preprocess.
+
+    Returns:
+    str: The preprocessed text.
+    """
+    from indoxJudge.utils import TextPreprocessor
+    from indoxJudge.utils import nltk_download
+    nltk_download()
+    preprocessor = TextPreprocessor()
+    preprocessing_methods = [
+        preprocessor.to_lower,
+        preprocessor.keep_alpha_numeric,
+        preprocessor.remove_number,
+        preprocessor.remove_stopword,
+        preprocessor.lemmatize_word,
+    ]
+    preprocessed_text = preprocessor.preprocess_text(text, preprocessing_methods)
+    return preprocessed_text
+
+
 class METEOR:
     def __init__(self, llm_response: str, retrieval_context: Union[str, List[str]]):
         """
@@ -26,30 +51,6 @@ class METEOR:
         )
         return self.score
 
-    def preprocess_text(self, text: str) -> str:
-        """
-        Preprocess the given text by applying various text preprocessing methods.
-
-        Parameters:
-        text (str): The text to preprocess.
-
-        Returns:
-        str: The preprocessed text.
-        """
-        from indoxJudge.utils import TextPreprocessor
-        from indoxJudge.utils import nltk_download
-        nltk_download()
-        preprocessor = TextPreprocessor()
-        preprocessing_methods = [
-            preprocessor.to_lower,
-            preprocessor.keep_alpha_numeric,
-            preprocessor.remove_number,
-            preprocessor.remove_stopword,
-            preprocessor.lemmatize_word,
-        ]
-        preprocessed_text = preprocessor.preprocess_text(text, preprocessing_methods)
-        return preprocessed_text
-
     def tokenize(self, text: str) -> List[str]:
         """
         Tokenize the given text into a list of words.
@@ -73,8 +74,8 @@ class METEOR:
         Returns:
         Tuple[float, float]: The precision and recall scores.
         """
-        candidate_tokens = self.tokenize(self.preprocess_text(candidate))
-        reference_tokens = self.tokenize(self.preprocess_text(reference))
+        candidate_tokens = self.tokenize(preprocess_text(candidate))
+        reference_tokens = self.tokenize(preprocess_text(reference))
 
         candidate_counts = Counter(candidate_tokens)
         reference_counts = Counter(reference_tokens)
@@ -96,8 +97,8 @@ class METEOR:
         Returns:
         float: The fragmentation penalty score.
         """
-        candidate_tokens = self.tokenize(self.preprocess_text(candidate))
-        reference_tokens = self.tokenize(self.preprocess_text(reference))
+        candidate_tokens = self.tokenize(preprocess_text(candidate))
+        reference_tokens = self.tokenize(preprocess_text(reference))
 
         if not candidate_tokens or not reference_tokens:
             return 0
@@ -137,7 +138,7 @@ class METEOR:
         return score
 
     def _calculate_score(
-        self, context: Union[str, List[str]], llm_answer: str
+            self, context: Union[str, List[str]], llm_answer: str
     ) -> float:
         """
         Calculate the METEOR score for the given context(s) and language model response.

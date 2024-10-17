@@ -32,6 +32,7 @@ class AnswerRelevancy:
         :param strict_mode: Whether to use strict mode, which forces a score of 0 if relevancy is below the threshold. Defaults to False.
         """
 ```
+
 # Hyperparameters Explanation
 
 - **query**: A string containing the query for which relevancy is being evaluated.
@@ -55,13 +56,15 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import AnswerRelevancy
-from indoxJudge.pipelines import CustomEvaluator
+from indoxJudge.pipelines import Evaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize the language model
-llm = OpenAi(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo")
+# it can be any OpenAI model, please refer to the [OpenAI Models documentation](https://platform.openai.com/docs/models) such as GPT-4o.
+
+llm = OpenAi(api_key=OPENAI_API_KEY, model="Open AI Model") 
 
 # Define the query and the response to be evaluated
 query = "What is the capital of France?"
@@ -69,14 +72,14 @@ llm_response = "The capital of France is Paris."
 
 # Initialize the AnswerRelevancy metric
 answer_relevancy_metric = AnswerRelevancy(
-    query=query, 
-    llm_response=llm_response, 
-    threshold=0.5, 
-    include_reason=True, 
+    query=query,
+    llm_response=llm_response,
+    threshold=0.5,
+    include_reason=True,
     strict_mode=False
 )
 
-evaluator = CustomEvaluator(model=llm, metrics=[answer_relevancy_metric])
+evaluator = Evaluator(model=llm, metrics=[answer_relevancy_metric])
 result = evaluator.judge()
 ```
 
@@ -85,4 +88,3 @@ result = evaluator.judge()
 - **query**: A string representing the query for which the contextual relevancy is being evaluated.
 
 - **retrieval_context**: A list of strings, each representing a context retrieved in response to the query.
-
