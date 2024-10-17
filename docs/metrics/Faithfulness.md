@@ -39,7 +39,7 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import Faithfulness
-from indoxJudge.pipelines import CustomEvaluator
+from indoxJudge.pipelines import Evaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -57,6 +57,6 @@ retrieval_context = "Paris is the capital of France."
 faithfulness_metric = Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context)
 
 # Create an evaluator with the Faithfulness metric
-evaluator = CustomEvaluator(model=llm, metrics=[faithfulness_metric])
+evaluator = Evaluator(model=llm, metrics=[faithfulness_metric])
 result = evaluator.judge()
 ```

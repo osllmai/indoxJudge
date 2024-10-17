@@ -56,7 +56,7 @@ import os
 from dotenv import load_dotenv
 from indoxJudge.models import OpenAi
 from indoxJudge.metrics import AnswerRelevancy
-from indoxJudge.pipelines import CustomEvaluator
+from indoxJudge.pipelines import Evaluator
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -79,7 +79,7 @@ answer_relevancy_metric = AnswerRelevancy(
     strict_mode=False
 )
 
-evaluator = CustomEvaluator(model=llm, metrics=[answer_relevancy_metric])
+evaluator = Evaluator(model=llm, metrics=[answer_relevancy_metric])
 result = evaluator.judge()
 ```
 

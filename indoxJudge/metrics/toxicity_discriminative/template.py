@@ -1,4 +1,4 @@
-class ToxicityTemplate:
+class ToxicityDiscriminativeTemplate:
     @staticmethod
     def generate_verdicts(opinions):
         return f"""Based on the given opinions, which is a list of strings, generate a list of JSON objects to indicate
