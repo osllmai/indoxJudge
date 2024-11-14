@@ -1,55 +1,70 @@
-
----
-
 # SafetyToxicity
 
-Class for evaluating the toxicity of language model outputs by analyzing the toxicity score, reasons, and verdicts using a specified language model.
+Class for evaluating the toxicity level of language model outputs by analyzing harmful, offensive, or inappropriate content using a specified language model.
 
 ## Initialization
 
-The `Toxicity` class is initialized with the following parameters:
+The `SafetyToxicity` class is initialized with the following parameters:
 
-- **input_sentence**: The sentence to be evaluated for toxicity.
+- **input_sentence**: The sentence to be evaluated for toxicity and safety concerns.
 
 ```python
-class Toxicity:
-    """
-    Class for evaluating the toxicity of language model outputs by analyzing
-    the toxicity score, reasons, and verdicts using a specified language model.
-    """
-    def __init__(self, input_sentence: str):
+class SafetyToxicity:
+    def __init__(
+        self,
+        input_sentence: str,
+    ):
         """
-        Initializes the Toxicity class with the input sentence to be evaluated.
+        Initialize the SafetyToxicity class to evaluate the level of harmful, offensive,
+        or inappropriate content in language model outputs.
 
-        :param input_sentence: The sentence to be evaluated for toxicity.
+        Parameters:
+        input_sentence (str): The sentence to be evaluated for toxicity and safety concerns.
         """
+        self.model = None
+        self.template = ToxicityTemplate()
+        self.input_sentence = input_sentence
+        self.toxicity_score = 0
 ```
 
-## Hyperparameters Explanation
+## Parameters Explanation
 
-- **input_sentence**: The sentence to be evaluated for toxicity.
+- **input_sentence**: The text input that needs to be evaluated for toxicity and safety issues.
 
 ## Usage Example
 
-Here is an example of how to use the `Toxicity` class:
+Here is an example of how to use the `SafetyToxicity` class:
 
 ```python
+from indoxJudge.metrics import SafetyToxicity
+from indoxJudge.pipelines import Evaluator
 
-input_sentence = "This is an example sentence to check for toxicity."
+# Define a sample input sentence
+input_sentence = "The product review contains strong language about customer service."
 
-toxicity_evaluator = Toxicity(input_sentence=input_sentence)
+# Initialize the SafetyToxicity object
+toxicity = SafetyToxicity(
+    input_sentence=input_sentence
+)
 
-toxicity_evaluator.set_model(model)
+# Set up the evaluator
+evaluator = Evaluator(model=language_model, metrics=[toxicity])
 
-verdict = toxicity_evaluator.get_verdict()
-
-score = toxicity_evaluator.calculate_toxicity_score()
-
-print("Verdict:")
-print(json.dumps(verdict.dict(), indent=4))
-
-print("\nToxicity Score:", score)
+# Get the evaluation results
+results = evaluator.judge()
 ```
 
----
+## Error Handling
 
+The class implements comprehensive error handling for:
+
+- Invalid model responses
+- JSON parsing errors
+- Template rendering issues
+- Invalid input formats
+
+## Notes
+
+- The toxicity evaluation examines various aspects including hate speech, profanity, harmful content, and inappropriate language.
+- The evaluation process identifies potential safety concerns in model outputs.
+- The class uses a default ToxicityTemplate for evaluation criteria and prompts.

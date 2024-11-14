@@ -2,7 +2,9 @@ from typing import List, Union
 from pydantic import BaseModel, Field
 import json
 
-from indoxJudge.metrics.toxicity_discriminative.template import ToxicityDiscriminativeTemplate
+from indoxJudge.metrics.toxicity_discriminative.template import (
+    ToxicityDiscriminativeTemplate,
+)
 
 
 class Opinions(BaseModel):
@@ -23,8 +25,13 @@ class Reason(BaseModel):
 
 
 class ToxicityDiscriminative:
-    def __init__(self, texts: Union[str, List[str]], threshold: float = 0.5, include_reason: bool = True,
-                 strict_mode: bool = False):
+    def __init__(
+        self,
+        texts: Union[str, List[str]],
+        threshold: float = 0.5,
+        include_reason: bool = True,
+        strict_mode: bool = False,
+    ):
         self.model = None
         self.threshold = 0 if strict_mode else threshold
         self.include_reason = include_reason
@@ -50,7 +57,9 @@ class ToxicityDiscriminative:
         if not self.opinions:
             return []
 
-        prompt = ToxicityDiscriminativeTemplate.generate_verdicts(opinions=self.opinions)
+        prompt = ToxicityDiscriminativeTemplate.generate_verdicts(
+            opinions=self.opinions
+        )
         response = self._call_language_model(prompt)
         data = json.loads(response)
         return [ToxicityVerdict(**item) for item in data.get("verdicts", [])]
@@ -59,7 +68,11 @@ class ToxicityDiscriminative:
         if not self.include_reason:
             return None
 
-        toxics = [verdict.reason for verdict in self.verdicts if verdict.verdict.strip().lower() == "yes"]
+        toxics = [
+            verdict.reason
+            for verdict in self.verdicts
+            if verdict.verdict.strip().lower() == "yes"
+        ]
         if not toxics:
             return "The score is 0.00 because there are no reasons provided for toxicity, indicating a non-toxic output."
 
@@ -77,13 +90,16 @@ class ToxicityDiscriminative:
         if total == 0:
             return 0
 
-        toxic_count = sum(1 for verdict in self.verdicts if verdict.verdict.strip().lower() == "yes")
+        toxic_count = sum(
+            1 for verdict in self.verdicts if verdict.verdict.strip().lower() == "yes"
+        )
         score = toxic_count / total
         return 1 if self.strict_mode and score > self.threshold else score
 
     def _call_language_model(self, prompt: str) -> str:
         if self.model is None:
-            raise ValueError("Model is not set. Please use set_model() before calling this method.")
+            raise ValueError(
+                "Model is not set. Please use set_model() before calling this method."
+            )
         response = self.model.generate_evaluation_response(prompt=prompt)
-        print(response)
         return response

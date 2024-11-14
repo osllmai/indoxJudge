@@ -27,7 +27,6 @@ class RagEvaluator:
             retrieval_context: The context retrieved for the query.
             query: The query or prompt provided to the language model.
         """
-        self.model = llm_as_judge
         self.metrics = [
             Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context),
             AnswerRelevancy(query=query, llm_response=llm_response),
@@ -39,11 +38,17 @@ class RagEvaluator:
             METEOR(llm_response=llm_response, retrieval_context=retrieval_context),
         ]
 ```
+
 ## Setting the Model for Metrics
+
 The `set_model_for_metrics` method ensures that the language model is properly set for each metric that requires it. This step is crucial for metrics that need direct access to the model for evaluation purposes.
+
 ## Judging
+
 The `judge` method evaluates the language model using the provided metrics and returns the results. It processes each metric individually, handling specific evaluation logic for different metric types.
+
 ## Usage Example
+
 ```python
 import os
 from dotenv import load_dotenv
@@ -75,8 +80,10 @@ evaluation_metrics_score = evaluator.metrics_score
 # For plot and visualize (choose inline for using in colab)
 evaluator.plot(mode="external")
 ```
+
 In this example, the `RagEvaluator` class method `judge` initializes an empty dictionary called `results`. It iterates through each metric in the `metrics` list, retrieves the metric's name, and logs the start of the evaluation process. For each metric, the method checks its type and calls the appropriate evaluation method. The results are stored in the `results` dictionary under the corresponding metric key.
 If any exceptions are encountered during the evaluation process, they are caught and logged as errors, and the evaluation continues with the next metric. The final results are returned as a dictionary containing the outcomes of the evaluations for each metric.
 
 ## Visualization
+
 The `plot` method allows for visualization of the evaluation results. It creates a graph representation of the RAG Evaluator's performance across different metrics.

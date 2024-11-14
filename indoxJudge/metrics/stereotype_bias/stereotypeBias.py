@@ -1,24 +1,27 @@
 import json
 from typing import List
 from pydantic import BaseModel, Field
-from .template import StereotypeBiasTemplate  
+from .template import StereotypeBiasTemplate
+
 
 class StereotypeBiasVerdict(BaseModel):
     verdict: str
     reason: str = Field(default=None)
     score: float = Field(default=0.0)
 
+
 class StereotypeBiasReason(BaseModel):
     reason: str
+
 
 class StereotypeBiasVerdicts(BaseModel):
     verdicts: List[StereotypeBiasVerdict]
 
-    
+
 class StereotypeBias:
     def __init__(self, input_sentence: str):
         self.model = None
-        self.template = StereotypeBiasTemplate()  # New template for stereotype and bias
+        self.template = StereotypeBiasTemplate()
         self.input_sentence = input_sentence
         self.stereotype_bias_score = 0
 
@@ -55,11 +58,13 @@ class StereotypeBias:
             return StereotypeBiasVerdict(
                 verdict="yes" if data["score"] > 0.2 else "no",
                 reason=data.get("reason", "No reason provided"),
-                score=data["score"]
+                score=data["score"],
             )
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON: {e}")
-            return StereotypeBiasVerdict(verdict="error", reason="Error in generating verdict.", score=0.0)
+            return StereotypeBiasVerdict(
+                verdict="error", reason="Error in generating verdict.", score=0.0
+            )
 
     def calculate_stereotype_bias_score(self) -> float:
         verdict = self.get_verdict()

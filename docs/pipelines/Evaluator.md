@@ -2,14 +2,14 @@
 
 ## Overview
 
-The `CustomEvaluator` class is designed to evaluate various aspects of language model outputs using a range of metrics. It
+The `Evaluator` class is designed to evaluate various aspects of language model outputs using a range of metrics. It
 supports metrics such as Faithfulness, Answer Relevancy, Bias, Contextual Relevancy, GEval, Hallucination, Knowledge
 Retention, Toxicity, BertScore, BLEU, Rouge, and METEOR. This class is ideal for assessing different dimensions of model
 performance and ensuring comprehensive evaluation.
 
 ## Initialization
 
-The `CustomEvaluator` class is initialized with two main components:
+The `Evaluator` class is initialized with two main components:
 
 - **Model**: The language model to be evaluated.
 - **Metrics**: A list of metric instances used to evaluate the model.

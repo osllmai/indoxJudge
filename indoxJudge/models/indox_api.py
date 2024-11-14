@@ -3,34 +3,51 @@ from loguru import logger
 import sys
 
 # Set up logging
-logger.remove()  # Remove the default logger
-logger.add(sys.stdout,
-           format="<green>{level}</green>: <level>{message}</level>",
-           level="INFO")
+logger.remove()
+logger.add(
+    sys.stdout, format="<green>{level}</green>: <level>{message}</level>", level="INFO"
+)
 
-logger.add(sys.stdout,
-           format="<red>{level}</red>: <level>{message}</level>",
-           level="ERROR")
+logger.add(
+    sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
+)
 
 
-class IndoxApi:
-    """
-    A class to interface with the Indox API for generating responses for evaluation purposes.
-
-    This class uses the Indox API to send requests and receive responses, which are utilized
-    for evaluating the performance of language models.
-    """
-
-    def __init__(self, api_key: str, prompt_template: str = None):
+class NerdTokenApi:
+    def __init__(
+        self,
+        api_key: str,
+        max_tokens: int = 4000,
+        temperature: float = 0.3,
+        stream: bool = False,
+        presence_penalty: float = 0,
+        frequency_penalty: float = 0,
+        top_p: float = 1,
+        prompt_template: str = None,
+    ):
         """
-        Initializes the IndoxApi with the specified API key and an optional prompt template.
+        Initializes the NerdTokenApi with the specified API key, model, and an optional prompt template.
 
         Args:
             api_key (str): The API key for accessing the Indox API.
+            max_tokens (int, optional): The maximum number of tokens for the response. Defaults to 4000.
+            temperature (float, optional): Sampling temperature. Defaults to 0.3.
+            stream (bool, optional): Whether to stream responses. Defaults to False.
+            presence_penalty (float, optional): Presence penalty for text generation. Defaults to 0.
+            frequency_penalty (float, optional): Frequency penalty for text generation. Defaults to 0.
+            top_p (float, optional): Nucleus sampling parameter. Defaults to 1.
             prompt_template (str, optional): The template for formatting prompts. Defaults to None.
         """
         self.api_key = api_key
-        self.prompt_template = prompt_template or "Context: {context}\nQuestion: {question}\nAnswer:"
+        self.max_tokens = max_tokens
+        self.temperature = temperature
+        self.stream = stream
+        self.presence_penalty = presence_penalty
+        self.frequency_penalty = frequency_penalty
+        self.top_p = top_p
+        self.prompt_template = (
+            prompt_template or "Context: {context}\nQuestion: {question}\nAnswer:"
+        )
 
     def _send_request(self, system_prompt: str, user_prompt: str) -> str:
         """
@@ -46,40 +63,36 @@ class IndoxApi:
         Raises:
             Exception: If there is an error during the API request.
         """
-        url = 'http://5.78.55.161/api/chat_completion/generate/'
+        url = "https://api-token.nerdstudio.ai/v1/api/text_generation/generate/"
         headers = {
-            'accept': '*/*',
+            "accept": "application/json",
             "Authorization": f"Bearer {self.api_key}",
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         }
 
         data = {
-            "frequency_penalty": 0,
-            "max_tokens": 2048,
+            "frequency_penalty": self.frequency_penalty,
+            "max_tokens": self.max_tokens,
             "messages": [
-                {
-                    "content": system_prompt,
-                    "role": "system"
-                },
-                {
-                    "content": user_prompt,
-                    "role": "user"
-                }
+                {"content": system_prompt, "role": "system"},
+                {"content": user_prompt, "role": "user"},
             ],
             "model": "gpt-4o-mini",
-            "presence_penalty": 0,
-            "stream": True,
-            "temperature": 0.3,
-            "top_p": 1
+            "presence_penalty": self.presence_penalty,
+            "stream": self.stream,
+            "temperature": self.temperature,
+            "top_p": self.top_p,
         }
 
         response = requests.post(url, headers=headers, json=data)
         if response.status_code == 200:
             answer_data = response.json()
-            generated_text = answer_data.get("text_message", "")
+            generated_text = answer_data["choices"][0]["message"]["content"]
             return generated_text
         else:
-            error_message = f"Error from Indox API: {response.status_code}, {response.text}"
+            error_message = (
+                f"Error from Indox API: {response.status_code}, {response.text}"
+            )
             logger.error(error_message)
             raise Exception(error_message)
 
@@ -110,19 +123,36 @@ class IndoxApi:
     def generate_interpretation(self, models_data, mode):
         prompt = ""
         if mode == "comparison":
-            from .interpretation_template.comparison_template import ModelComparisonTemplate
-            prompt = ModelComparisonTemplate.generate_comparison(models=models_data, mode="llm model quality")
+            from .interpretation_template.comparison_template import (
+                ModelComparisonTemplate,
+            )
+
+            prompt = ModelComparisonTemplate.generate_comparison(
+                models=models_data, mode="llm model quality"
+            )
         elif mode == "rag":
-            from .interpretation_template.rag_interpretation_template import RAGEvaluationTemplate
+            from .interpretation_template.rag_interpretation_template import (
+                RAGEvaluationTemplate,
+            )
+
             prompt = RAGEvaluationTemplate.generate_interpret(data=models_data)
         elif mode == "safety":
-            from .interpretation_template.safety_interpretation_template import SafetyEvaluationTemplate
+            from .interpretation_template.safety_interpretation_template import (
+                SafetyEvaluationTemplate,
+            )
+
             prompt = SafetyEvaluationTemplate.generate_interpret(data=models_data)
         elif mode == "llm":
-            from .interpretation_template.llm_interpretation_template import LLMEvaluatorTemplate
+            from .interpretation_template.llm_interpretation_template import (
+                LLMEvaluatorTemplate,
+            )
+
             prompt = LLMEvaluatorTemplate.generate_interpret(data=models_data)
-        response = self._send_request(system_prompt="your are a helpful assistant to analyze charts",
-                                      user_prompt=prompt)
+
+        response = self._send_request(
+            system_prompt="You are a helpful assistant to analyze charts",
+            user_prompt=prompt,
+        )
         if response.startswith("```json") and response.endswith("```"):
             response = response[7:-3].strip()
         return response

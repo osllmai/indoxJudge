@@ -10,8 +10,8 @@
 </br>
 
 [![License](https://img.shields.io/github/license/osllmai/inDox)](https://github.com/osllmai/inDox/blob/main/LICENSE)
-[![PyPI](https://badge.fury.io/py/indoxJudge.svg)](https://pypi.org/project/IndoxJudge/0.0.8/)
-[![Python](https://img.shields.io/pypi/pyversions/indoxJudge.svg)](https://pypi.org/project/indoxJudge/0.0.8/)
+[![PyPI](https://badge.fury.io/py/indoxJudge.svg)](https://pypi.org/project/IndoxJudge/0.0.9/)
+[![Python](https://img.shields.io/pypi/pyversions/indoxJudge.svg)](https://pypi.org/project/indoxJudge/0.0.9/)
 [![Downloads](https://static.pepy.tech/badge/indoxJudge)](https://pepy.tech/project/indoxJudge)
 
 [![Discord](https://img.shields.io/discord/1223867382460579961?label=Discord&logo=Discord&style=social)](https://discord.com/invite/ossllmai)
@@ -21,33 +21,32 @@
   <a href="https://osllm.ai">Official Website</a> &bull; <a href="https://docs.osllm.ai/index.html">Documentation</a> &bull; <a href="https://discord.gg/2fftQauwDD">Discord</a>
 </p>
 
-
 <p align="center">
   <b>NEW:</b> <a href="https://docs.google.com/forms/d/1CQXJvxLUqLBSXnjqQmRpOyZqD6nrKubLz2WTcIJ37fU/prefill">Subscribe to our mailing list</a> for updates and news!
 </p>
 
-Welcome to *IndoxJudge*! This repository provides a comprehensive suite of evaluation metrics for assessing the performance and quality of large language models (*LLMs*). Whether you're a researcher, developer, or enthusiast, this toolkit offers essential tools to measure various aspects of *LLMs*, including *knowledge retention*, *bias*, *toxicity*, and more.
+Welcome to _IndoxJudge_! This repository provides a comprehensive suite of evaluation metrics for assessing the performance and quality of large language models (_LLMs_). Whether you're a researcher, developer, or enthusiast, this toolkit offers essential tools to measure various aspects of _LLMs_, including _knowledge retention_, _bias_, _toxicity_, and more.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/osllmai/indoxJudge/master/docs/assets/IndoxJudge%20Evaluate%20LLMs%20with%20metrics%20%26%20Model%20Safety.png" alt="IndoxJudge Evaluate LLMs with metrics & Model Safety">
 </p>
 
-## Overview 
+## Overview
 
-*IndoxJudge* is designed to provide a standardized and extensible framework for evaluating *LLMs*. With a focus on *accuracy*, *fairness*, and *relevancy*, this toolkit supports a wide range of evaluation metrics and is continuously updated to include the latest advancements in the field.
+_IndoxJudge_ is designed to provide a standardized and extensible framework for evaluating _LLMs_. With a focus on _accuracy_, _fairness_, and _relevancy_, this toolkit supports a wide range of evaluation metrics and is continuously updated to include the latest advancements in the field.
 
 ## Features
 
-- **Comprehensive Metrics**: Evaluate *LLMs* across multiple dimensions, including *accuracy*, *bias*, *toxicity*, and *contextual relevancy*.
-- **RAG Evaluation**: Includes specialized metrics for evaluating *retrieval-augmented generation (RAG)* models.
-- **Safety Evaluation**: Assess the *safety* of model outputs, focusing on *toxicity*, *bias*, and ethical considerations.
+- **Comprehensive Metrics**: Evaluate _LLMs_ across multiple dimensions, including _accuracy_, _bias_, _toxicity_, and _contextual relevancy_.
+- **RAG Evaluation**: Includes specialized metrics for evaluating _retrieval-augmented generation (RAG)_ models.
+- **Safety Evaluation**: Assess the _safety_ of model outputs, focusing on _toxicity_, _bias_, and ethical considerations.
 - **Extensible Framework**: Easily integrate new metrics or customize existing ones to suit specific needs.
 - **User-Friendly Interface**: Intuitive and easy-to-use interface for seamless evaluation.
 - **Continuous Updates**: Regular updates to incorporate new metrics and improvements.
 
 ## Supported Models
 
-*IndoxJudge* currently supports the following *LLM* models:
+_IndoxJudge_ currently supports the following _LLM_ models:
 
 - **OpenAi**
 - **GoogleAi**
@@ -59,13 +58,13 @@ Welcome to *IndoxJudge*! This repository provides a comprehensive suite of evalu
 
 ## Metrics
 
-*IndoxJudge* includes the following metrics, with more being added:
+_IndoxJudge_ includes the following metrics, with more being added:
 
-- **GEval**: General evaluation metric for *LLMs*.
-- **KnowledgeRetention**: Assesses the ability of *LLMs* to retain factual information.
+- **GEval**: General evaluation metric for _LLMs_.
+- **KnowledgeRetention**: Assesses the ability of _LLMs_ to retain factual information.
 - **BertScore**: Measures the similarity between generated and reference sentences.
 - **Toxicity**: Evaluates the presence of toxic content in model outputs.
-- **Bias**: Analyzes the potential biases in *LLM* outputs.
+- **Bias**: Analyzes the potential biases in _LLM_ outputs.
 - **Hallucination**: Identifies instances where the model generates false or misleading information.
 - **Faithfulness**: Checks the alignment of generated content with source material.
 - **ContextualRelevancy**: Assesses the relevance of responses in context.
@@ -74,12 +73,12 @@ Welcome to *IndoxJudge*! This repository provides a comprehensive suite of evalu
 - **AnswerRelevancy**: Assesses the relevance of answers to questions.
 - **METEOR**: Evaluates machine translation quality.
 - **Gruen**: Measures the quality of generated text by assessing grammaticality, redundancy, and focus.
-- **Overallscore**: Provides an overall evaluation score for *LLMs* which is a weighted average of multiple metrics.
-- **MCDA**: Multi-Criteria Decision Analysis for evaluating *LLMs*. 
+- **Overallscore**: Provides an overall evaluation score for _LLMs_ which is a weighted average of multiple metrics.
+- **MCDA**: Multi-Criteria Decision Analysis for evaluating _LLMs_.
 
 ## Installation
 
-To install *IndoxJudge*, follow these steps:
+To install _IndoxJudge_, follow these steps:
 
 ```bash
 git clone https://github.com/yourusername/indoxjudge.git
@@ -128,7 +127,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-To use *IndoxJudge*, load your API key, select the model, and choose the evaluation metrics. Here's an example demonstrating how to evaluate a model's response for *faithfulness*:
+To use _IndoxJudge_, load your API key, select the model, and choose the evaluation metrics. Here's an example demonstrating how to evaluate a model's response for _faithfulness_:
 
 ```python
 import os
@@ -176,8 +175,6 @@ print(faithfulness_result)
 {
   "faithfulness": {
     "claims": [
-
-
       "The Mediterranean diet is known for its health benefits.",
       "The Mediterranean diet reduces the risk of heart disease.",
       "The Mediterranean diet reduces the risk of stroke.",
@@ -209,14 +206,14 @@ print(faithfulness_result)
 
 ## Roadmap
 
-We have an exciting roadmap planned for *IndoxJudge*:
+We have an exciting roadmap planned for _IndoxJudge_:
 
-| Plan                                                                    |
-| ----------------------------------------------------------------------- |
-| Integration of additional metrics such as *Diversity* and *Coherence*.      |
-| Introduction of a graphical user interface (*GUI*) for easier evaluation. |
-| Expansion of the toolkit to support evaluation in multiple languages.   |
-| Release of a benchmarking suite for standardizing *LLM* evaluations.      |
+| Plan                                                                      |
+| ------------------------------------------------------------------------- |
+| Integration of additional metrics such as _Diversity_ and _Coherence_.    |
+| Introduction of a graphical user interface (_GUI_) for easier evaluation. |
+| Expansion of the toolkit to support evaluation in multiple languages.     |
+| Release of a benchmarking suite for standardizing _LLM_ evaluations.      |
 
 ## Contributing
 
