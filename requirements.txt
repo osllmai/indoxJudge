@@ -12,4 +12,4 @@ pydantic==2.8.2
 Requests==2.32.3
 tenacity==8.2.3
 tqdm==4.66.4
-scikit-criteria==0.8.7
+scikit-criteria==1.4.2

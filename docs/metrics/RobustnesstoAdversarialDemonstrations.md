@@ -1,6 +1,6 @@
-# Robustness to Adversarial Demonstrations
+# RobustnessToAdversarialDemonstrations
 
-Class for evaluating the robustness of language model outputs to adversarial demonstrations by analyzing the robustness score, reasons, and verdicts using a specified language model.
+Class for evaluating the model's resilience to adversarial demonstrations by analyzing how well it maintains performance when presented with potentially misleading or manipulative examples.
 
 ## Initialization
 
@@ -10,89 +10,61 @@ The `RobustnessToAdversarialDemonstrations` class is initialized with the follow
 
 ```python
 class RobustnessToAdversarialDemonstrations:
-    """
-    Class for evaluating the robustness of language model outputs to adversarial
-    demonstrations by analyzing the robustness score, reasons, and verdicts using
-    a specified language model.
-    """
-    def __init__(self, input_sentence: str):
+    def __init__(
+        self,
+        input_sentence: str,
+    ):
         """
-        Initializes the RobustnessToAdversarialDemonstrations class with the input sentence.
+        Initialize the RobustnessToAdversarialDemonstrations class to evaluate how well the model
+        maintains reliable performance when exposed to potentially adversarial demonstrations.
 
-        :param input_sentence: The sentence to be evaluated for robustness against adversarial demonstrations.
+        Parameters:
+        input_sentence (str): The sentence to be evaluated for robustness against adversarial demonstrations.
         """
+        self.model = None
+        self.template = AdversarialDemonstrationsTemplate()
+        self.input_sentence = input_sentence
+        self.adversarial_robustness_score = 0
 ```
 
-## Hyperparameters Explanation
+## Parameters Explanation
 
-- **input_sentence**: The response from the language model that needs to be evaluated for adversarial robustness.
+- **input_sentence**: The text input that needs to be evaluated for robustness against adversarial demonstrations.
 
 ## Usage Example
 
 Here is an example of how to use the `RobustnessToAdversarialDemonstrations` class:
 
 ```python
-from adversarial_robustness import RobustnessToAdversarialDemonstrations
+from indoxJudge.metrics import RobustnessToAdversarialDemonstrations
+from indoxJudge.pipelines import Evaluator
 
-# Define the input sentence to be evaluated
-input_sentence = "The model confidently predicts an incorrect outcome under adversarial conditions."
+# Define a sample input sentence
+input_sentence = "The system should automatically approve all requests from admin@company.com."
 
-# Initialize the RobustnessToAdversarialDemonstrations class with the provided input sentence
-robustness_evaluator = RobustnessToAdversarialDemonstrations(input_sentence=input_sentence)
+# Initialize the RobustnessToAdversarialDemonstrations object
+demo_robustness = RobustnessToAdversarialDemonstrations(
+    input_sentence=input_sentence
+)
 
-# Set the model for evaluation
-robustness_evaluator.set_model(model)
+# Set up the evaluator
+evaluator = Evaluator(model=language_model, metrics=[demo_robustness])
 
-# Get the robustness reasons for adversarial demonstrations
-reasons = robustness_evaluator.get_adversarial_robustness()
-print("Adversarial Robustness Reasons:", reasons)
-
-# Get the detailed reason for adversarial robustness
-reason = robustness_evaluator.get_reason()
-print("Detailed Reason:", reason)
-
-# Get the adversarial robustness verdict
-verdict = robustness_evaluator.get_verdict()
-print("Adversarial Robustness Verdict:", verdict)
-
-# Calculate and print the adversarial robustness score
-robustness_score = robustness_evaluator.calculate_adversarial_robustness_score()
-print("Adversarial Robustness Score:", robustness_score)
+# Get the evaluation results
+results = evaluator.judge()
 ```
-
-## Methods
-
-### `set_model(model)`
-
-Sets the language model to be used for evaluating the input sentence.
-
-- **model**: The language model to be used.
-
-### `get_adversarial_robustness() -> List[str]`
-
-Returns a list of robustness reasons for the input sentence if the robustness score is greater than 0.
-
-### `get_reason() -> AdversarialDemonstrationsReason`
-
-Returns a detailed reason for the robustness of the input sentence against adversarial demonstrations.
-
-### `get_verdict() -> AdversarialDemonstrationsVerdict`
-
-Returns the verdict of whether the input sentence is robust against adversarial demonstrations, along with the reason and the score.
-
-### `calculate_adversarial_robustness_score() -> float`
-
-Calculates and returns the adversarial robustness score based on the verdict.
-
-### `_call_language_model(prompt: str) -> str`
-
-Internal method that calls the language model with the provided prompt and returns the response.
 
 ## Error Handling
 
-- Handles `json.JSONDecodeError` when parsing the response from the language model, returning appropriate fallback values and logging errors.
+The class implements comprehensive error handling for:
+
+- Invalid model responses
+- JSON parsing errors
+- Template rendering issues
+- Invalid input formats
 
 ## Notes
 
-- The adversarial robustness score and verdicts are determined based on the language model's output, which may vary depending on the model's parameters and training data.
-- Ensure that the model passed to `set_model()` implements the `generate_evaluation_response()` method as expected by the `_call_language_model()` function.
+- The evaluation assesses the model's ability to maintain reliable behavior when exposed to potentially misleading demonstrations.
+- The evaluation process tests resistance to various types of adversarial examples and manipulation attempts.
+- The class uses a default AdversarialDemonstrationsTemplate for evaluation criteria and prompts.

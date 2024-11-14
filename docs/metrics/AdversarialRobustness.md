@@ -1,4 +1,4 @@
-# Adversarial Robustness
+# AdversarialRobustness
 
 Class for evaluating the adversarial robustness of language model outputs by analyzing the robustness score, reasons, and verdicts using a specified language model.
 
@@ -10,88 +10,61 @@ The `AdversarialRobustness` class is initialized with the following parameters:
 
 ```python
 class AdversarialRobustness:
-    """
-    Class for evaluating the adversarial robustness of language model outputs by analyzing
-    the robustness score, reasons, and verdicts using a specified language model.
-    """
-    def __init__(self, input_sentence: str):
+    def __init__(
+        self,
+        input_sentence: str,
+    ):
         """
-        Initializes the AdversarialRobustness class with the input sentence to be evaluated.
+        Initialize the AdversarialRobustness class to evaluate the robustness of language model outputs
+        by analyzing various aspects including perturbation resistance and consistency.
 
-        :param input_sentence: The sentence to be evaluated for adversarial robustness.
+        Parameters:
+        input_sentence (str): The sentence to be evaluated for adversarial robustness.
         """
+        self.model = None
+        self.template = RobustnessTemplate()
+        self.input_sentence = input_sentence
+        self.robustness_score = 0
 ```
 
-## Hyperparameters Explanation
+## Parameters Explanation
 
-- **input_sentence**: The response from the language model that needs to be evaluated for robustness.
+- **input_sentence**: The text input that needs to be evaluated for adversarial robustness.
 
 ## Usage Example
 
 Here is an example of how to use the `AdversarialRobustness` class:
 
 ```python
-from adversarial_robustness import AdversarialRobustness
+from indoxJudge.metrics import AdversarialRobustness
+from indoxJudge.pipelines import Evaluator
 
-# Define the input sentence to be evaluated
+# Define a sample input sentence
 input_sentence = "The model predicts that the likelihood of success is low."
 
-# Initialize the AdversarialRobustness class with the provided input sentence
-robustness_evaluator = AdversarialRobustness(input_sentence=input_sentence)
+# Initialize the AdversarialRobustness object
+robustness = AdversarialRobustness(
+    input_sentence=input_sentence
+)
 
-# Set the model for evaluation
-robustness_evaluator.set_model(model)
+# Set up the evaluator
+evaluator = Evaluator(model=language_model, metrics=[robustness])
 
-# Get the robustness reasons
-reasons = robustness_evaluator.get_robustness()
-print("Robustness Reasons:", reasons)
-
-# Get the detailed reason for robustness
-reason = robustness_evaluator.get_reason()
-print("Detailed Reason:", reason)
-
-# Get the robustness verdict
-verdict = robustness_evaluator.get_verdict()
-print("Robustness Verdict:", verdict)
-
-# Calculate and print the robustness score
-robustness_score = robustness_evaluator.calculate_robustness_score()
-print("Robustness Score:", robustness_score)
+# Get the evaluation results
+results = evaluator.judge()
 ```
-
-## Methods
-
-### `set_model(model)`
-
-Sets the language model to be used for evaluating the input sentence.
-
-- **model**: The language model to be used.
-
-### `get_robustness() -> List[str]`
-
-Returns a list of robustness reasons for the input sentence if the robustness score is greater than 0.
-
-### `get_reason() -> Reason`
-
-Returns a detailed reason for the robustness of the input sentence.
-
-### `get_verdict() -> RobustnessVerdict`
-
-Returns the verdict of whether the input sentence is robust, along with the reason and the score.
-
-### `calculate_robustness_score() -> float`
-
-Calculates and returns the robustness score based on the verdict.
-
-### `_call_language_model(prompt: str) -> str`
-
-Internal method that calls the language model with the provided prompt and returns the response.
 
 ## Error Handling
 
-- Handles `json.JSONDecodeError` when parsing the response from the language model, returning appropriate fallback values and logging errors.
+The class implements comprehensive error handling for:
+
+- Invalid model responses
+- JSON parsing errors
+- Template rendering issues
+- Invalid input formats
 
 ## Notes
 
-- The robustness score and verdicts are determined based on the language model's output, which may vary depending on the model's parameters and training data.
-- Ensure that the model passed to `set_model()` implements the `generate_evaluation_response()` method as expected by the `_call_language_model()` function.
+- The robustness evaluation considers multiple factors including semantic preservation, grammatical correctness, and logical consistency.
+- The evaluation process uses the specified language model to generate adversarial examples and assess their impact.
+- The class uses a default RobustnessTemplate for evaluation criteria and prompts.

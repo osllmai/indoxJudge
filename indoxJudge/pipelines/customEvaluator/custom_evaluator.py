@@ -2,18 +2,40 @@ import json
 from typing import List
 from loguru import logger
 import sys
-from indoxJudge.metrics import Faithfulness, Privacy, Misinformation, MachineEthics, StereotypeBias, Fairness, \
-    Harmfulness, AnswerRelevancy, KnowledgeRetention, Hallucination, Toxicity, Bias, BertScore, BLEU, \
-    ContextualRelevancy, GEval, METEOR, Gruen, ToxicityDiscriminative
+from indoxJudge.metrics import (
+    Faithfulness,
+    Privacy,
+    Misinformation,
+    MachineEthics,
+    StereotypeBias,
+    Fairness,
+    Harmfulness,
+    AnswerRelevancy,
+    KnowledgeRetention,
+    Hallucination,
+    Toxicity,
+    Bias,
+    BertScore,
+    BLEU,
+    ContextualRelevancy,
+    GEval,
+    METEOR,
+    Gruen,
+    ToxicityDiscriminative,
+    OutOfDistributionRobustness,
+    AdversarialRobustness,
+    Privacy,
+    RobustnessToAdversarialDemonstrations,
+)
 
 # Set up logging
 logger.remove()  # Remove the default logger
-logger.add(sys.stdout,
-           format="<green>{level}</green>: <level>{message}</level>",
-           level="INFO")
-logger.add(sys.stdout,
-           format="<red>{level}</red>: <level>{message}</level>",
-           level="ERROR")
+logger.add(
+    sys.stdout, format="<green>{level}</green>: <level>{message}</level>", level="INFO"
+)
+logger.add(
+    sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
+)
 
 
 class Evaluator:
@@ -45,7 +67,7 @@ class Evaluator:
         Sets the language model for each metric that requires it.
         """
         for metric in self.metrics:
-            if hasattr(metric, 'set_model'):
+            if hasattr(metric, "set_model"):
                 metric.set_model(self.model)
         logger.info("Model set for all metrics.")
 
@@ -67,82 +89,56 @@ class Evaluator:
                     verdicts = metric.evaluate_verdicts(claims.claims)
                     reason = metric.evaluate_reason(verdicts, truths.truths)
                     score = metric.calculate_faithfulness_score()
-                    results['Faithfulness'] = {
-                        'claims': claims.claims,
-                        'truths': truths.truths,
-                        'verdicts': [verdict.__dict__ for verdict in verdicts.verdicts],
-                        'score': score,
-                        'reason': reason.reason
+                    results["Faithfulness"] = {
+                        "claims": claims.claims,
+                        "truths": truths.truths,
+                        "verdicts": [verdict.__dict__ for verdict in verdicts.verdicts],
+                        "score": score,
+                        "reason": reason.reason,
                     }
                     self.evaluation_score += score
                     self.metrics_score["Faithfulness"] = score
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
-                    results['AnswerRelevancy'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'statements': metric.statements,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
+                    results["AnswerRelevancy"] = {
+                        "score": score,
+                        "reason": metric.reason,
+                        "statements": metric.statements,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
                     self.evaluation_score += score
                     self.metrics_score["AnswerRelevancy"] = score
 
-                # elif isinstance(metric, ContextualRelevancy):
-                #     irrelevancies = metric.get_irrelevancies(metric.query, metric.retrieval_contexts)
-                #     metric.set_irrelevancies(irrelevancies)
-                #     verdicts = metric.get_verdicts(metric.query, metric.retrieval_contexts)
-                #     metric.verdicts = verdicts.verdicts  # Ensure verdicts are stored in the metric object
-                #
-                #     # Determine the score, e.g., based on the number of relevant contexts
-                #     score = metric.calculate_score()
-                #     reason = metric.get_reason(irrelevancies, score)
-                #     results = {
-                #         'ContextualRelevancy': {
-                #             'verdicts': [verdict.dict() for verdict in verdicts.verdicts],
-                #             'reason': reason.dict(),
-                #             'score': score
-                #         }
-                #     }
-                #     self.evaluation_score += score
-                #
-                #     self.metrics_score["ContextualRelevancy"] = score
-                # elif isinstance(metric, GEval):
-                #     geval_result = metric.g_eval()
-                #     results['GEVal'] = geval_result.replace("\n", " ")
-                #     geval_data = json.loads(results["GEVal"])
-                #     score = geval_data["score"]
-                #     self.evaluation_score += int(score) / 8
-                #
-                #     self.metrics_score["GEVal"] = int(score) / 8
-
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
-                    results['KnowledgeRetention'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts],
-                        'knowledges': [knowledge.data for knowledge in metric.knowledges]
+                    results["KnowledgeRetention"] = {
+                        "score": score,
+                        "reason": metric.reason,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
+                        "knowledges": [
+                            knowledge.data for knowledge in metric.knowledges
+                        ],
                     }
                     self.evaluation_score += score
 
                     self.metrics_score["KnowledgeRetention"] = score
                 elif isinstance(metric, Hallucination):
                     score = metric.measure()
-                    results['Hallucination'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
+                    results["Hallucination"] = {
+                        "score": score,
+                        "reason": metric.reason,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
                     self.evaluation_score += score
 
                     self.metrics_score["Hallucination"] = score
                 elif isinstance(metric, Toxicity):
                     score = metric.measure()
-                    results['Toxicity'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'opinions': metric.opinions,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
+                    results["Toxicity"] = {
+                        "score": score,
+                        "reason": metric.reason,
+                        "opinions": metric.opinions,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
                     self.evaluation_score += score
 
@@ -150,105 +146,103 @@ class Evaluator:
 
                 elif isinstance(metric, Bias):
                     score = metric.measure()
-                    results['Bias'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'opinions': metric.opinions,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
+                    results["Bias"] = {
+                        "score": score,
+                        "reason": metric.reason,
+                        "opinions": metric.opinions,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
                     self.evaluation_score += score
                     self.metrics_score["Bias"] = score
 
                 elif isinstance(metric, BertScore):
                     score = metric.measure()
-                    results['BertScore'] = {
-                        'precision': score['Precision'],
-                        'recall': score['Recall'],
-                        'f1_score': score['F1-score']
+                    results["BertScore"] = {
+                        "precision": score["Precision"],
+                        "recall": score["Recall"],
+                        "f1_score": score["F1-score"],
                     }
                     # self.evaluation_score += score
 
                     # self.metrics_score["BertScore"] = score
-                    self.metrics_score['precision'] = score['Precision']
-                    self.evaluation_score += score['Precision']
+                    self.metrics_score["precision"] = score["Precision"]
+                    self.evaluation_score += score["Precision"]
 
-                    self.metrics_score['recall'] = score['Recall']
-                    self.evaluation_score += score['Recall']
+                    self.metrics_score["recall"] = score["Recall"]
+                    self.evaluation_score += score["Recall"]
 
-                    self.metrics_score['f1_score'] = score['F1-score']
-                    self.evaluation_score += score['F1-score']
+                    self.metrics_score["f1_score"] = score["F1-score"]
+                    self.evaluation_score += score["F1-score"]
 
                 elif isinstance(metric, BLEU):
                     score = metric.measure()
-                    results['BLEU'] = {
-                        'score': score
-                    }
+                    results["BLEU"] = {"score": score}
                     self.evaluation_score += score
                     self.metrics_score["BLEU"] = score
-                    # elif isinstance(metric, Rouge):
-                    #     score = metric.measure()
-                    #     results['rouge'] = {
-                    #         'precision': score['Precision'],
-                    #         'recall': score['Recall'],
-                    #         'f1_score': score['F1-score']
-                    #     }
-                    #
-                    #     self.metrics_score["Rouge"] = score
-                    #     self.metrics_score["Rouge"] = score
+
                 elif isinstance(metric, Gruen):
                     score = metric.measure()
-                    results['gruen'] = {
-                        'score': score[0]
-                    }
+                    results["gruen"] = {"score": score[0]}
                     self.evaluation_score += score[0]
                     self.metrics_score["gruen"] = score[0]
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
-                    results['AnswerRelevancy'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'statements': metric.statements,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
+                    results["AnswerRelevancy"] = {
+                        "score": score,
+                        "reason": metric.reason,
+                        "statements": metric.statements,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
                     self.evaluation_score += score
                     self.metrics_score["AnswerRelevancy"] = score
                 elif isinstance(metric, ContextualRelevancy):
-                    irrelevancies = metric.get_irrelevancies(metric.query, metric.retrieval_contexts)
+                    irrelevancies = metric.get_irrelevancies(
+                        metric.query, metric.retrieval_contexts
+                    )
                     metric.set_irrelevancies(irrelevancies)
-                    verdicts = metric.get_verdicts(metric.query, metric.retrieval_contexts)
-                    score = 1.0 if not irrelevancies else max(0,
-                                                              1.0 - len(irrelevancies) / len(metric.retrieval_contexts))
+                    verdicts = metric.get_verdicts(
+                        metric.query, metric.retrieval_contexts
+                    )
+                    score = (
+                        1.0
+                        if not irrelevancies
+                        else max(
+                            0, 1.0 - len(irrelevancies) / len(metric.retrieval_contexts)
+                        )
+                    )
                     reason = metric.get_reason(irrelevancies, score)
-                    results['ContextualRelevancy'] = {
-                        'verdicts': [verdict.dict() for verdict in verdicts.verdicts],
-                        'reason': reason.dict(),
-                        'score': score
+                    results["ContextualRelevancy"] = {
+                        "verdicts": [verdict.dict() for verdict in verdicts.verdicts],
+                        "reason": reason.dict(),
+                        "score": score,
                     }
                     self.evaluation_score += score
                     self.metrics_score["ContextualRelevancy"] = score
                 elif isinstance(metric, GEval):
                     geval_result = metric.g_eval()
-                    results['GEval'] = geval_result.replace("\n", " ")
+                    results["GEval"] = geval_result.replace("\n", " ")
                     geval_data = json.loads(results["GEval"])
                     score = int(geval_data["score"]) / 8
                     self.evaluation_score += score
                     self.metrics_score["GEval"] = score
                 elif isinstance(metric, Hallucination):
                     score = metric.measure()
-                    results['Hallucination'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
+                    results["Hallucination"] = {
+                        "score": score,
+                        "reason": metric.reason,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
                     self.evaluation_score += 1 - score
                     self.metrics_score["Hallucination"] = 1 - score
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
-                    results['KnowledgeRetention'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts],
-                        'knowledges': [knowledge.data for knowledge in metric.knowledges]
+                    results["KnowledgeRetention"] = {
+                        "score": score,
+                        "reason": metric.reason,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
+                        "knowledges": [
+                            knowledge.data for knowledge in metric.knowledges
+                        ],
                     }
                     self.evaluation_score += score
                     self.metrics_score["KnowledgeRetention"] = score
@@ -305,6 +299,44 @@ class Evaluator:
                     self.evaluation_score += score
                     self.metrics_score["StereotypeBias"] = score
                     results["StereotypeBias"] = reason.reason
+
+                elif isinstance(metric, OutOfDistributionRobustness):
+                    score = metric.calculate_ood_robustness_score()
+                    reason = metric.get_reason()
+                    self.evaluation_score += score
+                    self.metrics_score["OutOfDistributionRobustness"] = score
+                    results["OutOfDistributionRobustness"] = {
+                        "score": score,
+                        "reason": reason.reason,
+                    }
+
+                elif isinstance(metric, AdversarialRobustness):
+                    score = metric.calculate_robustness_score()
+                    reason = metric.get_reason()
+                    self.evaluation_score += score
+                    self.metrics_score["AdversarialRobustness"] = score
+                    results["AdversarialRobustness"] = {
+                        "score": score,
+                        "reason": reason.reason,
+                    }
+
+                elif isinstance(metric, Privacy):
+                    score = metric.calculate_privacy_score()
+                    reason = metric.get_reason()
+                    self.evaluation_score += score
+                    self.metrics_score["Privacy"] = score
+                    results["Privacy"] = {"score": score, "reason": reason.reason}
+
+                elif isinstance(metric, RobustnessToAdversarialDemonstrations):
+                    score = metric.calculate_adversarial_robustness_score()
+                    reason = metric.get_reason()
+                    self.evaluation_score += score
+                    self.metrics_score["RobustnessToAdversarialDemonstrations"] = score
+                    results["RobustnessToAdversarialDemonstrations"] = {
+                        "score": score,
+                        "reason": reason.reason,
+                    }
+
                 logger.info(f"Completed evaluation for metric: {metric_name}")
 
             except Exception as e:
@@ -315,7 +347,11 @@ class Evaluator:
     def plot(self, mode="external"):
         from indoxJudge.graph import Visualization
         from indoxJudge.utils import create_model_dict
-        graph_input = create_model_dict(name="LLM Evaluator", metrics=self.metrics_score,
-                                        score=self.evaluation_score / len(self.metrics))
+
+        graph_input = create_model_dict(
+            name="LLM Evaluator",
+            metrics=self.metrics_score,
+            score=self.evaluation_score / len(self.metrics),
+        )
         visualizer = Visualization(data=graph_input, mode="llm")
         return visualizer.plot(mode=mode)
