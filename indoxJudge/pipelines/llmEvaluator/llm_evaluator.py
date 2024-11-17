@@ -100,8 +100,9 @@ class LLMEvaluator:
                         "reason": reason.reason,
                     }
                     print(results["Faithfulness"])
-                    print(self.metrics_score["Faithfulness"])
                     self.metrics_score["Faithfulness"] = round(score, 2)
+                    print(self.metrics_score["Faithfulness"])
+
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
                     results["AnswerRelevancy"] = {
