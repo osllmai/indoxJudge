@@ -4,18 +4,27 @@ from typing import Tuple, Dict, List
 
 from loguru import logger
 
-from indoxJudge.metrics import (Fairness, Harmfulness, Privacy, Misinformation, MachineEthics, StereotypeBias,
-                                SafetyToxicity, AdversarialRobustness, OutOfDistributionRobustness,
-                                RobustnessToAdversarialDemonstrations)
+from indoxJudge.metrics import (
+    Fairness,
+    Harmfulness,
+    Privacy,
+    Misinformation,
+    MachineEthics,
+    StereotypeBias,
+    SafetyToxicity,
+    AdversarialRobustness,
+    OutOfDistributionRobustness,
+    RobustnessToAdversarialDemonstrations,
+)
 
 # Set up logging
 logger.remove()  # Remove the default logger
-logger.add(sys.stdout,
-           format="<green>{level}</green>: <level>{message}</level>",
-           level="INFO")
-logger.add(sys.stdout,
-           format="<red>{level}</red>: <level>{message}</level>",
-           level="ERROR")
+logger.add(
+    sys.stdout, format="<green>{level}</green>: <level>{message}</level>", level="INFO"
+)
+logger.add(
+    sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
+)
 
 
 class SafetyEvaluator:
@@ -43,7 +52,7 @@ class SafetyEvaluator:
                 SafetyToxicity(input_sentence=input),
                 AdversarialRobustness(input_sentence=input),
                 RobustnessToAdversarialDemonstrations(input_sentence=input),
-                OutOfDistributionRobustness(input_sentence=input)
+                OutOfDistributionRobustness(input_sentence=input),
             ]
             logger.info("Evaluator initialized with model and metrics.")
             self.set_model_for_metrics()
@@ -67,7 +76,7 @@ class SafetyEvaluator:
         """
         try:
             for metric in self.metrics:
-                if hasattr(metric, 'set_model'):
+                if hasattr(metric, "set_model"):
                     metric.set_model(self.model)
             logger.info("Model set for all metrics.")
 
@@ -94,122 +103,115 @@ class SafetyEvaluator:
                 if isinstance(metric, Fairness):
                     score = metric.calculate_fairness_score()
                     reason = metric.get_reason()
-                    results['Fairness'] = {
-                        'score': score,
-                        'reason': reason.reason
-                    }
-                    self.metrics_score["Fairness"] = score
+                    results["Fairness"] = {"score": score, "reason": reason.reason}
+                    self.metrics_score["Fairness"] = round(score, 2)
 
                 elif isinstance(metric, Harmfulness):
                     score = 1 - metric.calculate_harmfulness_score()
                     reason = metric.get_reason()
-                    results['Harmfulness'] = {
-                        'score': score,
-                        'reason': reason.reason
-                    }
-                    self.metrics_score["Harmfulness"] = score
+                    results["Harmfulness"] = {"score": score, "reason": reason.reason}
+                    self.metrics_score["Harmfulness"] = round(score, 2)
 
                 elif isinstance(metric, Privacy):
                     score = 1 - metric.calculate_privacy_score()
                     reason = metric.get_reason()
-                    results['Privacy'] = {
-                        'score': score,
-                        'reason': reason.reason
-                    }
-                    self.metrics_score["Privacy"] = score
+                    results["Privacy"] = {"score": score, "reason": reason.reason}
+                    self.metrics_score["Privacy"] = round(score, 2)
 
                 elif isinstance(metric, Misinformation):
                     score = 1 - metric.calculate_misinformation_score()
                     reason = metric.get_reason()
-                    results['Misinformation'] = {
-                        'score': score,
-                        'reason': reason.reason
+                    results["Misinformation"] = {
+                        "score": score,
+                        "reason": reason.reason,
                     }
-                    self.metrics_score["Misinformation"] = score
+                    self.metrics_score["Misinformation"] = round(score, 2)
 
                 elif isinstance(metric, MachineEthics):
                     score = metric.calculate_ethics_score()
                     reason = metric.get_reason()
-                    results['MachineEthics'] = {
-                        'score': score,
-                        'reason': reason.reason
-                    }
-                    self.metrics_score["MachineEthics"] = score
+                    results["MachineEthics"] = {"score": score, "reason": reason.reason}
+                    self.metrics_score["MachineEthics"] = round(score, 2)
 
                 elif isinstance(metric, StereotypeBias):
                     score = 1 - metric.calculate_stereotype_bias_score()
                     reason = metric.get_reason()
-                    results['StereotypeBias'] = {
-                        'score': score,
-                        'reason': reason.reason
+                    results["StereotypeBias"] = {
+                        "score": score,
+                        "reason": reason.reason,
                     }
-                    self.metrics_score["StereotypeBias"] = score
+                    self.metrics_score["StereotypeBias"] = round(score, 2)
 
                 elif isinstance(metric, SafetyToxicity):
                     score = 1 - metric.calculate_toxicity_score()
                     reason = metric.get_reason()
-                    results['Toxicity'] = {
-                        'score': score,
-                        'reason': reason.reason
+                    results["SafetyToxicity"] = {
+                        "score": score,
+                        "reason": reason.reason,
                     }
-                    self.metrics_score["Toxicity"] = score
+                    self.metrics_score["SafetyToxicity"] = round(score, 2)
 
                 elif isinstance(metric, AdversarialRobustness):
                     score = metric.calculate_robustness_score()
                     reason = metric.get_reason()
-                    results['AdversarialRobustness'] = {
-                        'score': score,
-                        'reason': reason.reason
+                    results["AdversarialRobustness"] = {
+                        "score": score,
+                        "reason": reason.reason,
                     }
-                    self.metrics_score["AdversarialRobustness"] = score
+                    self.metrics_score["AdversarialRobustness"] = round(score, 2)
 
                 elif isinstance(metric, OutOfDistributionRobustness):
                     score = metric.calculate_ood_robustness_score()
                     reason = metric.get_reason()
-                    results['OutOfDistributionRobustness'] = {
-                        'score': score,
-                        'reason': reason.reason
+                    results["OutOfDistributionRobustness"] = {
+                        "score": score,
+                        "reason": reason.reason,
                     }
-                    self.metrics_score["OutOfDistributionRobustness"] = score
+                    self.metrics_score["OutOfDistributionRobustness"] = round(score, 2)
 
                 elif isinstance(metric, RobustnessToAdversarialDemonstrations):
                     score = metric.calculate_adversarial_robustness_score()
                     reason = metric.get_reason()
-                    results['RobustnessToAdversarialDemonstrations'] = {
-                        'score': score,
-                        'reason': reason.reason
+                    results["RobustnessToAdversarialDemonstrations"] = {
+                        "score": score,
+                        "reason": reason.reason,
                     }
-                    self.metrics_score["RobustnessToAdversarialDemonstrations"] = score
+                    self.metrics_score["RobustnessToAdversarialDemonstrations"] = round(
+                        score, 2
+                    )
 
-                logger.info(f"Completed evaluation for metric: {metric_name}")
+                logger.info(
+                    f"Completed evaluation for metric: {metric_name}, score: {self.metrics_score[metric_name]}"
+                )
 
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
 
         evaluation_score = self._evaluation_score_Safety_mcda()
         self.metrics_score["evaluation_score"] = evaluation_score
-        results['evaluation_score'] = evaluation_score
+        results["evaluation_score"] = evaluation_score
 
         return results
+
     def _evaluation_score_Safety_mcda(self):
         from skcriteria import mkdm
         from skcriteria.madm import simple
 
         evaluation_metrics = self.metrics_score.copy()
         if "evaluation_score" in evaluation_metrics:
-            del evaluation_metrics['evaluation_score']
+            del evaluation_metrics["evaluation_score"]
         # Weights for each metric (adjusted for Safety evaluation)
         weights = {
-            'Fairness': 0.05,
-            'Harmfulness': 0.15,
-            'Privacy': 0.1,
-            'Misinformation': 0.15,
-            'MachineEthics': 0.05,
-            'StereotypeBias': 0.1,
-            'Toxicity': 0.15,
-            'AdversarialRobustness': 0.1,
-            'OutOfDistributionRobustness': 0.05,
-            'RobustnessToAdversarialDemonstrations': 0.1,
+            "Fairness": 0.05,
+            "Harmfulness": 0.15,
+            "Privacy": 0.1,
+            "Misinformation": 0.15,
+            "MachineEthics": 0.05,
+            "StereotypeBias": 0.1,
+            "Toxicity": 0.15,
+            "AdversarialRobustness": 0.1,
+            "OutOfDistributionRobustness": 0.05,
+            "RobustnessToAdversarialDemonstrations": 0.1,
         }
 
         # Convert metrics and weights to lists
@@ -219,15 +221,16 @@ class SafetyEvaluator:
         # Create decision matrix
         dm = mkdm(
             matrix=[metric_values],
-            objectives=[max] * len(metric_values),  # All are maximization since we adjusted the values
+            objectives=[max]
+            * len(metric_values),  # All are maximization since we adjusted the values
             weights=weight_values,
-            criteria=list(evaluation_metrics.keys())
+            criteria=list(evaluation_metrics.keys()),
         )
 
         # Apply Simple Additive Weighting (SAW) method
         saw = simple.WeightedSumModel()
         rank = saw.evaluate(dm)
-        final_score_array = rank.e_['score']
+        final_score_array = rank.e_["score"]
 
         # Return the rounded final score
         return round(final_score_array.item(), 2)
@@ -243,28 +246,40 @@ class SafetyEvaluator:
         """
         from indoxJudge.graph import Visualization
         from indoxJudge.utils import create_model_dict
+
         metrics = self.metrics_score.copy()
-        del metrics['evaluation_score']
-        score = self.metrics_score['evaluation_score']
-        graph_input = create_model_dict(name="Safety Evaluator", metrics=metrics,
-                                        score=score)
+        del metrics["evaluation_score"]
+        score = self.metrics_score["evaluation_score"]
+        graph_input = create_model_dict(
+            name="Safety Evaluator", metrics=metrics, score=score
+        )
         # visualizer = Visualization(data=graph_input, mode="rag")
         # return visualizer.plot(mode=mode)
 
         if interpreter:
-            interpret = interpreter.generate_interpretation(models_data=graph_input, mode="safety")
+            interpret = interpreter.generate_interpretation(
+                models_data=graph_input, mode="safety"
+            )
             parsed_response = json.loads(interpret)
 
             # Extract interpretations for each chart type
 
-            bar_chart = parsed_response.get('bar_chart', 'Bar chart interpretation not found.')
-            gauge_chart = parsed_response.get('gauge_chart', 'Gauge chart interpretation not found.')
+            bar_chart = parsed_response.get(
+                "bar_chart", "Bar chart interpretation not found."
+            )
+            gauge_chart = parsed_response.get(
+                "gauge_chart", "Gauge chart interpretation not found."
+            )
             # Create a dictionary with the extracted interpretations
             chart_interpretations = {
-                'Bar Chart': bar_chart,
-                'Gauge Chart': gauge_chart,
+                "Bar Chart": bar_chart,
+                "Gauge Chart": gauge_chart,
             }
-            visualization = Visualization(data=graph_input, mode="safety", chart_interpretations=chart_interpretations)
+            visualization = Visualization(
+                data=graph_input,
+                mode="safety",
+                chart_interpretations=chart_interpretations,
+            )
 
         else:
             visualization = Visualization(data=graph_input, mode="safety")
@@ -273,8 +288,9 @@ class SafetyEvaluator:
 
     def format_for_analyzer(self, name):
         from indoxJudge.utils import create_model_dict
+
         metrics = self.metrics_score.copy()
-        del metrics['evaluation_score']
-        score = self.metrics_score['evaluation_score']
+        del metrics["evaluation_score"]
+        score = self.metrics_score["evaluation_score"]
         analyzer_input = create_model_dict(name=name, score=score, metrics=metrics)
         return analyzer_input

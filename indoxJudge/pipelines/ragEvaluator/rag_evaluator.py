@@ -24,7 +24,9 @@ logger.add(
     sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
 )
 
-warnings.filterwarnings("ignore", category=FutureWarning, message=".*`resume_download` is deprecated.*")
+warnings.filterwarnings(
+    "ignore", category=FutureWarning, message=".*`resume_download` is deprecated.*"
+)
 
 
 def clean_context(strings):
@@ -93,8 +95,16 @@ class RagEvaluator:
         ValueError: If both entries and individual evaluation parameters are provided or if none are provided.
     """
 
-    def __init__(self, llm_as_judge, entries=None, llm_response=None, retrieval_context=None, query=None,
-                 ground_truth=None, context=None):
+    def __init__(
+        self,
+        llm_as_judge,
+        entries=None,
+        llm_response=None,
+        retrieval_context=None,
+        query=None,
+        ground_truth=None,
+        context=None,
+    ):
         """
         Initializes the RagEvaluator with a language model and a list of metrics.
         """
@@ -104,19 +114,29 @@ class RagEvaluator:
         self.results = {}
 
         # Ensure only entries or individual parameters are provided
-        if entries and (llm_response or retrieval_context or query or ground_truth or context):
-            raise ValueError("Provide either 'entries' or individual parameters for evaluation, not both.")
+        if entries and (
+            llm_response or retrieval_context or query or ground_truth or context
+        ):
+            raise ValueError(
+                "Provide either 'entries' or individual parameters for evaluation, not both."
+            )
         if not entries and not (llm_response and retrieval_context and query):
-            raise ValueError("Either 'entries' or all individual parameters for a single evaluation must be provided.")
+            raise ValueError(
+                "Either 'entries' or all individual parameters for a single evaluation must be provided."
+            )
 
         # If entries are provided, we will evaluate them individually
         if entries:
             self.entries_results = {}
         else:
             # For single entry evaluation
-            self._initialize_metrics(llm_response, retrieval_context, query, ground_truth, context)
+            self._initialize_metrics(
+                llm_response, retrieval_context, query, ground_truth, context
+            )
 
-    def _initialize_metrics(self, llm_response, retrieval_context, query, ground_truth, context):
+    def _initialize_metrics(
+        self, llm_response, retrieval_context, query, ground_truth, context
+    ):
         """
         Initializes the metrics with the provided data for evaluation.
         """
@@ -127,15 +147,31 @@ class RagEvaluator:
         # retrieval_context_join = re.sub(r'[^\w\s.,]', '',
         #                                 retrieval_context_join)
         self.metrics = [
-            Faithfulness(llm_response=llm_response, retrieval_context=retrieval_context_join),
+            Faithfulness(
+                llm_response=llm_response, retrieval_context=retrieval_context_join
+            ),
             AnswerRelevancy(query=query, llm_response=llm_response),
             ContextualRelevancy(query=query, retrieval_context=clean_retrieval_context),
-            GEval(parameters="Rag Pipeline", llm_response=llm_response, query=query,
-                  retrieval_context=clean_retrieval_context, ground_truth=ground_truth, context=context),
-            Hallucination(llm_response=llm_response, retrieval_context=clean_retrieval_context),
-            KnowledgeRetention(messages=[{"query": query, "llm_response": llm_response}]),
-            BertScore(llm_response=llm_response, retrieval_context=clean_retrieval_context),
-            METEOR(llm_response=llm_response, retrieval_context=clean_retrieval_context),
+            GEval(
+                parameters="Rag Pipeline",
+                llm_response=llm_response,
+                query=query,
+                retrieval_context=clean_retrieval_context,
+                ground_truth=ground_truth,
+                context=context,
+            ),
+            Hallucination(
+                llm_response=llm_response, retrieval_context=clean_retrieval_context
+            ),
+            KnowledgeRetention(
+                messages=[{"query": query, "llm_response": llm_response}]
+            ),
+            BertScore(
+                llm_response=llm_response, retrieval_context=clean_retrieval_context
+            ),
+            METEOR(
+                llm_response=llm_response, retrieval_context=clean_retrieval_context
+            ),
         ]
         self._set_model_for_metrics()
 
@@ -144,7 +180,7 @@ class RagEvaluator:
         Sets the language model for each metric that requires it.
         """
         for metric in self.metrics:
-            if hasattr(metric, 'set_model'):
+            if hasattr(metric, "set_model"):
                 metric.set_model(self.model)
 
     def _evaluate(self):
@@ -158,86 +194,131 @@ class RagEvaluator:
         for metric in self.metrics:
             metric_name = metric.__class__.__name__
             try:
+                logger.info(f"Evaluating metric: {metric_name}")
+
                 if isinstance(metric, Faithfulness):
                     claims = metric.evaluate_claims()
                     truths = metric.evaluate_truths()
                     verdicts = metric.evaluate_verdicts(claims.claims)
                     reason = metric.evaluate_reason(verdicts, truths.truths)
                     score = metric.calculate_faithfulness_score()
-                    results['Faithfulness'] = {
-                        'claims': claims.claims,
-                        'truths': truths.truths,
-                        'verdicts': [verdict.__dict__ for verdict in verdicts.verdicts],
-                        'score': score,
-                        'reason': reason.reason
+                    results["Faithfulness"] = {
+                        "claims": claims.claims,
+                        "truths": truths.truths,
+                        "verdicts": [verdict.__dict__ for verdict in verdicts.verdicts],
+                        "score": round(score, 2),
+                        "reason": reason.reason,
                     }
-                    self._calculate_metric_score(parameter="Faithfulness", score=score)
+                    self._calculate_metric_score(
+                        parameter="Faithfulness", score=round(score, 2)
+                    )
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
-                    results['AnswerRelevancy'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'statements': metric.statements,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
+                    results["AnswerRelevancy"] = {
+                        "score": round(score, 2),
+                        "reason": metric.reason,
+                        "statements": metric.statements,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
-                    self._calculate_metric_score(parameter="AnswerRelevancy", score=score)
+                    self._calculate_metric_score(
+                        parameter="AnswerRelevancy", score=round(score, 2)
+                    )
 
                 elif isinstance(metric, ContextualRelevancy):
-                    irrelevancies = metric.get_irrelevancies(metric.query, metric.retrieval_contexts)
+                    irrelevancies = metric.get_irrelevancies(
+                        metric.query, metric.retrieval_contexts
+                    )
                     metric.set_irrelevancies(irrelevancies)
-                    verdicts = metric.get_verdicts(metric.query, metric.retrieval_contexts)
-                    score = 1.0 if not irrelevancies else max(0,
-                                                              1.0 - len(irrelevancies) / len(metric.retrieval_contexts))
+                    verdicts = metric.get_verdicts(
+                        metric.query, metric.retrieval_contexts
+                    )
+                    score = (
+                        1.0
+                        if not irrelevancies
+                        else max(
+                            0, 1.0 - len(irrelevancies) / len(metric.retrieval_contexts)
+                        )
+                    )
                     reason = metric.get_reason(irrelevancies, score)
-                    results['ContextualRelevancy'] = {
-                        'verdicts': [verdict.dict() for verdict in verdicts.verdicts],
-                        'reason': reason.dict(),
-                        'score': score
+                    results["ContextualRelevancy"] = {
+                        "verdicts": [verdict.dict() for verdict in verdicts.verdicts],
+                        "reason": reason.dict(),
+                        "score": round(score, 2),
                     }
-                    self._calculate_metric_score(parameter="ContextualRelevancy", score=score)
+                    self._calculate_metric_score(
+                        parameter="ContextualRelevancy", score=round(score, 2)
+                    )
 
                 elif isinstance(metric, GEval):
                     geval_result = metric.g_eval()
-                    results['GEval'] = geval_result.replace("\n", " ")
+                    results["GEval"] = geval_result.replace("\n", " ")
                     geval_data = json.loads(results["GEval"])
                     score = int(geval_data["score"]) / 10
-                    self._calculate_metric_score(parameter="GEval", score=score)
+                    self._calculate_metric_score(
+                        parameter="GEval", score=round(score, 2)
+                    )
 
                 elif isinstance(metric, Hallucination):
                     score = metric.measure()
-                    results['Hallucination'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts]
+                    results["Hallucination"] = {
+                        "score": score,
+                        "reason": metric.reason,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
-                    self._calculate_metric_score(parameter="Hallucination", score=score)
+                    self._calculate_metric_score(
+                        parameter="Hallucination", score=round(score, 2)
+                    )
 
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
-                    results['KnowledgeRetention'] = {
-                        'score': score,
-                        'reason': metric.reason,
-                        'verdicts': [verdict.dict() for verdict in metric.verdicts],
-                        'knowledges': [knowledge.data for knowledge in metric.knowledges]
+                    results["KnowledgeRetention"] = {
+                        "score": round(score, 2),
+                        "reason": metric.reason,
+                        "verdicts": [verdict.dict() for verdict in metric.verdicts],
+                        "knowledges": [
+                            knowledge.data for knowledge in metric.knowledges
+                        ],
                     }
-                    self._calculate_metric_score(parameter="KnowledgeRetention", score=score)
+                    self._calculate_metric_score(
+                        parameter="KnowledgeRetention", score=round(score, 2)
+                    )
 
                 elif isinstance(metric, BertScore):
                     score = metric.measure()
-                    results['BertScore'] = {
-                        'precision': score['Precision'],
-                        'recall': score['Recall'],
-                        'f1_score': score['F1-score']
+                    results["BertScore"] = {
+                        "precision": score["Precision"],
+                        "recall": score["Recall"],
+                        "f1_score": score["F1-score"],
                     }
-                    self._calculate_metric_score(parameter="precision", score=score['Precision'])
-                    self._calculate_metric_score(parameter="recall", score=score['Recall'])
-                    self._calculate_metric_score(parameter="f1_score", score=score['F1-score'])
+                    self._calculate_metric_score(
+                        parameter="precision", score=score["Precision"]
+                    )
+                    self._calculate_metric_score(
+                        parameter="recall", score=score["Recall"]
+                    )
+                    self._calculate_metric_score(
+                        parameter="f1_score", score=score["F1-score"]
+                    )
 
                 elif isinstance(metric, METEOR):
                     score = metric.measure()
-                    results["METEOR"] = {"score": score}
-                    self._calculate_metric_score(parameter="METEOR", score=score)
-
+                    results["METEOR"] = {"score": round(score, 2)}
+                    self._calculate_metric_score(
+                        parameter="METEOR", score=round(score, 2)
+                    )
+                if metric_name != "BertScore":
+                    logger.info(
+                        f"Completed evaluation for metric: {metric_name}, score: {self.metrics_score[metric_name]}"
+                    )
+                else:
+                    logger.info(
+                        f"""
+Completed evaluation for metric: {metric_name}, scores: 
+precision: {self.metrics_score["precision"]},
+recall: {self.metrics_score["recall"]},
+f1_score: {self.metrics_score["f1_score"]},
+                        """
+                    )
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
 
@@ -254,7 +335,9 @@ class RagEvaluator:
             score (float): The score to be added.
         """
         if parameter not in self.metrics_score:
-            self.metrics_score[parameter] = 0  # Initialize the metric score to 0 if it doesn't exist
+            self.metrics_score[parameter] = (
+                0  # Initialize the metric score to 0 if it doesn't exist
+            )
 
         self.metrics_score[parameter] += score  # Add the score to the existing score
 
@@ -263,10 +346,14 @@ class RagEvaluator:
         Finalizes the metric scores by dividing each score by the number of entries
         and rounding to two decimal places.
         """
-        num_entries = len(self.entries) if self.entries else 1  # Ensure no division by zero
+        num_entries = (
+            len(self.entries) if self.entries else 1
+        )  # Ensure no division by zero
 
         for parameter in self.metrics_score:
-            self.metrics_score[parameter] = round(self.metrics_score[parameter] / num_entries, 2)
+            self.metrics_score[parameter] = round(
+                self.metrics_score[parameter] / num_entries, 2
+            )
 
     def judge(self):
         """
@@ -278,7 +365,6 @@ class RagEvaluator:
         results = {}
         logger.info("Model set for all metrics.")
         logger.info("RagEvaluator initialized with model and metrics.")
-        logger.info(f"Evaluation Began...")
 
         if not self.entries:
             single_result = self._evaluate()
@@ -294,22 +380,26 @@ class RagEvaluator:
         elif self.entries:
             for entry_id, entry_data in self.entries.items():
                 logger.info(f"Evaluating entry: {entry_id}")
-                llm_response = entry_data.get('llm_response', None)
+                llm_response = entry_data.get("llm_response", None)
                 if llm_response:
-                    llm_response = llm_response.replace('\n', ' ').strip()
-                retrieval_context = [context.replace('\n', ' ').strip() for context in
-                                     entry_data.get('retrieval_context', [])]
+                    llm_response = llm_response.replace("\n", " ").strip()
+                retrieval_context = [
+                    context.replace("\n", " ").strip()
+                    for context in entry_data.get("retrieval_context", [])
+                ]
 
-                query = entry_data.get('query', None)
+                query = entry_data.get("query", None)
                 if query:
-                    query = query.replace('\n', ' ').strip()
-                ground_truth = entry_data.get('ground_truth', None)
+                    query = query.replace("\n", " ").strip()
+                ground_truth = entry_data.get("ground_truth", None)
                 if ground_truth:
-                    ground_truth = ground_truth.replace('\n', ' ').strip()
-                context = entry_data.get('context', None)
+                    ground_truth = ground_truth.replace("\n", " ").strip()
+                context = entry_data.get("context", None)
                 if context:
-                    context = context.replace('\n', ' ').strip()
-                self._initialize_metrics(llm_response, retrieval_context, query, ground_truth, context)
+                    context = context.replace("\n", " ").strip()
+                self._initialize_metrics(
+                    llm_response, retrieval_context, query, ground_truth, context
+                )
 
                 # Evaluate the entry and store results
                 entry_result = self._evaluate()
@@ -336,22 +426,22 @@ class RagEvaluator:
 
         evaluation_metrics = self.metrics_score.copy()
         if "evaluation_score" in evaluation_metrics:
-            del evaluation_metrics['evaluation_score']
+            del evaluation_metrics["evaluation_score"]
         # Transform the values for Hallucination (lower is better)
-        evaluation_metrics['Hallucination'] = 1 - evaluation_metrics['Hallucination']
+        evaluation_metrics["Hallucination"] = 1 - evaluation_metrics["Hallucination"]
 
         # Weights for each metric (adjusted for RAG evaluation)
         weights = {
-            'Faithfulness': 0.2,
-            'AnswerRelevancy': 0.15,
-            'ContextualRelevancy': 0.15,
-            'GEval': 0.1,
-            'Hallucination': 0.15,
-            'KnowledgeRetention': 0.1,
-            'precision': 0.05,
-            'recall': 0.05,
-            'f1_score': 0.05,
-            'METEOR': 0.05,
+            "Faithfulness": 0.2,
+            "AnswerRelevancy": 0.15,
+            "ContextualRelevancy": 0.15,
+            "GEval": 0.1,
+            "Hallucination": 0.15,
+            "KnowledgeRetention": 0.1,
+            "precision": 0.05,
+            "recall": 0.05,
+            "f1_score": 0.05,
+            "METEOR": 0.05,
         }
 
         # Convert metrics and weights to lists
@@ -361,15 +451,16 @@ class RagEvaluator:
         # Create decision matrix
         dm = mkdm(
             matrix=[metric_values],
-            objectives=[max] * len(metric_values),  # All are maximization since we adjusted the values
+            objectives=[max]
+            * len(metric_values),  # All are maximization since we adjusted the values
             weights=weight_values,
-            criteria=list(evaluation_metrics.keys())
+            criteria=list(evaluation_metrics.keys()),
         )
 
         # Apply Simple Additive Weighting (SAW) method
         saw = simple.WeightedSumModel()
         rank = saw.evaluate(dm)
-        final_score_array = rank.e_['score']
+        final_score_array = rank.e_["score"]
 
         # Return the rounded final score
         return round(final_score_array.item(), 2)
@@ -385,28 +476,40 @@ class RagEvaluator:
         """
         from indoxJudge.graph import Visualization
         from indoxJudge.utils import create_model_dict
+
         metrics = self.metrics_score.copy()
-        del metrics['evaluation_score']
-        score = self.metrics_score['evaluation_score']
-        graph_input = create_model_dict(name="RAG Evaluator", metrics=metrics,
-                                        score=score)
+        del metrics["evaluation_score"]
+        score = self.metrics_score["evaluation_score"]
+        graph_input = create_model_dict(
+            name="RAG Evaluator", metrics=metrics, score=score
+        )
         # visualizer = Visualization(data=graph_input, mode="rag")
         # return visualizer.plot(mode=mode)
 
         if interpreter:
-            interpret = interpreter.generate_interpretation(models_data=graph_input, mode="rag")
+            interpret = interpreter.generate_interpretation(
+                models_data=graph_input, mode="rag"
+            )
             parsed_response = json.loads(interpret)
 
             # Extract interpretations for each chart type
 
-            bar_chart = parsed_response.get('bar_chart', 'Bar chart interpretation not found.')
-            gauge_chart = parsed_response.get('gauge_chart', 'Gauge chart interpretation not found.')
+            bar_chart = parsed_response.get(
+                "bar_chart", "Bar chart interpretation not found."
+            )
+            gauge_chart = parsed_response.get(
+                "gauge_chart", "Gauge chart interpretation not found."
+            )
             # Create a dictionary with the extracted interpretations
             chart_interpretations = {
-                'Bar Chart': bar_chart,
-                'Gauge Chart': gauge_chart,
+                "Bar Chart": bar_chart,
+                "Gauge Chart": gauge_chart,
             }
-            visualization = Visualization(data=graph_input, mode="rag", chart_interpretations=chart_interpretations)
+            visualization = Visualization(
+                data=graph_input,
+                mode="rag",
+                chart_interpretations=chart_interpretations,
+            )
 
         else:
             visualization = Visualization(data=graph_input, mode="rag")
@@ -421,8 +524,9 @@ class RagEvaluator:
             name (str): The name of the analysis.
         """
         from indoxJudge.utils import create_model_dict
+
         metrics = self.metrics_score.copy()
-        del metrics['evaluation_score']
-        score = self.metrics_score['evaluation_score']
+        del metrics["evaluation_score"]
+        score = self.metrics_score["evaluation_score"]
         analyzer_input = create_model_dict(name=name, score=score, metrics=metrics)
         return analyzer_input
