@@ -69,7 +69,9 @@ class ContextualRelevancy:
             print(f"Error decoding JSON: {e}")
             return Reason(reason="Error in generating reason.")
 
-    def get_verdict(self, query: str, retrieval_context: str) -> ContextualRelevancyVerdict:
+    def get_verdict(
+        self, query: str, retrieval_context: str
+    ) -> ContextualRelevancyVerdict:
         prompt = self.template.generate_verdict(query=query, context=retrieval_context)
         response = self._call_language_model(prompt)
 
@@ -79,7 +81,9 @@ class ContextualRelevancy:
             if response.startswith("```json") and response.endswith("```"):
                 response = response[7:-3].strip()  # Strip the wrapping ```json and ```
 
-            response = re.sub(r"(?<=\w)'(?=\w)", "", response)  # Removes single quotes between words
+            response = re.sub(
+                r"(?<=\w)'(?=\w)", "", response
+            )  # Removes single quotes between words
 
             data = json.loads(response)
 
@@ -87,16 +91,20 @@ class ContextualRelevancy:
                 raise ValueError("Missing 'verdict' key in the model's response.")
 
             return ContextualRelevancyVerdict(
-                verdict=data["verdict"],
-                reason=data.get("reason", "No reason provided")
+                verdict=data["verdict"], reason=data.get("reason", "No reason provided")
             )
         except json.JSONDecodeError:
-            return ContextualRelevancyVerdict(verdict="error", reason="Error in generating verdict.")
+            return ContextualRelevancyVerdict(
+                verdict="error", reason="Error in generating verdict."
+            )
         except Exception:
             return ContextualRelevancyVerdict(verdict="error", reason="Invalid format.")
 
     def get_verdicts(self, query: str, retrieval_contexts: List[str]) -> Verdicts:
-        verdicts = [self.get_verdict(query, retrieval_context) for retrieval_context in retrieval_contexts]
+        verdicts = [
+            self.get_verdict(query, retrieval_context)
+            for retrieval_context in retrieval_contexts
+        ]
         return Verdicts(verdicts=verdicts)
 
     def calculate_score(self) -> float:
@@ -104,14 +112,32 @@ class ContextualRelevancy:
         if number_of_verdicts == 0:
             return 1.0  # If no verdicts, assume full relevancy by default.
 
-        relevant_count = sum(1 for verdict in self.verdicts if verdict.verdict.strip().lower() == "yes")
-        partial_relevant_count = sum(1 for verdict in self.verdicts if verdict.verdict.strip().lower() == "partial")
+        relevant_count = sum(
+            1 for verdict in self.verdicts if verdict.verdict.strip().lower() == "yes"
+        )
+        partial_relevant_count = sum(
+            1
+            for verdict in self.verdicts
+            if verdict.verdict.strip().lower() == "partial"
+        )
 
         score = (relevant_count + 0.5 * partial_relevant_count) / number_of_verdicts
         return score
+
+    def _clean_json_response(self, response: str) -> str:
+        """
+        Cleans the JSON response from the language model by removing markdown code blocks if present.
+
+        :param response: Raw response from the language model
+        :return: Cleaned JSON string
+        """
+        if response.startswith("```json") and response.endswith("```"):
+            response = response[7:-3].strip()
+        return response
 
     def _call_language_model(self, prompt: str) -> str:
         response = self.model.generate_evaluation_response(prompt=prompt)
         if not response:
             raise ValueError("Received an empty response from the model.")
-        return response
+        clearn_response = self._clean_json_response(response=response)
+        return clearn_response

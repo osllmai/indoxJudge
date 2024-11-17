@@ -8,18 +8,24 @@ from indoxJudge.metrics.bias.template import BiasTemplate
 class Opinions(BaseModel):
     opinions: List[str]
 
+
 class BiasVerdict(BaseModel):
     verdict: str
     reason: Optional[str] = None
 
+
 class Verdicts(BaseModel):
     verdicts: List[BiasVerdict]
+
 
 class Reason(BaseModel):
     reason: str
 
+
 class Bias:
-    def __init__(self, llm_response, threshold: float = 0.5, include_reason: bool = True):
+    def __init__(
+        self, llm_response, threshold: float = 0.5, include_reason: bool = True
+    ):
         self.threshold = threshold
         self.include_reason = include_reason
         self.llm_response = llm_response
@@ -74,7 +80,11 @@ class Bias:
             return None
 
         # Collecting all relevant reasons for biased or partially biased verdicts
-        biases = [verdict.reason for verdict in self.verdicts if verdict.verdict.strip().lower() in ["yes", "partial"]]
+        biases = [
+            verdict.reason
+            for verdict in self.verdicts
+            if verdict.verdict.strip().lower() in ["yes", "partial"]
+        ]
 
         prompt = BiasTemplate.generate_reason(
             biases=biases,
@@ -96,20 +106,38 @@ class Bias:
         if not self.verdicts:
             return 0.0
 
-        bias_count = sum(1 for verdict in self.verdicts if verdict.verdict.strip().lower() == "biased")
-        partial_bias_count = sum(1 for verdict in self.verdicts if verdict.verdict.strip().lower() == "partial")
+        bias_count = sum(
+            1
+            for verdict in self.verdicts
+            if verdict.verdict.strip().lower() == "biased"
+        )
+        partial_bias_count = sum(
+            1
+            for verdict in self.verdicts
+            if verdict.verdict.strip().lower() == "partial"
+        )
 
         score = (bias_count + 0.75 * partial_bias_count) / len(self.verdicts)
         return score
 
+    def _clean_json_response(self, response: str) -> str:
+        """
+        Cleans the JSON response from the language model by removing markdown code blocks if present.
+
+        :param response: Raw response from the language model
+        :return: Cleaned JSON string
+        """
+        if response.startswith("```json") and response.endswith("```"):
+            response = response[7:-3].strip()
+        return response
+
     def _call_language_model(self, prompt: str) -> str:
         try:
             response = self.model.generate_evaluation_response(prompt=prompt)
-            # print(f"Model response: {response}")
-            if not response or not response.strip():
+            clean_response = self._clean_json_response(response=response)
+            if not clean_response or not clean_response.strip():
                 raise ValueError("Empty response from language model.")
-            return response.strip()
+            return clean_response.strip()
         except Exception as e:
             print(f"Error calling language model: {e}")
-            return '[]'
-
+            return "[]"

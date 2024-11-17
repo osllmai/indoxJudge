@@ -4,7 +4,15 @@ from .template import GEvalTemplate
 
 
 class GEval:
-    def __init__(self, parameters, query, llm_response, retrieval_context, ground_truth=None, context=None):
+    def __init__(
+        self,
+        parameters,
+        query,
+        llm_response,
+        retrieval_context,
+        ground_truth=None,
+        context=None,
+    ):
         """
         Initialize the GEval class with necessary inputs for evaluation.
 
@@ -53,7 +61,9 @@ class GEval:
         Returns:
         str: The prompt to generate evaluation steps.
         """
-        eval_steps_prompt = GEvalTemplate.generate_evaluation_steps(self.parameters, self.criteria)
+        eval_steps_prompt = GEvalTemplate.generate_evaluation_steps(
+            self.parameters, self.criteria
+        )
         return eval_steps_prompt
 
     def generate_evaluation_results(self, eval_steps):
@@ -67,27 +77,36 @@ class GEval:
         Returns:
         str: The prompt to generate evaluation results.
         """
-        eval_results_prompt = GEvalTemplate.generate_evaluation_results(eval_steps, {
-            "Query": self.query,
-            "LLM response": self.llm_response,
-            "Ground truth": self.ground_truth,
-            "Context": self.context,
-            "Retrieval Context": self.retrieval_context
-        }, self.parameters)
+        eval_results_prompt = GEvalTemplate.generate_evaluation_results(
+            eval_steps,
+            {
+                "Query": self.query,
+                "LLM response": self.llm_response,
+                "Ground truth": self.ground_truth,
+                "Context": self.context,
+                "Retrieval Context": self.retrieval_context,
+            },
+            self.parameters,
+        )
         return eval_results_prompt
 
-    def _call_language_model(self, prompt: str) -> str:
+    def _clean_json_response(self, response: str) -> str:
         """
-        Calls the language model with the given prompt and returns the response.
+        Cleans the JSON response from the language model by removing markdown code blocks if present.
 
-        Parameters:
-        prompt (str): The prompt to provide to the language model.
-
-        Returns:
-        str: The response from the language model.
+        :param response: Raw response from the language model
+        :return: Cleaned JSON string
         """
-        response = self.model.generate_evaluation_response(prompt=prompt)
+        if response.startswith("```json") and response.endswith("```"):
+            response = response[7:-3].strip()
         return response
+
+    def _call_language_model(self, prompt: str) -> str:
+        response = self.model.generate_evaluation_response(prompt=prompt)
+        if not response:
+            raise ValueError("Received an empty response from the model.")
+        clearn_response = self._clean_json_response(response=response)
+        return clearn_response
 
     def g_eval(self):
         """

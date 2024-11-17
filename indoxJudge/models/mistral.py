@@ -1,16 +1,18 @@
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from loguru import logger
 import sys
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
 
 # Set up logging
 logger.remove()  # Remove the default logger
-logger.add(sys.stdout,
-           format="<green>{level}</green>: <level>{message}</level>",
-           level="INFO")
+logger.add(
+    sys.stdout, format="<green>{level}</green>: <level>{message}</level>", level="INFO"
+)
 
-logger.add(sys.stdout,
-           format="<red>{level}</red>: <level>{message}</level>",
-           level="ERROR")
+logger.add(
+    sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
+)
 
 
 class Mistral:
@@ -29,7 +31,6 @@ class Mistral:
             api_key (str): The API key for accessing the Mistral AI.
             model (str): The Mistral AI model version to use. Defaults to "mistral-medium-latest".
         """
-        from mistralai.client import MistralClient
         try:
             logger.info(f"Initializing Mistral with model: {model}")
             self.model = model
@@ -39,30 +40,29 @@ class Mistral:
             logger.error(f"Error initializing Mistral: {e}")
             raise
 
+    @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
     def _run_mistral(self, user_message: str) -> str:
         """
         Runs the Mistral model to generate a response based on the user message.
+        Implements exponential backoff retry mechanism for API calls.
 
         Args:
             user_message (str): The message to be processed by the Mistral model.
 
         Returns:
             str: The generated response.
-        """
-        from mistralai.models.chat_completion import ChatMessage
 
+        Retries:
+            - Up to 6 attempts (1 initial + 5 retries)
+            - Exponential backoff with randomization (1-20 seconds)
+        """
         try:
-            messages = [
-                ChatMessage(role="user", content=user_message)
-            ]
-            chat_response = self.client.chat(
-                model=self.model,
-                messages=messages
-            )
+            messages = [ChatMessage(role="user", content=user_message)]
+            chat_response = self.client.chat(model=self.model, messages=messages)
             return chat_response.choices[0].message.content.strip()
         except Exception as e:
             logger.error(f"Error in _run_mistral: {e}")
-            return str(e)
+            raise  # Raising the exception to trigger retry
 
     def generate_evaluation_response(self, prompt: str) -> str:
         """
@@ -91,20 +91,34 @@ class Mistral:
     def generate_interpretation(self, models_data, mode):
         prompt = ""
         if mode == "comparison":
-            from .interpretation_template.comparison_template import ModelComparisonTemplate
-            prompt = ModelComparisonTemplate.generate_comparison(models=models_data, mode="llm model quality")
+            from .interpretation_template.comparison_template import (
+                ModelComparisonTemplate,
+            )
+
+            prompt = ModelComparisonTemplate.generate_comparison(
+                models=models_data, mode="llm model quality"
+            )
         elif mode == "rag":
-            from .interpretation_template.rag_interpretation_template import RAGEvaluationTemplate
+            from .interpretation_template.rag_interpretation_template import (
+                RAGEvaluationTemplate,
+            )
+
             prompt = RAGEvaluationTemplate.generate_interpret(data=models_data)
         elif mode == "safety":
-            from .interpretation_template.safety_interpretation_template import SafetyEvaluationTemplate
+            from .interpretation_template.safety_interpretation_template import (
+                SafetyEvaluationTemplate,
+            )
+
             prompt = SafetyEvaluationTemplate.generate_interpret(data=models_data)
         elif mode == "llm":
-            from .interpretation_template.llm_interpretation_template import LLMEvaluatorTemplate
+            from .interpretation_template.llm_interpretation_template import (
+                LLMEvaluatorTemplate,
+            )
+
             prompt = LLMEvaluatorTemplate.generate_interpret(data=models_data)
 
         system_prompt = "your are a helpful assistant to analyze charts."
-        messages = system_prompt + "\n" +prompt
+        messages = system_prompt + "\n" + prompt
         response = self._run_mistral(messages)
 
         if response.startswith("```json") and response.endswith("```"):
