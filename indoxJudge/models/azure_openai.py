@@ -1,7 +1,6 @@
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from loguru import logger
 import sys
-from openai import AzureOpenAI
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -40,6 +39,8 @@ class AzureOpenAi:
             api_version (str, optional): The API version to use. Defaults to "2024-02-15-preview".
             max_tokens (int, optional): Maximum number of tokens for responses. Defaults to 4096.
         """
+        from openai import AzureOpenAI
+
         try:
             logger.info(f"Initializing AzureOpenAi with deployment: {deployment_name}")
             self.deployment_name = deployment_name

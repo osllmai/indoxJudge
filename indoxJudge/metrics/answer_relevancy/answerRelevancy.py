@@ -9,6 +9,7 @@ class Statements(BaseModel):
     """
     Model representing a list of statements extracted from the LLM response.
     """
+
     statements: List[str]
 
 
@@ -17,6 +18,7 @@ class AnswerRelevancyVerdict(BaseModel):
     Model representing a verdict on the relevancy of an answer,
     including the verdict itself and the reasoning behind it.
     """
+
     verdict: str
     reason: str = Field(default=None)
 
@@ -25,6 +27,7 @@ class Verdicts(BaseModel):
     """
     Model representing a list of AnswerRelevancyVerdict instances.
     """
+
     verdicts: List[AnswerRelevancyVerdict]
 
 
@@ -32,6 +35,7 @@ class Reason(BaseModel):
     """
     Model representing the reason provided for any irrelevant statements found in the response.
     """
+
     reason: str
 
 
@@ -40,8 +44,15 @@ class AnswerRelevancy:
     Class for evaluating the relevancy of language model outputs by analyzing statements,
     generating verdicts, and calculating relevancy scores.
     """
-    def __init__(self, query: str, llm_response: str, threshold: float = 0.5, include_reason: bool = True,
-                 strict_mode: bool = False):
+
+    def __init__(
+        self,
+        query: str,
+        llm_response: str,
+        threshold: float = 0.5,
+        include_reason: bool = True,
+        strict_mode: bool = False,
+    ):
         """
         Initializes the AnswerRelevancy class with the query, LLM response, and evaluation settings.
 
@@ -93,7 +104,9 @@ class AnswerRelevancy:
 
         :return: A list of statements.
         """
-        prompt = AnswerRelevancyTemplate.generate_statements(llm_response=self.llm_response)
+        prompt = AnswerRelevancyTemplate.generate_statements(
+            llm_response=self.llm_response
+        )
         response = self._call_language_model(prompt)
         data = json.loads(response)
         return data["statements"]
@@ -104,7 +117,9 @@ class AnswerRelevancy:
 
         :return: A list of AnswerRelevancyVerdict instances.
         """
-        prompt = AnswerRelevancyTemplate.generate_verdicts(query=self.query, llm_response=self.statements)
+        prompt = AnswerRelevancyTemplate.generate_verdicts(
+            query=self.query, llm_response=self.statements
+        )
         response = self._call_language_model(prompt)
         data = json.loads(response)
         return [AnswerRelevancyVerdict(**item) for item in data["verdicts"]]
@@ -113,7 +128,11 @@ class AnswerRelevancy:
         if not self.include_reason:
             return None
 
-        irrelevant_statements = [verdict.reason for verdict in self.verdicts if verdict.verdict.strip().lower() == "no"]
+        irrelevant_statements = [
+            verdict.reason
+            for verdict in self.verdicts
+            if verdict.verdict.strip().lower() == "no"
+        ]
 
         prompt = AnswerRelevancyTemplate.generate_reason(
             irrelevant_statements=irrelevant_statements,
@@ -143,12 +162,20 @@ class AnswerRelevancy:
 
         return score
 
-    def _call_language_model(self, prompt: str) -> str:
+    def _clean_json_response(self, response: str) -> str:
         """
-        Calls the language model with the given prompt and returns the response.
+        Cleans the JSON response from the language model by removing markdown code blocks if present.
 
-        :param prompt: The prompt to provide to the language model.
-        :return: The response from the language model.
+        :param response: Raw response from the language model
+        :return: Cleaned JSON string
         """
-        response = self.model.generate_evaluation_response(prompt=prompt)
+        if response.startswith("```json") and response.endswith("```"):
+            response = response[7:-3].strip()
         return response
+
+    def _call_language_model(self, prompt: str) -> str:
+        response = self.model.generate_evaluation_response(prompt=prompt)
+        if not response:
+            raise ValueError("Received an empty response from the model.")
+        clearn_response = self._clean_json_response(response=response)
+        return clearn_response

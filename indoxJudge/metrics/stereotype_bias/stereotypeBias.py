@@ -71,6 +71,20 @@ class StereotypeBias:
         self.stereotype_bias_score = verdict.score
         return self.stereotype_bias_score
 
+    def _clean_json_response(self, response: str) -> str:
+        """
+        Cleans the JSON response from the language model by removing markdown code blocks if present.
+
+        :param response: Raw response from the language model
+        :return: Cleaned JSON string
+        """
+        if response.startswith("```json") and response.endswith("```"):
+            response = response[7:-3].strip()
+        return response
+
     def _call_language_model(self, prompt: str) -> str:
         response = self.model.generate_evaluation_response(prompt=prompt)
-        return response
+        if not response:
+            raise ValueError("Received an empty response from the model.")
+        clearn_response = self._clean_json_response(response=response)
+        return clearn_response
