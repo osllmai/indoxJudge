@@ -1,8 +1,6 @@
-import requests
 from loguru import logger
 import sys
 from tenacity import retry, stop_after_attempt, wait_random_exponential
-from anthropic import Anthropic
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -37,6 +35,8 @@ class Anthropic:
             model (str, optional): The model version to use. Defaults to "claude-3-opus-20240229".
             prompt_template (str, optional): The template for formatting prompts. Defaults to None.
         """
+        from anthropic import Anthropic
+
         try:
             logger.info(f"Initializing AnthropicModel with model: {model}")
             self.model = model

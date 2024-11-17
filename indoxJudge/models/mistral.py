@@ -1,8 +1,7 @@
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from loguru import logger
 import sys
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+
 
 # Set up logging
 logger.remove()  # Remove the default logger
@@ -31,6 +30,8 @@ class Mistral:
             api_key (str): The API key for accessing the Mistral AI.
             model (str): The Mistral AI model version to use. Defaults to "mistral-medium-latest".
         """
+        from mistralai.client import MistralClient
+
         try:
             logger.info(f"Initializing Mistral with model: {model}")
             self.model = model
@@ -56,6 +57,8 @@ class Mistral:
             - Up to 6 attempts (1 initial + 5 retries)
             - Exponential backoff with randomization (1-20 seconds)
         """
+        from mistralai.models.chat_completion import ChatMessage
+
         try:
             messages = [ChatMessage(role="user", content=user_message)]
             chat_response = self.client.chat(model=self.model, messages=messages)
