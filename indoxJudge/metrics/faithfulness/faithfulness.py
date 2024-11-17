@@ -10,6 +10,7 @@
 #     Model representing a verdict on the faithfulness of a claim,
 #     including the verdict itself and the reasoning behind it.
 #     """
+
 #     verdict: str
 #     reason: str = Field(default=None)
 
@@ -18,6 +19,7 @@
 #     """
 #     Model representing a list of FaithfulnessVerdict instances.
 #     """
+
 #     verdicts: List[FaithfulnessVerdict]
 
 
@@ -25,6 +27,7 @@
 #     """
 #     Model representing a list of truths extracted from the LLM response.
 #     """
+
 #     truths: List[str]
 
 
@@ -32,6 +35,7 @@
 #     """
 #     Model representing a list of claims extracted from the LLM response.
 #     """
+
 #     claims: List[str]
 
 
@@ -39,6 +43,7 @@
 #     """
 #     Model representing the reason provided for a given score or set of contradictions.
 #     """
+
 #     reason: str
 
 
@@ -47,6 +52,7 @@
 #     Class for evaluating the faithfulness of language model outputs by analyzing
 #     claims, truths, verdicts, and reasons using a specified language model.
 #     """
+
 #     def __init__(self, llm_response, retrieval_context):
 #         """
 #         Initializes the Faithfulness class with the LLM response and retrieval context.
@@ -74,7 +80,7 @@
 #         """
 #         prompt = FaithfulnessTemplate.generate_claims(self.llm_response)
 #         response = self._call_language_model(prompt)
-#         claims = json.loads(response).get('claims', [])
+#         claims = json.loads(response).get("claims", [])
 #         return Claims(claims=claims)
 
 #     def evaluate_truths(self) -> Truths:
@@ -85,7 +91,7 @@
 #         """
 #         prompt = FaithfulnessTemplate.generate_truths(self.llm_response)
 #         response = self._call_language_model(prompt)
-#         truths = json.loads(response).get('truths', [])
+#         truths = json.loads(response).get("truths", [])
 #         return Truths(truths=truths)
 
 #     def evaluate_verdicts(self, claims: List[str]) -> Verdicts:
@@ -97,8 +103,10 @@
 #         """
 #         prompt = FaithfulnessTemplate.generate_verdicts(claims, self.retrieval_context)
 #         response = self._call_language_model(prompt)
-#         verdicts = json.loads(response).get('verdicts', [])
-#         return Verdicts(verdicts=[FaithfulnessVerdict(**verdict) for verdict in verdicts])
+#         verdicts = json.loads(response).get("verdicts", [])
+#         return Verdicts(
+#             verdicts=[FaithfulnessVerdict(**verdict) for verdict in verdicts]
+#         )
 
 #     def evaluate_reason(self, score: float, contradictions: List[str]) -> Reason:
 #         """
@@ -110,7 +118,7 @@
 #         """
 #         prompt = FaithfulnessTemplate.generate_reason(score, contradictions)
 #         response = self._call_language_model(prompt)
-#         reason = json.loads(response).get('reason', '')
+#         reason = json.loads(response).get("reason", "")
 #         return Reason(reason=reason)
 
 #     def calculate_faithfulness_score(self) -> float:
@@ -126,7 +134,7 @@
 #         if not claims:
 #             return 1.0  # No claims to contradict, default to a perfect score.
 
-#         faithful_count = sum(1 for verdict in verdicts if verdict.verdict == 'yes')
+#         faithful_count = sum(1 for verdict in verdicts if verdict.verdict == "yes")
 #         score = faithful_count / len(claims)
 #         return score
 
@@ -139,6 +147,153 @@
 #         """
 #         response = self.model.generate_evaluation_response(prompt=prompt)
 #         return response
+
+
+# from typing import List
+# from pydantic import BaseModel, Field
+# import json
+
+# from .template import FaithfulnessTemplate
+
+
+# class FaithfulnessVerdict(BaseModel):
+#     verdict: str
+#     reason: str = Field(default=None)
+
+
+# class Verdicts(BaseModel):
+#     verdicts: List[FaithfulnessVerdict]
+
+
+# class Truths(BaseModel):
+#     truths: List[str]
+
+
+# class Claims(BaseModel):
+#     claims: List[str]
+
+
+# class Reason(BaseModel):
+#     reason: str
+
+
+# class Faithfulness:
+#     def __init__(self, llm_response, retrieval_context):
+#         try:
+#             print(
+#                 f"##debug Initializing Faithfulness with llm_response: {llm_response}, retrieval_context: {retrieval_context}"
+#             )
+#             self.model = None
+#             self.llm_response = llm_response
+#             self.retrieval_context = retrieval_context
+#         except Exception as e:
+#             print(f"##debug Error during initialization: {e}")
+
+#     def set_model(self, model):
+#         try:
+#             print(f"##debug Setting model: {model}")
+#             self.model = model
+#         except Exception as e:
+#             print(f"##debug Error in set_model: {e}")
+
+#     def evaluate_claims(self) -> Claims:
+#         try:
+#             print(f"##debug Evaluating claims from LLM response: {self.llm_response}")
+#             prompt = FaithfulnessTemplate.generate_claims(self.llm_response)
+#             print(f"##debug Generated prompt for claims: {prompt}")
+#             response = self._call_language_model(prompt)
+#             print(f"##debug Response from language model for claims: {response}")
+#             claims = json.loads(response).get("claims", [])
+#             print(f"##debug Extracted claims: {claims}")
+#             return Claims(claims=claims)
+#         except Exception as e:
+#             print(f"##debug Error in evaluate_claims: {e}")
+#             return Claims(claims=[])
+
+#     def evaluate_truths(self) -> Truths:
+#         try:
+#             print(f"##debug Evaluating truths from LLM response: {self.llm_response}")
+#             prompt = FaithfulnessTemplate.generate_truths(self.llm_response)
+#             print(f"##debug Generated prompt for truths: {prompt}")
+#             response = self._call_language_model(prompt)
+#             print(f"##debug Response from language model for truths: {response}")
+#             truths = json.loads(response).get("truths", [])
+#             print(f"##debug Extracted truths: {truths}")
+#             return Truths(truths=truths)
+#         except Exception as e:
+#             print(f"##debug Error in evaluate_truths: {e}")
+#             return Truths(truths=[])
+
+#     def evaluate_verdicts(self, claims: List[str]) -> Verdicts:
+#         try:
+#             print(f"##debug Evaluating verdicts for claims: {claims}")
+#             prompt = FaithfulnessTemplate.generate_verdicts(
+#                 claims, self.retrieval_context
+#             )
+#             print(f"##debug Generated prompt for verdicts: {prompt}")
+#             response = self._call_language_model(prompt)
+#             print(f"##debug Response from language model for verdicts: {response}")
+#             verdicts = json.loads(response).get("verdicts", [])
+#             print(f"##debug Extracted verdicts: {verdicts}")
+#             return Verdicts(
+#                 verdicts=[FaithfulnessVerdict(**verdict) for verdict in verdicts]
+#             )
+#         except Exception as e:
+#             print(f"##debug Error in evaluate_verdicts: {e}")
+#             return Verdicts(verdicts=[])
+
+#     def evaluate_reason(self, score: float, contradictions: List[str]) -> Reason:
+#         try:
+#             print(
+#                 f"##debug Evaluating reason with score: {score}, contradictions: {contradictions}"
+#             )
+#             prompt = FaithfulnessTemplate.generate_reason(score, contradictions)
+#             print(f"##debug Generated prompt for reason: {prompt}")
+#             response = self._call_language_model(prompt)
+#             print(f"##debug Response from language model for reason: {response}")
+#             reason = json.loads(response).get("reason", "")
+#             print(f"##debug Extracted reason: {reason}")
+#             return Reason(reason=reason)
+#         except Exception as e:
+#             print(f"##debug Error in evaluate_reason: {e}")
+#             return Reason(reason="")
+
+#     def calculate_faithfulness_score(self) -> float:
+#         try:
+#             print(f"##debug Calculating faithfulness score.")
+#             claims = self.evaluate_claims().claims
+#             print(f"##debug Claims for scoring: {claims}")
+#             verdicts = self.evaluate_verdicts(claims).verdicts
+#             print(f"##debug Verdicts for scoring: {verdicts}")
+
+#             if not claims:
+#                 print(
+#                     f"##debug No claims provided. Defaulting to perfect score of 1.0."
+#                 )
+#                 return 1.0
+
+#             faithful_count = sum(1 for verdict in verdicts if verdict.verdict == "yes")
+#             print(
+#                 f"##debug Number of faithful claims: {faithful_count}, Total claims: {len(claims)}"
+#             )
+#             score = faithful_count / len(claims)
+#             print(f"##debug Calculated faithfulness score: {score}")
+#             return score
+#         except Exception as e:
+#             print(f"##debug Error in calculate_faithfulness_score: {e}")
+#             return 0.0
+
+#     def _call_language_model(self, prompt: str) -> str:
+#         try:
+#             print(f"##debug Calling language model with prompt: {prompt}")
+#             response = self.model.generate_evaluation_response(prompt=prompt)
+#             print(f"##debug Language model response: {response}")
+#             return response
+#         except Exception as e:
+#             print(f"##debug Error in _call_language_model: {e}")
+#             return json.dumps({})
+
+
 from typing import List
 from pydantic import BaseModel, Field
 import json
@@ -147,138 +302,159 @@ from .template import FaithfulnessTemplate
 
 
 class FaithfulnessVerdict(BaseModel):
+    """
+    Model representing a verdict on the faithfulness of a claim,
+    including the verdict itself and the reasoning behind it.
+    """
+
     verdict: str
     reason: str = Field(default=None)
 
 
 class Verdicts(BaseModel):
+    """
+    Model representing a list of FaithfulnessVerdict instances.
+    """
+
     verdicts: List[FaithfulnessVerdict]
 
 
 class Truths(BaseModel):
+    """
+    Model representing a list of truths extracted from the LLM response.
+    """
+
     truths: List[str]
 
 
 class Claims(BaseModel):
+    """
+    Model representing a list of claims extracted from the LLM response.
+    """
+
     claims: List[str]
 
 
 class Reason(BaseModel):
+    """
+    Model representing the reason provided for a given score or set of contradictions.
+    """
+
     reason: str
 
 
 class Faithfulness:
+    """
+    Class for evaluating the faithfulness of language model outputs by analyzing
+    claims, truths, verdicts, and reasons using a specified language model.
+    """
+
     def __init__(self, llm_response, retrieval_context):
-        try:
-            print(
-                f"##debug Initializing Faithfulness with llm_response: {llm_response}, retrieval_context: {retrieval_context}"
-            )
-            self.model = None
-            self.llm_response = llm_response
-            self.retrieval_context = retrieval_context
-        except Exception as e:
-            print(f"##debug Error during initialization: {e}")
+        """
+        Initializes the Faithfulness class with the LLM response and retrieval context.
+
+        :param llm_response: The response generated by the language model.
+        :param retrieval_context: The context used for retrieval during evaluation.
+        """
+        self.model = None
+        self.llm_response = llm_response
+        self.retrieval_context = retrieval_context
 
     def set_model(self, model):
-        try:
-            print(f"##debug Setting model: {model}")
-            self.model = model
-        except Exception as e:
-            print(f"##debug Error in set_model: {e}")
+        """
+        Sets the language model to be used for evaluation.
+
+        :param model: The language model to use.
+        """
+        self.model = model
+
+    def _clean_json_response(self, response: str) -> str:
+        """
+        Cleans the JSON response from the language model by removing markdown code blocks if present.
+
+        :param response: Raw response from the language model
+        :return: Cleaned JSON string
+        """
+        if response.startswith("```json") and response.endswith("```"):
+            response = response[7:-3].strip()
+        return response
 
     def evaluate_claims(self) -> Claims:
-        try:
-            print(f"##debug Evaluating claims from LLM response: {self.llm_response}")
-            prompt = FaithfulnessTemplate.generate_claims(self.llm_response)
-            print(f"##debug Generated prompt for claims: {prompt}")
-            response = self._call_language_model(prompt)
-            print(f"##debug Response from language model for claims: {response}")
-            claims = json.loads(response).get("claims", [])
-            print(f"##debug Extracted claims: {claims}")
-            return Claims(claims=claims)
-        except Exception as e:
-            print(f"##debug Error in evaluate_claims: {e}")
-            return Claims(claims=[])
+        """
+        Evaluates and extracts claims from the LLM response.
+
+        :return: A Claims object containing the list of claims.
+        """
+        prompt = FaithfulnessTemplate.generate_claims(self.llm_response)
+        response = self._call_language_model(prompt)
+        cleaned_response = self._clean_json_response(response)
+        claims = json.loads(cleaned_response).get("claims", [])
+        return Claims(claims=claims)
 
     def evaluate_truths(self) -> Truths:
-        try:
-            print(f"##debug Evaluating truths from LLM response: {self.llm_response}")
-            prompt = FaithfulnessTemplate.generate_truths(self.llm_response)
-            print(f"##debug Generated prompt for truths: {prompt}")
-            response = self._call_language_model(prompt)
-            print(f"##debug Response from language model for truths: {response}")
-            truths = json.loads(response).get("truths", [])
-            print(f"##debug Extracted truths: {truths}")
-            return Truths(truths=truths)
-        except Exception as e:
-            print(f"##debug Error in evaluate_truths: {e}")
-            return Truths(truths=[])
+        """
+        Evaluates and extracts truths from the LLM response.
+
+        :return: A Truths object containing the list of truths.
+        """
+        prompt = FaithfulnessTemplate.generate_truths(self.llm_response)
+        response = self._call_language_model(prompt)
+        cleaned_response = self._clean_json_response(response)
+        truths = json.loads(cleaned_response).get("truths", [])
+        return Truths(truths=truths)
 
     def evaluate_verdicts(self, claims: List[str]) -> Verdicts:
-        try:
-            print(f"##debug Evaluating verdicts for claims: {claims}")
-            prompt = FaithfulnessTemplate.generate_verdicts(
-                claims, self.retrieval_context
-            )
-            print(f"##debug Generated prompt for verdicts: {prompt}")
-            response = self._call_language_model(prompt)
-            print(f"##debug Response from language model for verdicts: {response}")
-            verdicts = json.loads(response).get("verdicts", [])
-            print(f"##debug Extracted verdicts: {verdicts}")
-            return Verdicts(
-                verdicts=[FaithfulnessVerdict(**verdict) for verdict in verdicts]
-            )
-        except Exception as e:
-            print(f"##debug Error in evaluate_verdicts: {e}")
-            return Verdicts(verdicts=[])
+        """
+        Evaluates the verdicts on the faithfulness of the given claims.
+
+        :param claims: List of claims to evaluate.
+        :return: A Verdicts object containing the list of verdicts.
+        """
+        prompt = FaithfulnessTemplate.generate_verdicts(claims, self.retrieval_context)
+        response = self._call_language_model(prompt)
+        cleaned_response = self._clean_json_response(response)
+        verdicts = json.loads(cleaned_response).get("verdicts", [])
+        return Verdicts(
+            verdicts=[FaithfulnessVerdict(**verdict) for verdict in verdicts]
+        )
 
     def evaluate_reason(self, score: float, contradictions: List[str]) -> Reason:
-        try:
-            print(
-                f"##debug Evaluating reason with score: {score}, contradictions: {contradictions}"
-            )
-            prompt = FaithfulnessTemplate.generate_reason(score, contradictions)
-            print(f"##debug Generated prompt for reason: {prompt}")
-            response = self._call_language_model(prompt)
-            print(f"##debug Response from language model for reason: {response}")
-            reason = json.loads(response).get("reason", "")
-            print(f"##debug Extracted reason: {reason}")
-            return Reason(reason=reason)
-        except Exception as e:
-            print(f"##debug Error in evaluate_reason: {e}")
-            return Reason(reason="")
+        """
+        Evaluates the reason behind a given score or set of contradictions.
+
+        :param score: The score assigned to the evaluation.
+        :param contradictions: A list of contradictions identified.
+        :return: A Reason object containing the reasoning.
+        """
+        prompt = FaithfulnessTemplate.generate_reason(score, contradictions)
+        response = self._call_language_model(prompt)
+        cleaned_response = self._clean_json_response(response)
+        reason = json.loads(cleaned_response).get("reason", "")
+        return Reason(reason=reason)
 
     def calculate_faithfulness_score(self) -> float:
-        try:
-            print(f"##debug Calculating faithfulness score.")
-            claims = self.evaluate_claims().claims
-            print(f"##debug Claims for scoring: {claims}")
-            verdicts = self.evaluate_verdicts(claims).verdicts
-            print(f"##debug Verdicts for scoring: {verdicts}")
+        """
+        Calculates the faithfulness score based on the claims and their verdicts.
+        The score is the ratio of claims deemed faithful to the total number of claims.
 
-            if not claims:
-                print(
-                    f"##debug No claims provided. Defaulting to perfect score of 1.0."
-                )
-                return 1.0
+        :return: A float representing the faithfulness score (0 to 1).
+        """
+        claims = self.evaluate_claims().claims
+        verdicts = self.evaluate_verdicts(claims).verdicts
 
-            faithful_count = sum(1 for verdict in verdicts if verdict.verdict == "yes")
-            print(
-                f"##debug Number of faithful claims: {faithful_count}, Total claims: {len(claims)}"
-            )
-            score = faithful_count / len(claims)
-            print(f"##debug Calculated faithfulness score: {score}")
-            return score
-        except Exception as e:
-            print(f"##debug Error in calculate_faithfulness_score: {e}")
-            return 0.0
+        if not claims:
+            return 1.0  # No claims to contradict, default to a perfect score.
+
+        faithful_count = sum(1 for verdict in verdicts if verdict.verdict == "yes")
+        score = faithful_count / len(claims)
+        return score
 
     def _call_language_model(self, prompt: str) -> str:
-        try:
-            print(f"##debug Calling language model with prompt: {prompt}")
-            response = self.model.generate_evaluation_response(prompt=prompt)
-            print(f"##debug Language model response: {response}")
-            return response
-        except Exception as e:
-            print(f"##debug Error in _call_language_model: {e}")
-            return json.dumps({})
+        """
+        Calls the language model with the given prompt and returns the response.
+
+        :param prompt: The prompt to provide to the language model.
+        :return: The response from the language model.
+        """
+        response = self.model.generate_evaluation_response(prompt=prompt)
+        return response
