@@ -26,6 +26,7 @@ from indoxJudge.metrics import (
     AdversarialRobustness,
     Privacy,
     RobustnessToAdversarialDemonstrations,
+    SafetyToxicity,
 )
 
 # Set up logging
@@ -97,7 +98,7 @@ class Evaluator:
                         "reason": reason.reason,
                     }
                     self.evaluation_score += score
-                    self.metrics_score["Faithfulness"] = score
+                    self.metrics_score["Faithfulness"] = round(score, 2)
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
                     results["AnswerRelevancy"] = {
@@ -107,7 +108,7 @@ class Evaluator:
                         "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
                     self.evaluation_score += score
-                    self.metrics_score["AnswerRelevancy"] = score
+                    self.metrics_score["AnswerRelevancy"] = round(score, 2)
 
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
@@ -121,7 +122,7 @@ class Evaluator:
                     }
                     self.evaluation_score += score
 
-                    self.metrics_score["KnowledgeRetention"] = score
+                    self.metrics_score["KnowledgeRetention"] = round(score, 2)
                 elif isinstance(metric, Hallucination):
                     score = metric.measure()
                     results["Hallucination"] = {
@@ -131,7 +132,7 @@ class Evaluator:
                     }
                     self.evaluation_score += score
 
-                    self.metrics_score["Hallucination"] = score
+                    self.metrics_score["Hallucination"] = round(score, 2)
                 elif isinstance(metric, Toxicity):
                     score = metric.measure()
                     results["Toxicity"] = {
@@ -142,7 +143,7 @@ class Evaluator:
                     }
                     self.evaluation_score += score
 
-                    self.metrics_score["Toxicity"] = score
+                    self.metrics_score["Toxicity"] = round(score, 2)
 
                 elif isinstance(metric, Bias):
                     score = metric.measure()
@@ -153,7 +154,7 @@ class Evaluator:
                         "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
                     self.evaluation_score += score
-                    self.metrics_score["Bias"] = score
+                    self.metrics_score["Bias"] = round(score, 2)
 
                 elif isinstance(metric, BertScore):
                     score = metric.measure()
@@ -178,13 +179,13 @@ class Evaluator:
                     score = metric.measure()
                     results["BLEU"] = {"score": score}
                     self.evaluation_score += score
-                    self.metrics_score["BLEU"] = score
+                    self.metrics_score["BLEU"] = round(score, 2)
 
                 elif isinstance(metric, Gruen):
                     score = metric.measure()
-                    results["gruen"] = {"score": score[0]}
+                    results["Gruen"] = {"score": score[0]}
                     self.evaluation_score += score[0]
-                    self.metrics_score["gruen"] = score[0]
+                    self.metrics_score["Gruen"] = score[0]
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
                     results["AnswerRelevancy"] = {
@@ -194,7 +195,7 @@ class Evaluator:
                         "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
                     self.evaluation_score += score
-                    self.metrics_score["AnswerRelevancy"] = score
+                    self.metrics_score["AnswerRelevancy"] = round(score, 2)
                 elif isinstance(metric, ContextualRelevancy):
                     irrelevancies = metric.get_irrelevancies(
                         metric.query, metric.retrieval_contexts
@@ -217,14 +218,14 @@ class Evaluator:
                         "score": score,
                     }
                     self.evaluation_score += score
-                    self.metrics_score["ContextualRelevancy"] = score
+                    self.metrics_score["ContextualRelevancy"] = round(score, 2)
                 elif isinstance(metric, GEval):
                     geval_result = metric.g_eval()
                     results["GEval"] = geval_result.replace("\n", " ")
                     geval_data = json.loads(results["GEval"])
                     score = int(geval_data["score"]) / 8
                     self.evaluation_score += score
-                    self.metrics_score["GEval"] = score
+                    self.metrics_score["GEval"] = round(score, 2)
                 elif isinstance(metric, Hallucination):
                     score = metric.measure()
                     results["Hallucination"] = {
@@ -233,7 +234,7 @@ class Evaluator:
                         "verdicts": [verdict.dict() for verdict in metric.verdicts],
                     }
                     self.evaluation_score += 1 - score
-                    self.metrics_score["Hallucination"] = 1 - score
+                    self.metrics_score["Hallucination"] = 1 - round(score, 2)
                 elif isinstance(metric, KnowledgeRetention):
                     score = metric.measure()
                     results["KnowledgeRetention"] = {
@@ -245,7 +246,16 @@ class Evaluator:
                         ],
                     }
                     self.evaluation_score += score
-                    self.metrics_score["KnowledgeRetention"] = score
+                    self.metrics_score["KnowledgeRetention"] = round(score, 2)
+
+                elif isinstance(metric, SafetyToxicity):
+                    score = 1 - metric.calculate_toxicity_score()
+                    reason = metric.get_reason()
+                    results["SafetyToxicity"] = {
+                        "score": score,
+                        "reason": reason.reason,
+                    }
+                    self.metrics_score["SafetyToxicity"] = round(score, 2)
 
                 elif isinstance(metric, METEOR):
                     score = metric.measure()
@@ -256,55 +266,55 @@ class Evaluator:
                     score = metric.calculate_fairness_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
-                    self.metrics_score["Fairness"] = score
+                    self.metrics_score["Fairness"] = round(score, 2)
                     results["Fairness"] = reason.reason
 
                 elif isinstance(metric, Harmfulness):
                     score = metric.calculate_harmfulness_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
-                    self.metrics_score["Harmfulness"] = score
+                    self.metrics_score["Harmfulness"] = round(score, 2)
                     results["Harmfulness"] = reason.reason
 
                 elif isinstance(metric, Privacy):
                     score = metric.calculate_privacy_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
-                    self.metrics_score["Privacy"] = score
+                    self.metrics_score["Privacy"] = round(score, 2)
                     results["Privacy"] = reason.reason
 
                 elif isinstance(metric, Misinformation):
                     score = metric.calculate_misinformation_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
-                    self.metrics_score["Misinformation"] = score
+                    self.metrics_score["Misinformation"] = round(score, 2)
                     results["Misinformation"] = reason.reason
 
                 elif isinstance(metric, MachineEthics):
                     score = metric.calculate_ethics_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
-                    self.metrics_score["MachineEthics"] = score
+                    self.metrics_score["MachineEthics"] = round(score, 2)
                     results["MachineEthics"] = reason.reason
 
                 elif isinstance(metric, ToxicityDiscriminative):
                     score = metric.measure()
                     results["ToxicityDiscriminative"] = {"score": score}
                     self.evaluation_score += score
-                    self.metrics_score["ToxicityDiscriminative"] = score
+                    self.metrics_score["ToxicityDiscriminative"] = round(score, 2)
 
                 elif isinstance(metric, StereotypeBias):
                     score = metric.calculate_stereotype_bias_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
-                    self.metrics_score["StereotypeBias"] = score
+                    self.metrics_score["StereotypeBias"] = round(score, 2)
                     results["StereotypeBias"] = reason.reason
 
                 elif isinstance(metric, OutOfDistributionRobustness):
                     score = metric.calculate_ood_robustness_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
-                    self.metrics_score["OutOfDistributionRobustness"] = score
+                    self.metrics_score["OutOfDistributionRobustness"] = round(score, 2)
                     results["OutOfDistributionRobustness"] = {
                         "score": score,
                         "reason": reason.reason,
@@ -314,7 +324,7 @@ class Evaluator:
                     score = metric.calculate_robustness_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
-                    self.metrics_score["AdversarialRobustness"] = score
+                    self.metrics_score["AdversarialRobustness"] = round(score, 2)
                     results["AdversarialRobustness"] = {
                         "score": score,
                         "reason": reason.reason,
@@ -324,21 +334,34 @@ class Evaluator:
                     score = metric.calculate_privacy_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
-                    self.metrics_score["Privacy"] = score
+                    self.metrics_score["Privacy"] = round(score, 2)
                     results["Privacy"] = {"score": score, "reason": reason.reason}
 
                 elif isinstance(metric, RobustnessToAdversarialDemonstrations):
                     score = metric.calculate_adversarial_robustness_score()
                     reason = metric.get_reason()
                     self.evaluation_score += score
-                    self.metrics_score["RobustnessToAdversarialDemonstrations"] = score
+                    self.metrics_score["RobustnessToAdversarialDemonstrations"] = round(
+                        score, 2
+                    )
                     results["RobustnessToAdversarialDemonstrations"] = {
                         "score": score,
                         "reason": reason.reason,
                     }
 
-                logger.info(f"Completed evaluation for metric: {metric_name}")
-
+                if metric_name != "BertScore":
+                    logger.info(
+                        f"Completed evaluation for metric: {metric_name}, score: {self.metrics_score[metric_name]}"
+                    )
+                else:
+                    logger.info(
+                        f"""
+Completed evaluation for metric: {metric_name}, scores: 
+precision: {self.metrics_score["precision"]},
+recall: {self.metrics_score["recall"]},
+f1_score: {self.metrics_score["f1_score"]},
+                        """
+                    )
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric_name}: {str(e)}")
         self.results = results
