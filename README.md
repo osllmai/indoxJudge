@@ -10,8 +10,8 @@
 </br>
 
 [![License](https://img.shields.io/github/license/osllmai/inDox)](https://github.com/osllmai/inDox/blob/main/LICENSE)
-[![PyPI](https://badge.fury.io/py/indoxJudge.svg)](https://pypi.org/project/IndoxJudge/0.0.9/)
-[![Python](https://img.shields.io/pypi/pyversions/indoxJudge.svg)](https://pypi.org/project/indoxJudge/0.0.9/)
+[![PyPI](https://badge.fury.io/py/indoxJudge.svg)](https://pypi.org/project/IndoxJudge/0.0.10/)
+[![Python](https://img.shields.io/pypi/pyversions/indoxJudge.svg)](https://pypi.org/project/indoxJudge/0.0.10/)
 [![Downloads](https://static.pepy.tech/badge/indoxJudge)](https://pepy.tech/project/indoxJudge)
 
 [![Discord](https://img.shields.io/discord/1223867382460579961?label=Discord&logo=Discord&style=social)](https://discord.com/invite/ossllmai)
@@ -224,15 +224,3 @@ We welcome contributions from the community! If you'd like to contribute, please
 3. Commit your changes (`git commit -am 'Add new feature'`)
 4. Push to the branch (`git push origin feature-branch`)
 5. Create a pull request
-
-این تسک ها رو مهندس در میزیتو قرار بدین
-
-1- داکومنت کردن
-
-2- مدلهای که قراره برای دیتا انوتیشن و ابجکت دیتکشن انجام بدیم
-
-3- عملیلات ابجکت دیتکشن و اکسترکشن و ابجک های خاص مثل تیبل و عکس و اینها
-
-4- ارورهندلندلیک و یونت تست برای لابراری ها
-
-5- آنالیز ارز دیجیتال
