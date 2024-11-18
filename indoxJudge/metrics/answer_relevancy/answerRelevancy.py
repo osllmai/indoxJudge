@@ -3,6 +3,18 @@ from pydantic import BaseModel, Field
 import json
 
 from .template import AnswerRelevancyTemplate
+from loguru import logger
+import sys
+
+# Set up logging
+logger.remove()  # Remove the default logger
+logger.add(
+    sys.stdout, format="<green>{level}</green>: <level>{message}</level>", level="INFO"
+)
+
+logger.add(
+    sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
+)
 
 
 class Statements(BaseModel):
@@ -174,8 +186,20 @@ class AnswerRelevancy:
         return response
 
     def _call_language_model(self, prompt: str) -> str:
+        import tiktoken
+
+        enc = tiktoken.get_encoding("cl100k_base")
+        input_token_count = len(enc.encode(prompt))
         response = self.model.generate_evaluation_response(prompt=prompt)
+
         if not response:
             raise ValueError("Received an empty response from the model.")
-        clearn_response = self._clean_json_response(response=response)
-        return clearn_response
+
+        clean_response = self._clean_json_response(response=response)
+        output_token_count = len(enc.encode(response))
+
+        logger.info(
+            f"Token Counts - Input: {input_token_count} | Output: {output_token_count} | Total: {input_token_count + output_token_count}"
+        )
+
+        return clean_response
