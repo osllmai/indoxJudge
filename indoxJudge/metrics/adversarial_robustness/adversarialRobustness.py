@@ -36,6 +36,8 @@ class AdversarialRobustness:
         self.template = RobustnessTemplate()
         self.input_sentence = input_sentence
         self.robustness_score = 0
+        self.total_input_tokens = 0
+        self.total_output_tokens = 0
 
     def set_model(self, model):
         self.model = model
@@ -95,8 +97,21 @@ class AdversarialRobustness:
         return response
 
     def _call_language_model(self, prompt: str) -> str:
+        import tiktoken
+
+        enc = tiktoken.get_encoding("cl100k_base")
+        input_token_count = len(enc.encode(prompt))
         response = self.model.generate_evaluation_response(prompt=prompt)
+        self.total_input_tokens += input_token_count
+
         if not response:
             raise ValueError("Received an empty response from the model.")
-        clearn_response = self._clean_json_response(response=response)
-        return clearn_response
+
+        clean_response = self._clean_json_response(response=response)
+        output_token_count = len(enc.encode(response))
+        self.total_output_tokens += output_token_count
+        logger.info(
+            f"Token Counts - Input: {input_token_count} | Output: {output_token_count} | Total: {input_token_count + output_token_count}"
+        )
+
+        return clean_response
