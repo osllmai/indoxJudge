@@ -262,7 +262,7 @@ class Rouge:
     def _get_detailed_scores(self) -> Dict:
         """Return detailed ROUGE scores analysis."""
         return {
-            "overall_score": self.score,
+            "overall_score": round(self.score, 3),
             "verdict": self.verdict if self.include_reason else None,
             "detailed_scores": {
                 score.metric: {

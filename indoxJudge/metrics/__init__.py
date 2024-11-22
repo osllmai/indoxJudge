@@ -33,3 +33,7 @@ from .summary.factual_consistency.factualConsistency import FactualConsistency
 from .summary.information_coverage.informationCoverage import InformationCoverage
 from .summary.relevance.relevance import Relevance
 from .summary.rouge.rouge import Rouge
+from .summary.g_eval.GEval import GEval
+from .summary.toxicity.toxicity import Toxicity
+from .summary.bleu.bleu import Bleu
+from .summary.meteor.meteor import Meteor

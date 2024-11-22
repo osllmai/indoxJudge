@@ -9,6 +9,10 @@ from indoxJudge.metrics import (
     InformationCoverage,
     Relevance,
     Rouge,
+    GEval,
+    Toxicity,
+    Bleu,
+    Meteor,
 )
 
 # Set up logging
@@ -33,6 +37,10 @@ class SummaryEvaluator:
             InformationCoverage(summary=summary, source_text=source),
             Relevance(summary=summary, source_text=source),
             Rouge(generated_summary=summary, reference_summary=source),
+            GEval(summary=summary),
+            Toxicity(summary=summary),
+            Bleu(summary=summary, source=source),
+            Meteor(summary=summary, source=source),
         ]
         logger.info("Evaluator initialized with model and metrics.")
         self.set_model_for_metrics()
@@ -119,23 +127,41 @@ class SummaryEvaluator:
                     }
                     self.metrics_score["Rouge"] = res["overall_score"]
 
-                # elif isinstance(metric, BertScore):
-                #     score = metric.measure()
-                #     results["BertScore"] = {
-                #         "precision": score["Precision"],
-                #         "recall": score["Recall"],
-                #         "f1_score": score["F1-score"],
-                #     }
-                #     # self.metrics_score["BertScore"] = score
-                #     self.metrics_score["precision"] = score["Precision"]
-                #     self.metrics_score["recall"] = score["Recall"]
-                #     self.metrics_score["f1_score"] = score["F1-score"]
+                elif isinstance(metric, GEval):
+                    res = metric.measure()
+                    results["GEval"] = {
+                        "score": res["score"],
+                        "grammar_issues": res["grammar_issues"],
+                        "grammar_scores": res["grammar_scores"],
+                        "issue_distribution": res["issue_distribution"],
+                    }
+                    self.metrics_score["GEval"] = res["score"]
 
-                # elif isinstance(metric, BLEU):
-                #     score = metric.measure()
-                #     results["BLEU"] = {"score": score}
-                #     self.metrics_score["BLEU"] = score
-
+                elif isinstance(metric, Toxicity):
+                    res = metric.measure()
+                    results["Toxicity"] = {
+                        "score": res["score"],
+                        "toxic_elements": res["toxic_elements"],
+                        "toxicity_scores": res["toxicity_scores"],
+                        "element_distribution": res["element_distribution"],
+                    }
+                    self.metrics_score["Toxicity"] = res["score"]
+                elif isinstance(metric, Bleu):
+                    res = metric.measure()
+                    results["Bleu"] = {
+                        "score": res["overall_score"],
+                        "verdict": res["verdict"],
+                        "detailed_scores": res["detailed_scores"],
+                    }
+                    self.metrics_score["Bleu"] = res["overall_score"]
+                elif isinstance(metric, Meteor):
+                    res = metric.measure()
+                    results["Meteor"] = {
+                        "score": res["overall_score"],
+                        "verdict": res["verdict"],
+                        "detailed_scores": res["detailed_scores"],
+                    }
+                    self.metrics_score["Meteor"] = res["overall_score"]
                 # elif isinstance(metric, Gruen):
                 #     score = metric.measure()
                 #     results["Gruen"] = {"score": score[0]}
