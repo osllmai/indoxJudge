@@ -78,45 +78,45 @@ class SummaryEvaluator:
                     }
                     self.metrics_score["StructureQuality"] = res["score"]
 
-                elif isinstance(metric, Conciseness):
-                    res = metric.measure()
-                    results["Conciseness"] = {
-                        "score": res["overall_score"],
-                        "metrics": res["metrics"],
-                        "issues": res["issues"],
-                        "suggestions": res["suggestions"],
-                    }
-                    self.metrics_score["Conciseness"] = res["overall_score"]
-                elif isinstance(metric, FactualConsistency):
-                    res = metric.measure()
-                    results["FactualConsistency"] = {
-                        "score": res["score"],
-                        "summary_claims": res["summary_claims"],
-                        "verified_claims": res["verified_claims"],
-                        "category_scores": res["category_scores"],
-                        "consistency_stats": res["consistency_stats"],
-                    }
-                    self.metrics_score["FactualConsistency"] = res["score"]
-                elif isinstance(metric, InformationCoverage):
-                    res = metric.measure()
-                    results["InformationCoverage"] = {
-                        "score": res["score"],
-                        "information_elements": res["information_elements"],
-                        "coverage_scores": res["coverage_scores"],
-                        "coverage_stats": res["coverage_stats"],
-                        "verdicts": res["verdicts"],
-                    }
+                # elif isinstance(metric, Conciseness):
+                #     res = metric.measure()
+                #     results["Conciseness"] = {
+                #         "score": res["overall_score"],
+                #         "metrics": res["metrics"],
+                #         "issues": res["issues"],
+                #         "suggestions": res["suggestions"],
+                #     }
+                #     self.metrics_score["Conciseness"] = res["overall_score"]
+                # elif isinstance(metric, FactualConsistency):
+                #     res = metric.measure()
+                #     results["FactualConsistency"] = {
+                #         "score": res["score"],
+                #         "summary_claims": res["summary_claims"],
+                #         "verified_claims": res["verified_claims"],
+                #         "category_scores": res["category_scores"],
+                #         "consistency_stats": res["consistency_stats"],
+                #     }
+                #     self.metrics_score["FactualConsistency"] = res["score"]
+                # elif isinstance(metric, InformationCoverage):
+                #     res = metric.measure()
+                #     results["InformationCoverage"] = {
+                #         "score": res["score"],
+                #         "information_elements": res["information_elements"],
+                #         "coverage_scores": res["coverage_scores"],
+                #         "coverage_stats": res["coverage_stats"],
+                #         "verdicts": res["verdicts"],
+                #     }
 
-                    self.metrics_score["InformationCoverage"] = res["score"]
-                elif isinstance(metric, Relevance):
-                    res = metric.measure()
-                    results["Relevance"] = {
-                        "score": res["score"],
-                        "key_points": res["key_points"],
-                        "relevance_scores": res["relevance_scores"],
-                        "key_point_coverage": res["key_point_coverage"],
-                    }
-                    self.metrics_score["Relevance"] = res["score"]
+                #     self.metrics_score["InformationCoverage"] = res["score"]
+                # elif isinstance(metric, Relevance):
+                #     res = metric.measure()
+                #     results["Relevance"] = {
+                #         "score": res["score"],
+                #         "key_points": res["key_points"],
+                #         "relevance_scores": res["relevance_scores"],
+                #         "key_point_coverage": res["key_point_coverage"],
+                #     }
+                #     self.metrics_score["Relevance"] = res["score"]
 
                 elif isinstance(metric, Rouge):
                     res = metric.measure()
@@ -127,25 +127,25 @@ class SummaryEvaluator:
                     }
                     self.metrics_score["Rouge"] = res["overall_score"]
 
-                elif isinstance(metric, GEval):
-                    res = metric.measure()
-                    results["GEval"] = {
-                        "score": res["score"],
-                        "grammar_issues": res["grammar_issues"],
-                        "grammar_scores": res["grammar_scores"],
-                        "issue_distribution": res["issue_distribution"],
-                    }
-                    self.metrics_score["GEval"] = res["score"]
+                # elif isinstance(metric, GEval):
+                #     res = metric.measure()
+                #     results["GEval"] = {
+                #         "score": res["score"],
+                #         "grammar_issues": res["grammar_issues"],
+                #         "grammar_scores": res["grammar_scores"],
+                #         "issue_distribution": res["issue_distribution"],
+                #     }
+                #     self.metrics_score["GEval"] = res["score"]
 
-                elif isinstance(metric, Toxicity):
-                    res = metric.measure()
-                    results["Toxicity"] = {
-                        "score": res["score"],
-                        "toxic_elements": res["toxic_elements"],
-                        "toxicity_scores": res["toxicity_scores"],
-                        "element_distribution": res["element_distribution"],
-                    }
-                    self.metrics_score["Toxicity"] = res["score"]
+                # elif isinstance(metric, Toxicity):
+                #     res = metric.measure()
+                #     results["Toxicity"] = {
+                #         "score": res["score"],
+                #         "toxic_elements": res["toxic_elements"],
+                #         "toxicity_scores": res["toxicity_scores"],
+                #         "element_distribution": res["element_distribution"],
+                #     }
+                #     self.metrics_score["Toxicity"] = res["score"]
                 elif isinstance(metric, Bleu):
                     res = metric.measure()
                     results["Bleu"] = {

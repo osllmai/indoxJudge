@@ -114,13 +114,13 @@ class Bleu:
         return precision, details
 
     def _brevity_penalty(self, generated_len: int, reference_len: int) -> float:
-        """Calculate brevity penalty with more tolerance for length differences."""
-        if generated_len > reference_len * 0.75:  # More lenient length requirement
+        """Calculate brevity penalty"""
+        if generated_len > reference_len:
             return 1.0
         elif generated_len == 0:
             return 0.0
         else:
-            return math.exp(1 - (reference_len / generated_len) * 0.75)
+            return math.exp(1 - (reference_len / generated_len))
 
     def _calculate_bleu_score(self) -> Tuple[float, List[float], float, Dict]:
         """Calculate BLEU score with detailed metrics."""
