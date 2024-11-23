@@ -1,6 +1,10 @@
-import json
-
+from typing import Dict, List, Union, Optional
+from skcriteria import mkdm
+from skcriteria.madm import simple
+import numpy as np
+from dataclasses import dataclass
 from loguru import logger
+
 import sys
 from indoxJudge.metrics import (
     StructureQuality,
@@ -13,6 +17,7 @@ from indoxJudge.metrics import (
     Toxicity,
     Bleu,
     Meteor,
+    BertScore,
 )
 
 # Set up logging
@@ -23,6 +28,47 @@ logger.add(
 logger.add(
     sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
 )
+
+
+@dataclass
+class EvaluationWeights:
+    """Predefined weights for different evaluation aspects"""
+
+    SEMANTIC_SIMILARITY = {
+        "BertScore": 0.15,  # Strong semantic similarity measure
+        "Rouge": 0.12,  # Traditional summary evaluation metric
+        "Meteor": 0.08,  # Good for paraphrase detection
+        "Bleu": 0.05,  # Basic overlap metric
+    }
+
+    CONTENT_QUALITY = {
+        "FactualConsistency": 0.15,  # Critical for accuracy
+        "InformationCoverage": 0.12,  # Important for completeness
+        "Relevance": 0.10,  # Ensures summary captures key points
+    }
+
+    STRUCTURE_QUALITY = {
+        "StructureQuality": 0.08,  # Readable and well-organized
+        "Conciseness": 0.07,  # Efficient information presentation
+    }
+
+    SAFETY_METRICS = {
+        "Toxicity": 0.04,  # Ensure safe content
+        "GEval": 0.04,  # General evaluation quality
+    }
+
+    @classmethod
+    def get_all_weights(cls) -> Dict[str, float]:
+        """Combine all weights into a single dictionary"""
+        weights = {}
+        for category in [
+            cls.SEMANTIC_SIMILARITY,
+            cls.CONTENT_QUALITY,
+            cls.STRUCTURE_QUALITY,
+            cls.SAFETY_METRICS,
+        ]:
+            weights.update(category)
+        return weights
 
 
 class SummaryEvaluator:
@@ -41,11 +87,13 @@ class SummaryEvaluator:
             Toxicity(summary=summary),
             Bleu(summary=summary, source=source),
             Meteor(summary=summary, source=source),
+            BertScore(generated=summary, reference=source),
         ]
         logger.info("Evaluator initialized with model and metrics.")
         self.set_model_for_metrics()
         self.metrics_score = {}
         self.results = {}
+        self.weights = EvaluationWeights.get_all_weights()
 
     def set_model_for_metrics(self):
         """
@@ -150,9 +198,9 @@ class SummaryEvaluator:
                     res = metric.measure()
                     results["Bleu"] = {
                         "score": res["overall_score"],
-                        "verdict": res["verdict"],
-                        "detailed_scores": res["detailed_scores"],
+                        "dic": res["detailed_scores"],
                     }
+
                     self.metrics_score["Bleu"] = res["overall_score"]
                 elif isinstance(metric, Meteor):
                     res = metric.measure()
@@ -162,23 +210,16 @@ class SummaryEvaluator:
                         "detailed_scores": res["detailed_scores"],
                     }
                     self.metrics_score["Meteor"] = res["overall_score"]
-                # elif isinstance(metric, Gruen):
-                #     score = metric.measure()
-                #     results["Gruen"] = {"score": score[0]}
-                #     self.metrics_score["Gruen"] = score[0]
-                #                 if metric_name != "BertScore":
-                #                     logger.info(
-                #                         f"Completed evaluation for metric: {metric_name}, score: {self.metrics_score[metric_name]}"
-                #                     )
-                #                 else:
-                #                     logger.info(
-                #                         f"""
-                # Completed evaluation for metric: {metric_name}, scores:
-                # precision: {self.metrics_score["precision"]},
-                # recall: {self.metrics_score["recall"]},
-                # f1_score: {self.metrics_score["f1_score"]},
-                #                         """
-                #                     )
+                elif isinstance(metric, BertScore):
+                    res = metric.measure()
+                    results["BertScore"] = {
+                        "score": res["overall_score"],
+                        "verdict": res["verdict"],
+                        "detailed_scores": res["detailed_scores"],
+                    }
+
+                    self.metrics_score["BertScore"] = res["overall_score"]
+
                 logger.info(
                     f"Completed evaluation for metric: {metric_name}, score: {self.metrics_score[metric_name]}"
                 )
@@ -193,7 +234,90 @@ class SummaryEvaluator:
 
         # results["evaluation_score"] = evaluation_score
         self.results = results
-        # return results
+
+    ## MCDA Score
+    def _normalize_scores(self, metrics: Dict[str, float]) -> Dict[str, float]:
+        """Normalize scores to [0,1] range and handle inverse metrics"""
+        normalized = metrics.copy()
+
+        # Inverse metrics (where lower is better)
+        inverse_metrics = {"Toxicity"}
+        for metric in inverse_metrics:
+            if metric in normalized:
+                normalized[metric] = 1 - normalized[metric]
+
+        # Ensure all values are in [0,1]
+        for key, value in normalized.items():
+            if value < 0:
+                normalized[key] = 0
+            elif value > 1:
+                normalized[key] = 1
+
+        return normalized
+
+    def _validate_metrics_and_weights(self) -> None:
+        """Validate that all metrics have corresponding weights and vice versa"""
+        metric_set = set(self.metrics_score.keys()) - {"evaluation_score"}
+        weight_set = set(self.weights.keys())
+
+        missing_weights = metric_set - weight_set
+        unused_weights = weight_set - metric_set
+
+        if missing_weights:
+            raise ValueError(f"Missing weights for metrics: {missing_weights}")
+        if unused_weights:
+            logger.warning(f"Unused weights for metrics: {unused_weights}")
+
+    def calculate_evaluation_score(self) -> float:
+        """Calculate final evaluation score using MCDA"""
+        try:
+            # Remove existing evaluation score if present
+            evaluation_metrics = self.metrics_score.copy()
+            evaluation_metrics.pop("evaluation_score", None)
+
+            # Validate metrics and weights
+            self._validate_metrics_and_weights()
+
+            # Normalize scores
+            normalized_metrics = self._normalize_scores(evaluation_metrics)
+
+            # Prepare data for MCDA
+            metric_names = list(normalized_metrics.keys())
+            metric_values = [normalized_metrics[metric] for metric in metric_names]
+            weight_values = [self.weights[metric] for metric in metric_names]
+
+            # Create decision matrix
+            dm = mkdm(
+                matrix=[metric_values],
+                objectives=[max] * len(metric_values),
+                weights=weight_values,
+                criteria=metric_names,
+            )
+
+            # Apply Weighted Sum Model
+            saw = simple.WeightedSumModel()
+            rank = saw.evaluate(dm)
+            final_score = rank.e_["score"].item()
+
+            # Ensure score is in [0,1] range and round to 2 decimals
+            final_score = max(0, min(1, final_score))
+            return round(final_score, 2)
+
+        except Exception as e:
+            logger.error(f"Error calculating evaluation score: {str(e)}")
+            raise
+
+    def get_metric_contributions(self) -> Dict[str, float]:
+        """Calculate how much each metric contributes to final score"""
+        normalized_metrics = self._normalize_scores(self.metrics_score)
+        contributions = {}
+
+        for metric, score in normalized_metrics.items():
+            if metric != "evaluation_score":
+                weight = self.weights.get(metric, 0)
+                contributions[metric] = round(score * weight, 4)
+
+        return dict(sorted(contributions.items(), key=lambda x: x[1], reverse=True))
 
     # def _evaluation_score_llm_mcda(self):
     #     from skcriteria import mkdm
@@ -209,17 +333,17 @@ class SummaryEvaluator:
 
     #     # Weights for each metric
     #     weights = {
-    #         "Faithfulness": 0.2,
-    #         "AnswerRelevancy": 0.15,
-    #         "Bias": 0.1,
-    #         "Hallucination": 0.15,
-    #         "KnowledgeRetention": 0.1,
-    #         "Toxicity": 0.1,
-    #         "precision": 0.05,
-    #         "recall": 0.05,
-    #         "f1_score": 0.05,
-    #         "BLEU": 0.025,
-    #         "gruen": 0.025,
+    #         'StructureQuality': ,
+    #         'Conciseness': ,
+    #         'FactualConsistency': ,
+    #         'InformationCoverage': ,
+    #         'Relevance':,
+    #         'Rouge': ,
+    #         'GEval': ,
+    #         'Toxicity': ,
+    #         'Bleu': ,
+    #         'Meteor': ,
+    #         'BertScore':
     #     }
 
     #     # Convert metrics and weights to lists

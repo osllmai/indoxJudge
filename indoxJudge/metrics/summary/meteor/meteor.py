@@ -41,10 +41,10 @@ class Meteor:
         self,
         summary: str,
         source: str,
-        alpha: float = 0.85,  # Adjusted for summarization
-        beta: float = 2.0,  # Reduced penalty for fragmentation
-        gamma: float = 0.4,  # Reduced penalty weight
-        weights: List[float] = None,  # Weights for different match types
+        alpha: float = 0.85,
+        beta: float = 2.0,
+        gamma: float = 0.4,
+        weights: List[float] = None,
         include_reason: bool = True,
     ):
         self.generated = summary
@@ -56,7 +56,7 @@ class Meteor:
             1.0,
             0.8,
             0.6,
-        ]  # Increased weights for stem and synonym matches
+        ]
 
         self.include_reason = include_reason
         self.model = None

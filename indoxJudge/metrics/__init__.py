@@ -37,3 +37,4 @@ from .summary.g_eval.GEval import GEval
 from .summary.toxicity.toxicity import Toxicity
 from .summary.bleu.bleu import Bleu
 from .summary.meteor.meteor import Meteor
+from .summary.bert_score.bertScore import BertScore

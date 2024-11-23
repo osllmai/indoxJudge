@@ -4,11 +4,13 @@ from loguru import logger
 import json
 import re
 from collections import Counter
-import numpy as np
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams
 import nltk
 import math
+
 from .bleuTemplate import BleuTemplate
 
 
@@ -44,7 +46,7 @@ class Bleu:
     ):
         self.generated = summary
         self.reference = source
-        self.weights = weights or [0.4, 0.3, 0.2, 0.1]
+        self.weights = weights or [0.9, 0.1, 0.000, 0.000]
         self.include_reason = include_reason
         self.model = None
         self.total_input_tokens = 0
@@ -74,13 +76,23 @@ class Bleu:
         }
 
     def _preprocess_text(self, text: str) -> List[str]:
-        """Preprocess text for BLEU calculation."""
+        """Preprocess text with lemmatization only."""
+        nltk.download("wordnet")
+        lemmatizer = WordNetLemmatizer()
+
         # Convert to lowercase
         text = text.lower()
-        # Remove special characters and extra whitespace
-        text = re.sub(r"[^a-z0-9\s]", "", text)
+
+        # Remove special characters while preserving apostrophes
+        text = re.sub(r"[^a-z0-9\'\s]", "", text)
+
         # Tokenize
-        return word_tokenize(text)
+        tokens = word_tokenize(text)
+
+        # Apply lemmatization to each token
+        tokens = [lemmatizer.lemmatize(token) for token in tokens]
+
+        return tokens
 
     def _count_ngrams(self, tokens: List[str], n: int) -> Counter:
         """Count n-grams in the token list."""
@@ -114,13 +126,13 @@ class Bleu:
         return precision, details
 
     def _brevity_penalty(self, generated_len: int, reference_len: int) -> float:
-        """Calculate brevity penalty"""
-        if generated_len > reference_len:
+        """Calculate brevity penalty with more tolerance for length differences."""
+        if generated_len > reference_len * 0.35:
             return 1.0
         elif generated_len == 0:
             return 0.0
         else:
-            return math.exp(1 - (reference_len / generated_len))
+            return math.exp(1 - (reference_len / generated_len) * 0.35)
 
     def _calculate_bleu_score(self) -> Tuple[float, List[float], float, Dict]:
         """Calculate BLEU score with detailed metrics."""
