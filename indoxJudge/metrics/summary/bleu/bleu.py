@@ -101,21 +101,24 @@ class Bleu:
     def _modified_precision(
         self, generated_tokens: List[str], reference_tokens: List[str], n: int
     ) -> Tuple[float, Dict]:
-        """Calculate modified precision"""
+        """Calculate modified precision with proper clipping"""
         generated_ngrams = self._count_ngrams(generated_tokens, n)
         reference_ngrams = self._count_ngrams(reference_tokens, n)
 
-        # Add smoothing for higher order n-grams
-        smoothing = 1.0 if n <= 2 else (0.5 ** (n - 2))
+        # Add minimal smoothing for higher order n-grams
+        smoothing = 1e-7 if n <= 2 else (1e-7 * (n - 1))
 
         clipped_counts = Counter()
         for ngram, count in generated_ngrams.items():
-            clipped_counts[ngram] = min(count, reference_ngrams[ngram]) + smoothing
+            clipped_counts[ngram] = min(count, reference_ngrams[ngram])
 
         denominator = max(sum(generated_ngrams.values()), 1)
         numerator = sum(clipped_counts.values())
 
-        precision = numerator / (denominator + smoothing)
+        # Apply smoothing to both numerator and denominator
+        precision = (numerator + smoothing) / (denominator + smoothing)
+
+        precision = min(precision, 1.0)
 
         details = {
             f"matching_{n}grams": numerator,
@@ -126,23 +129,23 @@ class Bleu:
         return precision, details
 
     def _brevity_penalty(self, generated_len: int, reference_len: int) -> float:
-        """Calculate brevity penalty with more tolerance for length differences."""
-        if generated_len > reference_len * 0.35:
+        """Calculate brevity penalty with proper scaling"""
+        if generated_len >= reference_len:
             return 1.0
         elif generated_len == 0:
             return 0.0
         else:
-            return math.exp(1 - (reference_len / generated_len) * 0.35)
+            return math.exp(1 - (reference_len / generated_len))
 
     def _calculate_bleu_score(self) -> Tuple[float, List[float], float, Dict]:
-        """Calculate BLEU score with detailed metrics."""
+        """Calculate BLEU score with proper bounds"""
         generated_tokens = self._preprocess_text(self.generated)
         reference_tokens = self._preprocess_text(self.reference)
 
         # Calculate modified precisions for n-grams
         precisions = []
         details = {}
-        for n in range(1, 5):  # BLEU-1 to BLEU-4
+        for n in range(1, 3):
             precision, detail = self._modified_precision(
                 generated_tokens, reference_tokens, n
             )
@@ -152,10 +155,12 @@ class Bleu:
         # Calculate brevity penalty
         bp = self._brevity_penalty(len(generated_tokens), len(reference_tokens))
 
-        # Calculate final score
+        # Calculate final score with proper bounds
         if min(precisions) > 0:
             log_precisions = [w * math.log(p) for w, p in zip(self.weights, precisions)]
             score = bp * math.exp(sum(log_precisions))
+            # Ensure final score is bounded between 0 and 1
+            score = min(max(score, 0.0), 1.0)
         else:
             score = 0.0
 

@@ -1,5 +1,5 @@
-import json
 from typing import List, Dict
+import json
 
 
 class CoverageTemplate:
@@ -12,9 +12,13 @@ class CoverageTemplate:
 4. Relationships (connections, causes, effects)
 5. Conclusions (outcomes, implications, or recommendations)
 
-For each element, indicate its importance (0.0-1.0).
+For each element:
+- Assign importance score between 0.0-1.0
+- Consider relative importance within the text
+- Ensure importance scores are well-distributed
+- Maximum score of 1.0 reserved for truly critical elements
 
-Return only in JSON format with elements grouped by category.
+IMPORTANT: Return only in JSON format with elements grouped by category.
 Example:
 {{
     "elements": [
@@ -39,12 +43,26 @@ JSON:"""
     @staticmethod
     def evaluate_coverage(summary: str, elements: List[Dict]) -> str:
         elements_json = json.dumps(elements, indent=2)
-        return f"""Evaluate how well the summary covers each information element. For each category, provide:
-1. A coverage score (0.0-1.0)
-2. List of elements covered and missed
-3. Reason for the score
+        return f"""Evaluate how well the summary covers each information element.
 
-Consider both explicit and implicit coverage, but make sure the meaning is preserved.
+Scoring Guidelines:
+- Score range: 0.0 to 1.0 (never exceed 1.0)
+- 1.0: Perfect coverage with all key details
+- 0.8-0.9: Strong coverage with minor omissions
+- 0.6-0.7: Adequate coverage with some gaps
+- 0.4-0.5: Partial coverage with significant gaps
+- 0.0-0.3: Poor coverage or major omissions
+
+For each category, provide:
+1. Coverage score following above guidelines
+2. List of elements covered and missed
+3. Clear reason for the score
+
+Consider:
+- Weight importance scores in evaluation
+- Check both explicit and implicit coverage
+- Verify meaning preservation
+- Normalize scores to ensure they never exceed 1.0
 
 IMPORTANT: Return only in JSON format.
 Example:
@@ -72,7 +90,17 @@ JSON:"""
     def generate_final_verdict(
         scores: Dict, weighted_score: float, coverage_stats: Dict
     ) -> str:
+        # Ensure weighted_score is bounded
+        bounded_score = min(max(weighted_score, 0.0), 1.0)
+
         return f"""Based on the coverage analysis, provide a concise assessment of the summary's information coverage.
+
+Guidelines for verdict:
+- Focus on coverage quality and completeness
+- Highlight strengths and gaps
+- Consider importance weights
+- Maintain consistency with scores
+- Ensure all metrics are properly bounded (0-1)
 
 Coverage Scores:
 {json.dumps(scores, indent=2)}
@@ -80,7 +108,7 @@ Coverage Scores:
 Coverage Statistics:
 {json.dumps(coverage_stats, indent=2)}
 
-Final Weighted Score: {weighted_score:.2f}
+Final Weighted Score: {bounded_score:.2f}
 
 Return only in JSON format with a 'verdict' key.
 Example:
