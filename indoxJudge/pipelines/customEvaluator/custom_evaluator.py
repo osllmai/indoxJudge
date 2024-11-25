@@ -27,6 +27,7 @@ from indoxJudge.metrics import (
     Privacy,
     RobustnessToAdversarialDemonstrations,
     SafetyToxicity,
+    FactualConsistency,
 )
 
 # Set up logging
@@ -332,7 +333,16 @@ class Evaluator:
                         "score": score,
                         "reason": reason.reason,
                     }
-
+                elif isinstance(metric, FactualConsistency):
+                    res = metric.measure()
+                    results["FactualConsistency"] = {
+                        "score": res["score"],
+                        "summary_claims": res["summary_claims"],
+                        "verified_claims": res["verified_claims"],
+                        "category_scores": res["category_scores"],
+                        "consistency_stats": res["consistency_stats"],
+                    }
+                    self.metrics_score["FactualConsistency"] = res["score"]
                 if metric_name != "BertScore":
                     logger.info(
                         f"Completed evaluation for metric: {metric_name}, score: {self.metrics_score[metric_name]}"
