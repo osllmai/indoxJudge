@@ -73,6 +73,7 @@ class Meteor:
         nltk.download("punkt")
         nltk.download("wordnet")
         nltk.download("averaged_perceptron_tagger")
+        nltk.download("averaged_perceptron_tagger_eng")
 
         score, matches, fragmentation, details = self._calculate_meteor_score()
 
