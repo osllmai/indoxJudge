@@ -11,12 +11,12 @@ from indoxJudge.metrics import (
     FactualConsistency,
     InformationCoverage,
     Relevance,
-    Rouge,
-    GEval,
-    Toxicity,
-    Bleu,
-    Meteor,
-    BertScore,
+    SummaryGEval as GEval,
+    SummaryRouge as Rouge,
+    SummaryToxicity as Toxicity,
+    SummaryBleu as Bleu,
+    SummaryMeteor as Meteor,
+    SummaryBertScore as BertScore,
 )
 
 # Set up logging
