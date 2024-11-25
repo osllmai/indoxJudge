@@ -37,6 +37,7 @@ class InformationCoverage:
         self.summary = summary
         self.source_text = source_text
         self.importance_threshold = importance_threshold
+
         self.category_weights = category_weights or {
             "core_facts": 0.35,
             "supporting_details": 0.25,
@@ -44,6 +45,7 @@ class InformationCoverage:
             "relationships": 0.15,
             "conclusions": 0.10,
         }
+        self._validate_and_normalize_weights()
         self.model = None
         self.total_input_tokens = 0
         self.total_output_tokens = 0
@@ -51,10 +53,26 @@ class InformationCoverage:
     def set_model(self, model):
         self.model = model
 
+    def _validate_and_normalize_weights(self):
+        """Validate weights and normalize them to ensure they sum to 1.0"""
+        if any(weight < 0 for weight in self.category_weights.values()):
+            raise ValueError("Category weights cannot be negative")
+
+        weight_sum = sum(self.category_weights.values())
+
+        if abs(weight_sum - 1.0) > 0.0001:
+            logger.warning(f"Category weights sum to {weight_sum}, normalizing to 1.0")
+            self.category_weights = {
+                category: weight / weight_sum
+                for category, weight in self.category_weights.items()
+            }
+
     def measure(self) -> float:
         self.information_elements = self._extract_information_elements()
         self.coverage_scores = self._evaluate_coverage()
-        self.score = self._calculate_weighted_score()
+        self.score = (
+            self._calculate_weighted_score()
+        )  # This will now always be between 0 and 1
         self.coverage_stats = self._calculate_coverage_statistics()
         self.verdict = self._generate_final_verdict()
 
@@ -63,6 +81,7 @@ class InformationCoverage:
             f"Total Output: {self.total_output_tokens} | "
             f"Total: {self.total_input_tokens + self.total_output_tokens}"
         )
+
         return {
             "score": round(self.score, 3),
             "information_elements": self.information_elements,
@@ -131,12 +150,51 @@ class InformationCoverage:
         }
 
     def _calculate_weighted_score(self) -> float:
+        """Calculate the weighted score with proper category matching and normalization"""
         total_score = 0.0
+        weights_used = 0.0
+
+        # Create mapping of normalized category names
+        category_map = {
+            category.lower().replace(" ", "_"): weight
+            for category, weight in self.category_weights.items()
+        }
+
+        # Debug logging
+        logger.debug(f"Available categories: {list(category_map.keys())}")
+        logger.debug(
+            f"Found verdicts: {[v.category.lower().replace(' ', '_') for v in self.coverage_scores]}"
+        )
+
         for verdict in self.coverage_scores:
+            # Normalize the category name from the verdict
             category = verdict.category.lower().replace(" ", "_")
-            weight = self.category_weights.get(category, 0.2)
+
+            # Look up weight using normalized category name
+            weight = category_map.get(category)
+
+            if weight is None:
+                logger.warning(f"No weight found for category: {category}")
+                continue
+
+            if not 0 <= verdict.score <= 1:
+                logger.warning(
+                    f"Invalid score {verdict.score} for category {category}, clamping to [0,1]"
+                )
+                verdict.score = max(0, min(1, verdict.score))
+
             total_score += verdict.score * weight
-        return total_score
+            weights_used += weight
+
+        if abs(weights_used - 1.0) > 0.0001:
+            logger.warning(
+                f"Not all category weights were used. Total weights used: {weights_used}. \n"
+                f"Expected categories: {list(self.category_weights.keys())} \n"
+                f"Found categories: {[v.category for v in self.coverage_scores]}"
+            )
+
+        # Ensure final score is properly bounded
+        return max(0, min(1, total_score))
 
     def _generate_final_verdict(self) -> str:
         scores_dict = [score.dict() for score in self.coverage_scores]

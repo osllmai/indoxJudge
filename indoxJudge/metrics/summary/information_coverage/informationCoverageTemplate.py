@@ -6,11 +6,13 @@ class CoverageTemplate:
     @staticmethod
     def extract_information_elements(text: str) -> str:
         return f"""Analyze the text and identify key information elements in these categories:
-1. Core Facts (main events, findings, or claims)
-2. Supporting Details (evidence, examples, or explanations)
-3. Context (background information, setting, or framework)
-4. Relationships (connections, causes, effects)
-5. Conclusions (outcomes, implications, or recommendations)
+1. Core Facts (main events, findings, or claims) - use category "core_facts"
+2. Supporting Details (evidence, examples, or explanations) - use category "supporting_details"
+3. Context (background information, setting, or framework) - use category "context"
+4. Relationships (connections, causes, effects) - use category "relationships"
+5. Conclusions (outcomes, implications, or recommendations) - use category "conclusions"
+
+IMPORTANT: Use exactly these category names in your response. All categories must be included in the response, even if empty.
 
 For each element:
 - Assign importance score between 0.0-1.0
@@ -18,7 +20,7 @@ For each element:
 - Ensure importance scores are well-distributed
 - Maximum score of 1.0 reserved for truly critical elements
 
-IMPORTANT: Return only in JSON format with elements grouped by category.
+Return only in JSON format with elements grouped by category.
 Example:
 {{
     "elements": [
@@ -43,7 +45,20 @@ JSON:"""
     @staticmethod
     def evaluate_coverage(summary: str, elements: List[Dict]) -> str:
         elements_json = json.dumps(elements, indent=2)
+        categories = [
+            "core_facts",
+            "supporting_details",
+            "context",
+            "relationships",
+            "conclusions",
+        ]
+
         return f"""Evaluate how well the summary covers each information element.
+
+Use exactly these category names:
+{', '.join(categories)}
+
+IMPORTANT: You must include a verdict for ALL categories listed above, even if no elements were found for that category.
 
 Scoring Guidelines:
 - Score range: 0.0 to 1.0 (never exceed 1.0)
@@ -58,13 +73,6 @@ For each category, provide:
 2. List of elements covered and missed
 3. Clear reason for the score
 
-Consider:
-- Weight importance scores in evaluation
-- Check both explicit and implicit coverage
-- Verify meaning preservation
-- Normalize scores to ensure they never exceed 1.0
-
-IMPORTANT: Return only in JSON format.
 Example:
 {{
     "scores": [
@@ -74,6 +82,13 @@ Example:
             "elements_covered": ["fact 1", "fact 2"],
             "elements_missed": ["fact 3"],
             "reason": "Summary captures main findings but misses one key statistic"
+        }},
+        {{
+            "category": "supporting_details",
+            "score": 1.0,
+            "elements_covered": [],
+            "elements_missed": [],
+            "reason": "No supporting details found in source text"
         }}
     ]
 }}

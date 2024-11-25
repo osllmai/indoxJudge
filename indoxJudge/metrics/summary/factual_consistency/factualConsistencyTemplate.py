@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict
 import json
 
 
@@ -6,15 +6,13 @@ class FactualConsistencyTemplate:
     @staticmethod
     def extract_claims(text: str) -> str:
         return f"""Extract all factual claims from the text and categorize them into:
-1. Numerical Claims (statistics, measurements, dates)
-2. Entity Claims (about people, organizations, places)
-3. Causal Claims (cause-effect relationships)
-4. Descriptive Claims (properties, characteristics)
-5. Comparative Claims (comparisons, rankings)
+1. Numerical Claims (statistics, measurements, dates) - use category "numerical_claims"
+2. Entity Claims (about people, organizations, places) - use category "entity_claims"
+3. Causal Claims (cause-effect relationships) - use category "causal_claims"
+4. Descriptive Claims (properties, characteristics) - use category "descriptive_claims"
+5. Comparative Claims (comparisons, rankings) - use category "comparative_claims"
 
-For identical or nearly identical text comparison, exact matches should be treated as fully consistent.
-
-IMPORTANT: Return only in JSON format with meaningful categorization.
+IMPORTANT: Use exactly these category names in your response. Return only in JSON format.
 
 Example:
 {{
@@ -24,12 +22,6 @@ Example:
             "claim": "The study involved 500 participants",
             "context": "Sample size description in methodology",
             "text_span": "involved 500 participants"
-        }},
-        {{
-            "category": "causal_claims",
-            "claim": "The intervention reduced anxiety by targeting stress responses",
-            "context": "Discussion of mechanism of action",
-            "text_span": "reduced anxiety by targeting stress responses"
         }}
     ]
 }}
@@ -61,8 +53,6 @@ Error types should only be assigned if there's a genuine discrepancy:
 - unsupported: No supporting evidence found
 - oversimplification: Significant loss of accuracy
 
-For identical or nearly identical texts, claims should receive high consistency scores (0.9-1.0) when the content matches.
-
 IMPORTANT: Return only in JSON format.
 Example:
 {{
@@ -75,7 +65,7 @@ Example:
             "explanation": "Exact match found in source text"
         }},
         {{
-            "claim": "The study showed 50% improvement",
+            "claim": "The study showed a 50% improvement",
             "source_evidence": "The study demonstrated a 48% improvement rate",
             "consistency_score": 0.9,
             "error_type": "minor_exaggeration",
@@ -94,39 +84,46 @@ JSON:"""
 
     @staticmethod
     def generate_category_verdict(verified_claims: List[Dict]) -> str:
-        return f"""Analyze the verified claims and provide a verdict for each category of claims.
-Calculate scores based on:
-1. Exact matches should receive maximum category scores
-2. Average consistency scores for each category
-3. Proportion of fully consistent claims
-4. Impact of any errors on overall reliability
+        categories = [
+            "numerical_claims",
+            "entity_claims",
+            "causal_claims",
+            "descriptive_claims",
+            "comparative_claims",
+        ]
 
-For identical or nearly identical texts, category scores should reflect the high consistency.
+        return f"""Analyze the verified claims and provide a verdict for each category.
+    Use exactly these category names:
+    {', '.join(categories)}
 
-IMPORTANT: Return only in JSON format.
-Example:
-{{
-    "scores": [
-        {{
-            "category": "numerical_claims",
+    IMPORTANT: You must include a verdict for ALL categories listed above, even if no claims were found for that category (use score 1.0 for empty categories).
+
+    Calculate scores based on:
+    1. Average consistency scores for each category
+    2. Proportion of fully consistent claims
+    3. Impact of any errors on overall reliability
+
+    All fields must match this format:
+    - "consistent_claims": List of strings (one claim per entry)
+    - "inconsistent_claims": List of dictionaries (each with "claim" and "reason")
+
+    Example:
+    {{
+        "scores": [
+            {{"category": "numerical_claims",
             "score": 1.0,
             "consistent_claims": ["The study had 500 participants"],
             "inconsistent_claims": [],
-            "reason": "All numerical claims exactly match source text"
-        }},
-        {{
-            "category": "causal_claims",
-            "score": 0.85,
-            "consistent_claims": ["Treatment reduced symptoms"],
-            "inconsistent_claims": [
-                {{"claim": "Treatment cured all conditions", "error": "Unsupported generalization"}}
-            ],
-            "reason": "Most causal claims accurate with one unsupported claim"
-        }}
-    ]
-}}
+            "reason": "All numerical claims exactly match source text"}},
+            {{"category": "entity_claims",
+            "score": 1.0,
+            "consistent_claims": [],
+            "inconsistent_claims": [],
+            "reason": "No entity claims found in the text"}}
+        ]
+    }}
 
-Verified Claims:
-{json.dumps(verified_claims, indent=2)}
+    Verified Claims:
+    {json.dumps(verified_claims, indent=2)}
 
-JSON:"""
+    JSON:"""
