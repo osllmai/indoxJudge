@@ -61,9 +61,7 @@ class StructureQuality:
         total_score = 0.0
         for verdict in self.structure_scores:
             aspect_name = verdict.aspect.lower().replace(" ", "_")
-            weight = self.weights.get(
-                aspect_name, 0.25
-            )  # Default weight if not specified
+            weight = self.weights.get(aspect_name, 0.25)
             total_score += verdict.score * weight
         return total_score
 

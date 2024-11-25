@@ -74,6 +74,7 @@ class Rouge:
     def measure(self) -> float:
         """Calculate ROUGE scores and return weighted average."""
         nltk.download("punkt")
+        nltk.download("punkt_tab")
         self.rouge_scores = self._calculate_rouge_scores()
         self.score = self._calculate_weighted_score()
         if self.include_reason:
