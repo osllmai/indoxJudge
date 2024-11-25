@@ -64,6 +64,7 @@ class LLMEvaluator:
         logger.info("Evaluator initialized with model and metrics.")
         self.set_model_for_metrics()
         self.metrics_score = {}
+        self.results = {}
 
     def set_model_for_metrics(self):
         """
@@ -85,20 +86,18 @@ class LLMEvaluator:
         for metric in self.metrics:
             metric_name = metric.__class__.__name__
             try:
+                print("\n" + "=" * 50)
                 logger.info(f"Evaluating metric: {metric_name}")
                 if isinstance(metric, Faithfulness):
-                    claims = metric.evaluate_claims()
-                    truths = metric.evaluate_truths()
-                    verdicts = metric.evaluate_verdicts(claims.claims)
-                    reason = metric.evaluate_reason(verdicts, truths.truths)
-                    score = metric.calculate_faithfulness_score()
+                    res = metric.calculate_faithfulness_score()
                     results["Faithfulness"] = {
-                        "claims": claims.claims,
-                        "truths": truths.truths,
-                        "verdicts": [verdict.__dict__ for verdict in verdicts.verdicts],
-                        "score": score,
-                        "reason": reason.reason,
+                        "claims": res["claims"],
+                        "truths": res["truths"],
+                        "verdicts": [verdict.__dict__ for verdict in res["verdicts"]],
+                        "score": res["score"],
+                        "reason": res["reason"],
                     }
+                    score = res["score"]
                     self.metrics_score["Faithfulness"] = round(score, 2)
 
                 elif isinstance(metric, AnswerRelevancy):
@@ -194,8 +193,8 @@ f1_score: {self.metrics_score["f1_score"]},
         self.metrics_score["evaluation_score"] = evaluation_score
 
         results["evaluation_score"] = evaluation_score
-
-        return results
+        self.results = results
+        # return results
 
     def _evaluation_score_llm_mcda(self):
         from skcriteria import mkdm

@@ -178,6 +178,18 @@ from pydantic import BaseModel, Field
 import json
 
 from .template import KnowledgeRetentionTemplate
+from loguru import logger
+import sys
+
+# Set up logging
+logger.remove()  # Remove the default logger
+logger.add(
+    sys.stdout, format="<green>{level}</green>: <level>{message}</level>", level="INFO"
+)
+
+logger.add(
+    sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
+)
 
 
 class Knowledge(BaseModel):
@@ -231,6 +243,8 @@ class KnowledgeRetention:
         self.reason = None
         self.score = None
         self.success = None
+        self.total_output_tokens = 0
+        self.total_input_tokens = 0
 
     def set_model(self, model):
         """
@@ -266,6 +280,9 @@ class KnowledgeRetention:
         self.reason = self._generate_reason(knowledge_retention_score)
         self.success = knowledge_retention_score >= self.threshold
         self.score = knowledge_retention_score
+        logger.info(
+            f"Token Usage Summary:\n Total Input: {self.total_input_tokens} | Total Output: {self.total_output_tokens} | Total: {self.total_input_tokens + self.total_output_tokens}"
+        )
         return self.score
 
     def _generate_reason(self, score: float) -> str:
@@ -365,15 +382,33 @@ class KnowledgeRetention:
 
         return knowledges
 
-    def _call_language_model(self, prompt: str) -> str:
+    def _clean_json_response(self, response: str) -> str:
         """
-        Calls the language model with the given prompt and returns the response.
+        Cleans the JSON response from the language model by removing markdown code blocks if present.
 
-        Parameters:
-        prompt (str): The prompt to provide to the language model.
-
-        Returns:
-        str: The response from the language model.
+        :param response: Raw response from the language model
+        :return: Cleaned JSON string
         """
-        response = self.model.generate_evaluation_response(prompt=prompt)
+        if response.startswith("```json") and response.endswith("```"):
+            response = response[7:-3].strip()
         return response
+
+    def _call_language_model(self, prompt: str) -> str:
+        import tiktoken
+
+        enc = tiktoken.get_encoding("cl100k_base")
+        input_token_count = len(enc.encode(prompt))
+        response = self.model.generate_evaluation_response(prompt=prompt)
+        self.total_input_tokens += input_token_count
+
+        if not response:
+            raise ValueError("Received an empty response from the model.")
+
+        clean_response = self._clean_json_response(response=response)
+        output_token_count = len(enc.encode(response))
+        self.total_output_tokens += output_token_count
+        logger.info(
+            f"Token Counts - Input: {input_token_count} | Output: {output_token_count}"
+        )
+
+        return clean_response

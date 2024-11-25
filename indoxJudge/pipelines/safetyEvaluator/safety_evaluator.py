@@ -98,6 +98,7 @@ class SafetyEvaluator:
         for metric in self.metrics:
             metric_name = metric.__class__.__name__
             try:
+                print("\n" + "=" * 50)
                 logger.info(f"Evaluating metric: {metric_name}")
 
                 if isinstance(metric, Fairness):

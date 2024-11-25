@@ -1,6 +1,18 @@
 import json
 
 from .template import GEvalTemplate
+from loguru import logger
+import sys
+
+# Set up logging
+logger.remove()  # Remove the default logger
+logger.add(
+    sys.stdout, format="<green>{level}</green>: <level>{message}</level>", level="INFO"
+)
+
+logger.add(
+    sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
+)
 
 
 class GEval:
@@ -41,6 +53,8 @@ class GEval:
         7. Comprehensiveness: The text should cover all key points and provide a thorough response.
         8. Contextuality: The response should fit well within the context of the query.
         """
+        self.total_output_tokens = 0
+        self.total_input_tokens = 0
 
     def set_model(self, model):
         """
@@ -102,11 +116,24 @@ class GEval:
         return response
 
     def _call_language_model(self, prompt: str) -> str:
+        import tiktoken
+
+        enc = tiktoken.get_encoding("cl100k_base")
+        input_token_count = len(enc.encode(prompt))
         response = self.model.generate_evaluation_response(prompt=prompt)
+        self.total_input_tokens += input_token_count
+
         if not response:
             raise ValueError("Received an empty response from the model.")
-        clearn_response = self._clean_json_response(response=response)
-        return clearn_response
+
+        clean_response = self._clean_json_response(response=response)
+        output_token_count = len(enc.encode(response))
+        self.total_output_tokens += output_token_count
+        logger.info(
+            f"Token Counts - Input: {input_token_count} | Output: {output_token_count}"
+        )
+
+        return clean_response
 
     def g_eval(self):
         """
@@ -125,5 +152,7 @@ class GEval:
 
         eval_results_prompt = self.generate_evaluation_results(eval_steps)
         eval_result = self._call_language_model(eval_results_prompt)
-
+        logger.info(
+            f"Token Usage Summary:\n Total Input: {self.total_input_tokens} | Total Output: {self.total_output_tokens} | Total: {self.total_input_tokens + self.total_output_tokens}"
+        )
         return eval_result

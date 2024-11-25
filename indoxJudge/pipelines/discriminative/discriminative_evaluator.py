@@ -4,19 +4,20 @@ from typing import Tuple, Dict, List
 
 from loguru import logger
 
-from indoxJudge.metrics import (ToxicityDiscriminative)
+from indoxJudge.metrics import ToxicityDiscriminative
 
 # Set up logging
 logger.remove()
-logger.add(sys.stdout,
-           format="<green>{level}</green>: <level>{message}</level>",
-           level="INFO")
-logger.add(sys.stdout,
-           format="<red>{level}</red>: <level>{message}</level>",
-           level="ERROR")
+logger.add(
+    sys.stdout, format="<green>{level}</green>: <level>{message}</level>", level="INFO"
+)
+logger.add(
+    sys.stdout, format="<red>{level}</red>: <level>{message}</level>", level="ERROR"
+)
 
 
 from loguru import logger
+
 
 class DiscriminativeToxicityEvaluator:
     def __init__(self, model, dataset_path, num_columns: int = None):
@@ -27,8 +28,12 @@ class DiscriminativeToxicityEvaluator:
         try:
             self.model = model
             self.metrics = [
-                ToxicityDiscriminative(dataset_path=dataset_path, num_columns=num_columns)
+                ToxicityDiscriminative(
+                    dataset_path=dataset_path, num_columns=num_columns
+                )
             ]
+            print("\n" + "=" * 50)
+
             logger.info("Evaluator initialized with model and metrics.")
             self.set_model_for_metrics()
             self.evaluation_score = 0
@@ -49,7 +54,7 @@ class DiscriminativeToxicityEvaluator:
         """
         try:
             for metric in self.metrics:
-                if hasattr(metric, 'set_model'):
+                if hasattr(metric, "set_model"):
                     metric.set_model(self.model)
             logger.info("Model set for all metrics.")
 
@@ -71,9 +76,7 @@ class DiscriminativeToxicityEvaluator:
                 # For ToxicityDiscriminative
                 if isinstance(metric, ToxicityDiscriminative):
                     score = metric.measure()
-                    results['ToxicityDiscriminative'] = {
-                        'accuracy_score': score
-                    }
+                    results["ToxicityDiscriminative"] = {"accuracy_score": score}
                     self.metrics_score["ToxicityDiscriminative"] = score
 
                 logger.info(f"Completed evaluation for metric: {metric_name}")
@@ -89,11 +92,8 @@ class DiscriminativeToxicityEvaluator:
 
         evaluation_metrics = self.metrics_score.copy()
         if "evaluation_score" in evaluation_metrics:
-            del evaluation_metrics['evaluation_score']
-        weights = {
-            'ToxicityDiscriminative': 0.05
-
-        }
+            del evaluation_metrics["evaluation_score"]
+        weights = {"ToxicityDiscriminative": 0.05}
 
         metric_values = list(evaluation_metrics.values())
         weight_values = list(weights.values())
@@ -102,15 +102,14 @@ class DiscriminativeToxicityEvaluator:
             matrix=[metric_values],
             objectives=[max] * len(metric_values),
             weights=weight_values,
-            criteria=list(evaluation_metrics.keys())
+            criteria=list(evaluation_metrics.keys()),
         )
 
         saw = simple.WeightedSumModel()
         rank = saw.evaluate(dm)
-        final_score_array = rank.e_['score']
+        final_score_array = rank.e_["score"]
 
         return round(final_score_array.item(), 2)
-
 
     def plot(self, mode="external", interpreter=None):
         """
@@ -123,25 +122,35 @@ class DiscriminativeToxicityEvaluator:
         """
         from indoxJudge.graph import Visualization
         from indoxJudge.utils import create_model_dict
-        metrics = self.metrics_score.copy()
-        del metrics['evaluation_score']
-        score = self.metrics_score['evaluation_score']
-        graph_input = create_model_dict(name="Safety Evaluator", metrics=metrics,
-                                        score=score)
 
+        metrics = self.metrics_score.copy()
+        del metrics["evaluation_score"]
+        score = self.metrics_score["evaluation_score"]
+        graph_input = create_model_dict(
+            name="Safety Evaluator", metrics=metrics, score=score
+        )
 
         if interpreter:
-            interpret = interpreter.generate_interpretation(models_data=graph_input, mode="safety")
+            interpret = interpreter.generate_interpretation(
+                models_data=graph_input, mode="safety"
+            )
             parsed_response = json.loads(interpret)
 
-
-            bar_chart = parsed_response.get('bar_chart', 'Bar chart interpretation not found.')
-            gauge_chart = parsed_response.get('gauge_chart', 'Gauge chart interpretation not found.')
+            bar_chart = parsed_response.get(
+                "bar_chart", "Bar chart interpretation not found."
+            )
+            gauge_chart = parsed_response.get(
+                "gauge_chart", "Gauge chart interpretation not found."
+            )
             chart_interpretations = {
-                'Bar Chart': bar_chart,
-                'Gauge Chart': gauge_chart,
+                "Bar Chart": bar_chart,
+                "Gauge Chart": gauge_chart,
             }
-            visualization = Visualization(data=graph_input, mode="safety", chart_interpretations=chart_interpretations)
+            visualization = Visualization(
+                data=graph_input,
+                mode="safety",
+                chart_interpretations=chart_interpretations,
+            )
 
         else:
             visualization = Visualization(data=graph_input, mode="safety")
@@ -150,8 +159,9 @@ class DiscriminativeToxicityEvaluator:
 
     def format_for_analyzer(self, name):
         from indoxJudge.utils import create_model_dict
+
         metrics = self.metrics_score.copy()
-        del metrics['evaluation_score']
-        score = self.metrics_score['evaluation_score']
+        del metrics["evaluation_score"]
+        score = self.metrics_score["evaluation_score"]
         analyzer_input = create_model_dict(name=name, score=score, metrics=metrics)
         return analyzer_input

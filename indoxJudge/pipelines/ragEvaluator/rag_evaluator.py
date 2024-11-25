@@ -194,23 +194,20 @@ class RagEvaluator:
         for metric in self.metrics:
             metric_name = metric.__class__.__name__
             try:
+                print("\n" + "=" * 50)
                 logger.info(f"Evaluating metric: {metric_name}")
 
                 if isinstance(metric, Faithfulness):
-                    claims = metric.evaluate_claims()
-                    truths = metric.evaluate_truths()
-                    verdicts = metric.evaluate_verdicts(claims.claims)
-                    reason = metric.evaluate_reason(verdicts, truths.truths)
-                    score = metric.calculate_faithfulness_score()
+                    res = metric.calculate_faithfulness_score()
                     results["Faithfulness"] = {
-                        "claims": claims.claims,
-                        "truths": truths.truths,
-                        "verdicts": [verdict.__dict__ for verdict in verdicts.verdicts],
-                        "score": round(score, 2),
-                        "reason": reason.reason,
+                        "claims": res["claims"],
+                        "truths": res["truths"],
+                        "verdicts": [verdict.__dict__ for verdict in res["verdicts"]],
+                        "score": res["score"],
+                        "reason": res["reason"],
                     }
                     self._calculate_metric_score(
-                        parameter="Faithfulness", score=round(score, 2)
+                        parameter="Faithfulness", score=round(res["score"], 2)
                     )
                 elif isinstance(metric, AnswerRelevancy):
                     score = metric.measure()
@@ -225,28 +222,38 @@ class RagEvaluator:
                     )
 
                 elif isinstance(metric, ContextualRelevancy):
-                    irrelevancies = metric.get_irrelevancies(
-                        metric.query, metric.retrieval_contexts
-                    )
-                    metric.set_irrelevancies(irrelevancies)
-                    verdicts = metric.get_verdicts(
-                        metric.query, metric.retrieval_contexts
-                    )
-                    score = (
-                        1.0
-                        if not irrelevancies
-                        else max(
-                            0, 1.0 - len(irrelevancies) / len(metric.retrieval_contexts)
-                        )
-                    )
-                    reason = metric.get_reason(irrelevancies, score)
+                    # irrelevancies = metric.get_irrelevancies(
+                    #     metric.query, metric.retrieval_contexts
+                    # )
+                    # metric.set_irrelevancies(irrelevancies)
+                    # verdicts = metric.get_verdicts(
+                    #     metric.query, metric.retrieval_contexts
+                    # )
+                    # score = (
+                    #     1.0
+                    #     if not irrelevancies
+                    #     else max(
+                    #         0, 1.0 - len(irrelevancies) / len(metric.retrieval_contexts)
+                    #     )
+                    # )
+                    # reason = metric.get_reason(irrelevancies, score)
+                    # results["ContextualRelevancy"] = {
+                    #     "verdicts": [verdict.dict() for verdict in verdicts.verdicts],
+                    #     "reason": reason.dict(),
+                    #     "score": round(score, 2),
+                    # }
+                    # self._calculate_metric_score(
+                    #     parameter="ContextualRelevancy", score=round(score, 2)
+                    # )
+                    res = metric.measure()
                     results["ContextualRelevancy"] = {
-                        "verdicts": [verdict.dict() for verdict in verdicts.verdicts],
-                        "reason": reason.dict(),
-                        "score": round(score, 2),
+                        "verdicts": res["verdicts"],
+                        "reason": res["reason"],
+                        "score": res["score"],
                     }
+
                     self._calculate_metric_score(
-                        parameter="ContextualRelevancy", score=round(score, 2)
+                        parameter="ContextualRelevancy", score=round(res["score"], 2)
                     )
 
                 elif isinstance(metric, GEval):
