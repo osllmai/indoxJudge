@@ -69,6 +69,7 @@ class Meteor:
 
     def measure(self) -> Dict:
         """Calculate METEOR score and return detailed results."""
+        nltk.download("punkt_tab")
         nltk.download("punkt")
         nltk.download("wordnet")
         nltk.download("averaged_perceptron_tagger")

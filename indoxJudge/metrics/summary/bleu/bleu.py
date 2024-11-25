@@ -58,6 +58,7 @@ class Bleu:
     def measure(self) -> Dict:
         """Calculate BLEU score and return detailed results."""
         nltk.download("punkt")
+        nltk.download("punkt_tab")
         score, precisions, bp, details = self._calculate_bleu_score()
 
         bleu_score = BleuScore(
